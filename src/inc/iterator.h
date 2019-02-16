@@ -219,8 +219,8 @@ class CheckedIteratorBase
     {
         LIMITED_METHOD_CONTRACT;
         SUPPORTS_DAC;
-#if defined(_DEBUG)
-        __if_exists(CONTAINER::m_revision)
+#if defined(_DEBUG) && 0
+        if (CONTAINER::m_revision)
         {
             CHECK_MSG(m_revision == m_container->m_revision, 
                       "Use of Iterator after container has been modified");
@@ -240,9 +240,9 @@ class CheckedIteratorBase
     CheckedIteratorBase(const CONTAINER *container)
     {
         LIMITED_METHOD_CONTRACT;
-#if defined(_DEBUG)
+#if defined(_DEBUG) && 0
         m_container = container;
-        __if_exists(CONTAINER::m_revision)
+        if (CONTAINER::m_revision)
         {
             m_revision = m_container->m_revision;
         }
@@ -253,8 +253,8 @@ class CheckedIteratorBase
     {
         LIMITED_METHOD_DAC_CONTRACT;
 
-#if defined(_DEBUG)
-        __if_exists(CONTAINER::m_revision)
+#if defined(_DEBUG) && 0
+        if (CONTAINER::m_revision)
         {
             m_revision = m_container->m_revision;
         }
