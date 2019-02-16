@@ -89,13 +89,13 @@ namespace Windows {
                 /* [out][retval] */ __RPC__deref_out_opt Windows::System::IDispatcherQueue **result) = 0;
         };
 
-        extern const __declspec(selectany) IID & IID_IDispatcherQueueStatics = __uuidof(IDispatcherQueueStatics);
+        extern const SELECTANY IID & IID_IDispatcherQueueStatics = __uuidof(IDispatcherQueueStatics);
     }
 }
 
 #ifndef RUNTIMECLASS_Windows_System_DispatcherQueue_DEFINED
 #define RUNTIMECLASS_Windows_System_DispatcherQueue_DEFINED
-    extern const __declspec(selectany) _Null_terminated_ WCHAR RuntimeClass_Windows_System_DispatcherQueue[] = L"Windows.System.DispatcherQueue";
+    extern const SELECTANY _Null_terminated_ WCHAR RuntimeClass_Windows_System_DispatcherQueue[] = L"Windows.System.DispatcherQueue";
 #endif
 
 #endif // _WINRTDISPATCHERQUEUE_H
