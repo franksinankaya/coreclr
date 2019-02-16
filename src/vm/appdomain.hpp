@@ -3441,8 +3441,13 @@ public:
 
     //****************************************************************************************
     // Methods used to get the callers module and hence assembly and app domain.
-    __declspec(deprecated("This method is deprecated, use the version that takes a StackCrawlMark instead"))
-    static Module* GetCallersModule(int skip);
+#if defined(_MSC_VER) || defined(__llvm__)
+    #define DEPRECATED(msg) __declspec(deprecated(msg))
+#else
+    #define DEPRECATED(msg) __attribute__((deprecated))
+#endif
+
+    static DEPRECATED("This method is deprecated, use the version that takes a StackCrawlMark instead")  Module* GetCallersModule(int skip);
     static MethodDesc* GetCallersMethod(StackCrawlMark* stackMark, AppDomain **ppAppDomain = NULL);
     static MethodTable* GetCallersType(StackCrawlMark* stackMark, AppDomain **ppAppDomain = NULL);
     static Module* GetCallersModule(StackCrawlMark* stackMark, AppDomain **ppAppDomain = NULL);
