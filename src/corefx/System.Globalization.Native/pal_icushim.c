@@ -55,7 +55,7 @@ static int FindICULibs(const char* versionPrefix, char* symbolName, char* symbol
 // plus 20 to give us enough headspace. The ICU seems to version about twice
 // a year.
 static const int MinICUVersion = U_ICU_VERSION_MAJOR_NUM;
-static const int MaxICUVersion = MinICUVersion + 20;
+static const int MaxICUVersion = U_ICU_VERSION_MAJOR_NUM + 20;
 static const int MinMinorICUVersion = 1;
 static const int MaxMinorICUVersion = 5;
 static const int MinSubICUVersion = 1;
