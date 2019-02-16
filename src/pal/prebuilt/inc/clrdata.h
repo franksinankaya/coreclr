@@ -10,8 +10,9 @@
  /* File created by MIDL compiler version 8.00.0603 */
 /* @@MIDL_FILE_HEADING(  ) */
 
+#if defined(_MSC_VER) || defined(__llvm__)
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
-
+#endif
 
 /* verify that the <rpcndr.h> version is high enough to compile this file*/
 #ifndef __REQUIRED_RPCNDR_H_VERSION__
