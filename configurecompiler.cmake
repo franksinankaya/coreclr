@@ -478,6 +478,7 @@ if (CLR_CMAKE_PLATFORM_UNIX)
     add_compile_options(-Wno-unused-variable)
     add_compile_options(-Wno-unused-but-set-variable)
     add_compile_options(-Wno-discarded-qualifiers)
+    add_compile_options(-Wno-attributes)
     set(FEATURE_EVENT_TRACE "0")
   endif()
 
