@@ -22,7 +22,7 @@
 
 #define DECLSPEC_UUID(x) //DECLARE_CROSS_PLATFORM_UUIDOF(x) //__declspec(uuid(x))
 #define MIDL_INTERFACE(x)   struct //DECLSPEC_UUID(x) DECLSPEC_NOVTABLE
-#define __uuidof(a) { 0, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0}}
+#define __uuidof(a) (IID){0}  //GUID("000001dc-0000-0000-C000-000000000046")
 
 #define EXTERN_GUID(itf,l1,s1,s2,c1,c2,c3,c4,c5,c6,c7,c8) \
     EXTERN_C const IID DECLSPEC_SELECTANY itf = {l1,s1,s2,{c1,c2,c3,c4,c5,c6,c7,c8}}
