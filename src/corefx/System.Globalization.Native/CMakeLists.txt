@@ -10,7 +10,9 @@ set(ICU_HOMEBREW_INC_PATH "/usr/local/opt/icu4c/include")
 include(configure.cmake)
 
 add_compile_options(-fPIC)
-add_compile_options(-Wno-incompatible-pointer-types-discards-qualifiers)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  add_compile_options(-Wno-incompatible-pointer-types-discards-qualifiers)
+endif()
 
 set(NATIVEGLOBALIZATION_SOURCES
     pal_calendarData.c
