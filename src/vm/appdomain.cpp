@@ -2733,7 +2733,7 @@ PTR_AppDomain SystemDomain::TestGetAppDomainAtIndex(ADIndex index)
     index.m_dwIndex--;
 
 #ifndef DACCESS_COMPILE
-    _ASSERTE(index.m_dwIndex < (DWORD)m_appDomainIndexList.GetCount());
+    _ASSERTE(index.m_dwIndex < (DWORD_PTR)m_appDomainIndexList.GetCount());
     AppDomain *pAppDomain = (AppDomain*) m_appDomainIndexList.Get(index.m_dwIndex);
 #else // DACCESS_COMPILE
     PTR_ArrayListStatic pList = &m_appDomainIndexList;
@@ -3743,7 +3743,7 @@ void AppDomain::Init()
     }
     else
     {
-        m_handleStore = GCHandleUtilities::GetGCHandleManager()->CreateHandleStore((void*)(uintptr_t)m_dwIndex.m_dwIndex);
+        m_handleStore = GCHandleUtilities::GetGCHandleManager()->CreateHandleStore((void*)m_dwIndex.m_dwIndex);
     }
 
     if (!m_handleStore)

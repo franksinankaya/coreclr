@@ -530,10 +530,10 @@ inline bool FitsInU1(uint64_t val)
 
 struct ADIndex
 {
-    DWORD m_dwIndex;
+    DWORD_PTR m_dwIndex;
 
     ADIndex () : m_dwIndex(RH_DEFAULT_DOMAIN_ID) {}
-    explicit ADIndex (DWORD id) : m_dwIndex(id) {}
+    explicit ADIndex (DWORD_PTR id) : m_dwIndex(id) {}
     BOOL operator==(const ADIndex& ad) const { return m_dwIndex == ad.m_dwIndex; }
     BOOL operator!=(const ADIndex& ad) const { return m_dwIndex != ad.m_dwIndex; }
 };

@@ -686,11 +686,11 @@ GVAL_DECL(SIZE_T, g_runtimeVirtualSize);
 // This is useful for fast array based lookup from a number to an appdomain property.  
 struct ADIndex
 {
-    DWORD m_dwIndex;
+    DWORD_PTR m_dwIndex;
     ADIndex ()
     : m_dwIndex(0)
     {}
-    explicit ADIndex (DWORD id)
+    explicit ADIndex (DWORD_PTR id)
     : m_dwIndex(id)
     {
         SUPPORTS_DAC;

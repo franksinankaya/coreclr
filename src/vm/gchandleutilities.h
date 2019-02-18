@@ -42,7 +42,7 @@ inline OBJECTREF ObjectFromHandle(OBJECTHANDLE handle)
 
 #if defined(_DEBUG_IMPL) && !defined(DACCESS_COMPILE)
     // not allowed to dispatch virtually on a IGCHandleManager when compiling for DAC
-    DWORD context = (DWORD)GCHandleUtilities::GetGCHandleManager()->GetHandleContext(handle);
+    DWORD_PTR context = (DWORD_PTR)GCHandleUtilities::GetGCHandleManager()->GetHandleContext(handle);
     OBJECTREF objRef = ObjectToOBJECTREF(*(Object**)handle);
 
     ValidateObjectAndAppDomain(objRef, ADIndex(context));
