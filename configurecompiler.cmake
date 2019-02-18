@@ -482,6 +482,8 @@ if (CLR_CMAKE_PLATFORM_UNIX)
     set(FEATURE_EVENT_TRACE "0")
     add_compile_options(-fms-extensions)
     add_compile_options(-Wno-narrowing)
+    add_compile_options(-Wno-invalid-offsetof)
+    add_compile_options(-Wno-unknown-pragmas)
   endif()
 
   # Some architectures (e.g., ARM) assume char type is unsigned while CoreCLR assumes char is signed
