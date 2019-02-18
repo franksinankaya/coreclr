@@ -59,7 +59,7 @@ typedef IID CLSID;
 #define MIDL_DEFINE_GUID(type,name,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) \
         const type name = {l,w1,w2,{b1,b2,b3,b4,b5,b6,b7,b8}}
 
-#endif !_MIDL_USE_GUIDDEF_
+#endif // !_MIDL_USE_GUIDDEF_
 
 MIDL_DEFINE_GUID(IID, IID_ICLRPrivAppXRuntime,0x6D2DF5A4,0xFA3A,0x4481,0x8B,0xA0,0x04,0x22,0xFD,0x21,0x72,0x0F);
 
