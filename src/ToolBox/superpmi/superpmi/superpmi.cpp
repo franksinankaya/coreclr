@@ -183,7 +183,7 @@ int __cdecl main(int argc, char* argv[])
     }
 
     LogVerbose("Using jit(%s) with input (%s)", o.nameOfJit, o.nameOfInputMethodContextFile);
-    std::string indexesStr = " indexCount=";
+    std::string indexesStr(" indexCount=");
     indexesStr += std::to_string(o.indexCount);
     indexesStr += " (";
     for (int i = 0; i < o.indexCount; i++)

@@ -298,7 +298,7 @@ CleanUp:
 void Logger::LogExceptionMessage(
     const char* function, const char* file, int line, DWORD exceptionCode, const char* msg, ...)
 {
-    std::string fullMsg = "Exception thrown: ";
+    std::string fullMsg = std::string("Exception thrown: ");
     fullMsg += msg;
 
     va_list argList;
