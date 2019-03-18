@@ -2329,7 +2329,7 @@ bool Compiler::fgRemoveDeadStore(GenTree**        pTree,
                     }
                 }
 
-                /* No side effects - remove the whole statement from the block->bbTreeList */
+                /* No side effects - remove the whole statement from the block->getBBTreeList() */
 
                 fgRemoveStmt(compCurBB, compCurStmt);
 
