@@ -4187,7 +4187,7 @@ unsigned Compiler::GetSsaNumForLocalVarDef(GenTree* lcl)
     }
     else
     {
-        return lcl->AsLclVarCommon()->gtSsaNum;
+        return lcl->AsLclVarCommon()->GetSsaNum();
     }
 }
 
