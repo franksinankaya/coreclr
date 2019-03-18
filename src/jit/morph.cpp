@@ -15292,7 +15292,7 @@ bool Compiler::fgFoldConditional(BasicBlock* block)
 
     if (block->bbJumpKind == BBJ_COND)
     {
-        noway_assert(block->bbTreeList && block->bbTreeList->gtPrev);
+        noway_assert(block->getBBTreeList() && block->getBBTreeList()->gtPrev);
 
         GenTreeStmt* lastStmt = block->lastStmt();
 
@@ -15500,7 +15500,7 @@ bool Compiler::fgFoldConditional(BasicBlock* block)
     }
     else if (block->bbJumpKind == BBJ_SWITCH)
     {
-        noway_assert(block->bbTreeList && block->bbTreeList->gtPrev);
+        noway_assert(block->getBBTreeList() && block->getBBTreeList()->gtPrev);
 
         GenTreeStmt* lastStmt = block->lastStmt();
 
@@ -15798,7 +15798,7 @@ void Compiler::fgMorphStmts(BasicBlock* block, bool* lnot, bool* loadw)
 
 #ifdef DEBUG
         compCurStmtNum++;
-        if (stmt == block->bbTreeList)
+        if (stmt == block->getBBTreeList())
         {
             block->bbStmtNum = compCurStmtNum; // Set the block->bbStmtNum
         }
