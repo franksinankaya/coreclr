@@ -8450,12 +8450,12 @@ GenTree* Compiler::fgMorphCall(GenTreeCall* call)
             assert(treeWithCall == call);
         }
 #endif
-        GenTreeStmt* nextMorphStmt = fgMorphStmt->gtNextStmt;
+        GenTreeStmt* nextMorphStmt = fgMorphStmt->getNextStmt();
         // Remove all stmts after the call.
         while (nextMorphStmt != nullptr)
         {
             GenTreeStmt* stmtToRemove = nextMorphStmt;
-            nextMorphStmt             = stmtToRemove->gtNextStmt;
+            nextMorphStmt             = stmtToRemove->getNextStmt();
             fgRemoveStmt(compCurBB, stmtToRemove);
         }
 
@@ -15729,7 +15729,7 @@ void Compiler::fgMorphStmts(BasicBlock* block, bool* lnot, bool* loadw)
 
     GenTreeStmt* stmt = block->firstStmt();
     GenTree*     prev = nullptr;
-    for (; stmt != nullptr; prev = stmt->gtStmtExpr, stmt = stmt->gtNextStmt)
+    for (; stmt != nullptr; prev = stmt->gtStmtExpr, stmt = stmt->getNextStmt())
     {
         if (fgRemoveRestOfBlock)
         {
@@ -15782,7 +15782,7 @@ void Compiler::fgMorphStmts(BasicBlock* block, bool* lnot, bool* loadw)
             morph = stmt->gtStmtExpr;
             noway_assert(compTailCallUsed);
             noway_assert((morph->gtOper == GT_CALL) && morph->AsCall()->IsTailCall());
-            noway_assert(stmt->gtNextStmt == nullptr);
+            noway_assert(stmt->getNextStmt() == nullptr);
 
             GenTreeCall* call = morph->AsCall();
             // Could either be
@@ -15806,7 +15806,7 @@ void Compiler::fgMorphStmts(BasicBlock* block, bool* lnot, bool* loadw)
 
             noway_assert(compTailCallUsed);
             noway_assert((tree->gtOper == GT_CALL) && tree->AsCall()->IsTailCall());
-            noway_assert(stmt->gtNextStmt == nullptr);
+            noway_assert(stmt->getNextStmt() == nullptr);
 
             GenTreeCall* call = morph->AsCall();
 
@@ -18942,7 +18942,7 @@ GenTreeStmt* SkipNopStmts(GenTreeStmt* stmt)
 {
     while ((stmt != nullptr) && !stmt->IsNothingNode())
     {
-        stmt = stmt->gtNextStmt;
+        stmt = stmt->getNextStmt();
     }
     return stmt;
 }
@@ -18967,7 +18967,7 @@ bool Compiler::fgCheckStmtAfterTailCall()
     // the call.
     GenTreeStmt* callStmt = fgMorphStmt;
 
-    GenTreeStmt* nextMorphStmt = callStmt->gtNextStmt;
+    GenTreeStmt* nextMorphStmt = callStmt->getNextStmt();
 
 #if !defined(FEATURE_CORECLR) && defined(_TARGET_AMD64_)
     // Legacy Jit64 Compat:
@@ -19009,7 +19009,7 @@ bool Compiler::fgCheckStmtAfterTailCall()
             }
             noway_assert(isSideEffectFree);
 
-            nextMorphStmt = popStmt->gtNextStmt;
+            nextMorphStmt = popStmt->getNextStmt();
         }
 
         // Next skip any GT_NOP nodes after the pop
@@ -19032,7 +19032,7 @@ bool Compiler::fgCheckStmtAfterTailCall()
             GenTree*     retExpr = retStmt->gtStmtExpr;
             noway_assert(retExpr->gtOper == GT_RETURN);
 
-            nextMorphStmt = retStmt->gtNextStmt;
+            nextMorphStmt = retStmt->getNextStmt();
         }
         else
         {
@@ -19054,7 +19054,7 @@ bool Compiler::fgCheckStmtAfterTailCall()
                 unsigned dstLclNum  = moveExpr->gtGetOp1()->AsLclVarCommon()->gtLclNum;
                 callResultLclNumber = dstLclNum;
 
-                nextMorphStmt = moveStmt->gtNextStmt;
+                nextMorphStmt = moveStmt->getNextStmt();
             }
             if (nextMorphStmt != nullptr)
 #endif
@@ -19072,7 +19072,7 @@ bool Compiler::fgCheckStmtAfterTailCall()
 
                 noway_assert(callResultLclNumber == treeWithLcl->AsLclVarCommon()->gtLclNum);
 
-                nextMorphStmt = retStmt->gtNextStmt;
+                nextMorphStmt = retStmt->getNextStmt();
             }
         }
     }
