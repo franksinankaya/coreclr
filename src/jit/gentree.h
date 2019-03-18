@@ -4656,7 +4656,6 @@ struct GenTreeObj : public GenTreeBlk
 
     // If non-zero, this is the number of slots in the class layout that
     // contain gc-pointers.
-    __declspec(property(get = GetGcPtrCount)) unsigned gtGcPtrCount;
     unsigned GetGcPtrCount() const
     {
         assert(_gtGcPtrCount != UINT32_MAX);
@@ -4677,7 +4676,7 @@ struct GenTreeObj : public GenTreeBlk
         gtGcPtrs      = gcPtrs;
         _gtGcPtrCount = gcPtrCount;
         gtSlots       = slots;
-        if (gtGcPtrCount != 0)
+        if (GetGcPtrCount() != 0)
         {
             // We assume that we cannot have a struct with GC pointers that is not a multiple
             // of the register size.
@@ -4705,7 +4704,7 @@ struct GenTreeObj : public GenTreeBlk
         if (srcObj->IsGCInfoInitialized())
         {
             gtGcPtrs      = srcObj->gtGcPtrs;
-            _gtGcPtrCount = srcObj->gtGcPtrCount;
+            _gtGcPtrCount = srcObj->GetGcPtrCount();
             gtSlots       = srcObj->gtSlots;
         }
     }
@@ -6486,7 +6485,7 @@ inline bool GenTreeBlk::HasGCPtr()
 {
     if ((gtOper == GT_OBJ) || (gtOper == GT_STORE_OBJ))
     {
-        return (AsObj()->gtGcPtrCount != 0);
+        return (AsObj()->GetGcPtrCount() != 0);
     }
     return false;
 }
