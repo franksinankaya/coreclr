@@ -1302,7 +1302,7 @@ bool Compiler::optRecordLoop(BasicBlock*   head,
             do
             {
                 block = block->bbNext;
-                for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->gtNextStmt)
+                for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->getNextStmt())
                 {
                     if (stmt->gtStmtExpr == incr)
                     {
@@ -3705,7 +3705,7 @@ void Compiler::optUnrollLoops()
 
                 /* Visit all the statements in the block */
 
-                for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->gtNextStmt)
+                for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->getNextStmt())
                 {
                     /* Calculate gtCostSz */
                     gtSetStmtInfo(stmt);
@@ -6033,7 +6033,7 @@ bool Compiler::optIsVarAssigned(BasicBlock* beg, BasicBlock* end, GenTree* skip,
     {
         noway_assert(beg);
 
-        for (GenTreeStmt* stmt = beg->firstStmt(); stmt; stmt = stmt->gtNextStmt)
+        for (GenTreeStmt* stmt = beg->firstStmt(); stmt; stmt = stmt->getNextStmt())
         {
             if (fgWalkTreePre(&stmt->gtStmtExpr, optIsVarAssgCB, &desc))
             {
