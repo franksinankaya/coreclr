@@ -1158,7 +1158,7 @@ fgArgTabEntry* fgArgInfo::AddRegArg(unsigned  argNum,
     curArgTabEntry->isBackFilled  = false;
     curArgTabEntry->isNonStandard = false;
     curArgTabEntry->isStruct      = isStruct;
-    curArgTabEntry->isVararg      = isVararg;
+    curArgTabEntry->setIsVararg(isVararg);
 
     hasRegArgs = true;
     AddArg(curArgTabEntry);
@@ -1231,7 +1231,7 @@ fgArgTabEntry* fgArgInfo::AddStkArg(unsigned argNum,
     curArgTabEntry->isBackFilled  = false;
     curArgTabEntry->isNonStandard = false;
     curArgTabEntry->isStruct      = isStruct;
-    curArgTabEntry->isVararg      = isVararg;
+    curArgTabEntry->setIsVararg(isVararg);
 
     hasStackArgs = true;
     AddArg(curArgTabEntry);
@@ -2100,7 +2100,7 @@ GenTree* Compiler::fgMakeTmpArgNode(fgArgTabEntry* curArgTabEntry)
         {
             CORINFO_CLASS_HANDLE clsHnd = varDsc->lvVerTypeInfo.GetClassHandle();
             var_types            structBaseType =
-                getPrimitiveTypeForStruct(lvaLclExactSize(tmpVarNum), clsHnd, curArgTabEntry->isVararg);
+                getPrimitiveTypeForStruct(lvaLclExactSize(tmpVarNum), clsHnd, curArgTabEntry->getIsVararg());
 
             if (structBaseType != TYP_UNKNOWN)
             {
@@ -2143,7 +2143,7 @@ GenTree* Compiler::fgMakeTmpArgNode(fgArgTabEntry* curArgTabEntry)
 #if FEATURE_MULTIREG_ARGS
 #ifdef _TARGET_ARM64_
             assert(varTypeIsStruct(type));
-            if (lvaIsMultiregStruct(varDsc, curArgTabEntry->isVararg))
+            if (lvaIsMultiregStruct(varDsc, curArgTabEntry->getIsVararg()))
             {
                 // ToDo-ARM64: Consider using:  arg->ChangeOper(GT_LCL_FLD);
                 // as that is how UNIX_AMD64_ABI works.
@@ -2305,7 +2305,7 @@ void fgArgInfo::EvalArgsToTemps()
                         CORINFO_CLASS_HANDLE clsHnd     = compiler->lvaGetStruct(tmpVarNum);
                         unsigned             structSize = varDsc->lvExactSize;
 
-                        scalarType = compiler->getPrimitiveTypeForStruct(structSize, clsHnd, curArgTabEntry->isVararg);
+                        scalarType = compiler->getPrimitiveTypeForStruct(structSize, clsHnd, curArgTabEntry->getIsVararg());
 #endif // _TARGET_ARMARCH_ || defined (UNIX_AMD64_ABI)
                     }
 
@@ -4541,7 +4541,7 @@ GenTree* Compiler::fgMorphMultiregStructArg(GenTree* arg, fgArgTabEntry* fgEntry
     hfaType = GetHfaType(objClass); // set to float or double if it is an HFA, otherwise TYP_UNDEF
     if (varTypeIsFloating(hfaType)
 #if !defined(_HOST_UNIX_) && defined(_TARGET_ARM64_)
-        && !fgEntryPtr->isVararg
+        && !fgEntryPtr->getIsVararg()
 #endif // !defined(_HOST_UNIX_) && defined(_TARGET_ARM64_)
         )
     {
@@ -4653,7 +4653,7 @@ GenTree* Compiler::fgMorphMultiregStructArg(GenTree* arg, fgArgTabEntry* fgEntry
         // This local variable must match the layout of the 'objClass' type exactly
         if (varDsc->lvIsHfa()
 #if !defined(_HOST_UNIX_) && defined(_TARGET_ARM64_)
-            && !fgEntryPtr->isVararg
+            && !fgEntryPtr->getIsVararg()
 #endif // !defined(_HOST_UNIX_) && defined(_TARGET_ARM64_)
             )
         {
@@ -4703,7 +4703,7 @@ GenTree* Compiler::fgMorphMultiregStructArg(GenTree* arg, fgArgTabEntry* fgEntry
         // TODO-ARM64-CQ: Support struct promoted HFA types here
         if (varDsc->lvPromoted && (varDsc->lvFieldCnt == 2) && (!varDsc->lvIsHfa()
 #if !defined(_HOST_UNIX_) && defined(_TARGET_ARM64_)
-                                                                && !fgEntryPtr->isVararg
+                                                                && !fgEntryPtr->getIsVararg()
 #endif // !defined(_HOST_UNIX_) && defined(_TARGET_ARM64_)
                                                                 ))
         {
