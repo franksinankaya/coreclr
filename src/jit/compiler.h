@@ -1585,7 +1585,7 @@ public:
 #endif
     }
 
-    __declspec(property(get = getHfaType)) var_types hfaType;
+
     var_types getHfaType()
     {
 #ifdef FEATURE_HFA
@@ -1710,7 +1710,7 @@ public:
         }
 #elif defined(_TARGET_ARM64_)
         // We counted the number of regs, but if they are FLOAT hfa regs we have to halve the size.
-        if (isHfaRegArg && (hfaType == TYP_FLOAT))
+        if (isHfaRegArg && (getHfaType() == TYP_FLOAT))
         {
             // Round up in case of odd HFA count.
             size = (size + 1) >> 1;
