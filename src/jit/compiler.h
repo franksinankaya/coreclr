@@ -7185,10 +7185,10 @@ public:
         return codeGen->isFramePointerUsed();
     }
 
-    __declspec(property(get = getInterruptible, put = setInterruptible)) bool genInterruptible;
+
     bool getInterruptible()
     {
-        return codeGen->genInterruptible;
+        return codeGen->getInterruptible();
     }
     void setInterruptible(bool value)
     {
