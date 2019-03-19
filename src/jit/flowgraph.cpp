@@ -7658,7 +7658,7 @@ inline void Compiler::fgMarkLoopHead(BasicBlock* block)
 
     /* Have we decided to generate fully interruptible code already? */
 
-    if (genInterruptible)
+    if (getInterruptible())
     {
 #ifdef DEBUG
         if (verbose)
@@ -7739,7 +7739,7 @@ inline void Compiler::fgMarkLoopHead(BasicBlock* block)
     // only enable fully interruptible code for if we're hijacking.
     if (GCPOLL_NONE == opts.compGCPollType)
     {
-        genInterruptible = true;
+        setInterruptible(true);
     }
 }
 
@@ -18911,7 +18911,7 @@ void Compiler::fgSetBlockOrder()
                 //
                 if (compCanEncodePtrArgCntMax())
                 {
-                    genInterruptible = true;
+      		    setInterruptible(true);
                 }
                 break;
             }
@@ -18944,7 +18944,7 @@ void Compiler::fgSetBlockOrder()
             // loop.  Thus we need to either add a poll, or make the method
             // fully interruptible.  I chose the later because that's what
             // JIT64 does.
-            genInterruptible = true;
+            setInterruptible(true);
         }
 #endif // !JIT32_GCENCODER
 #endif // FEATURE_FASTTAILCALL
