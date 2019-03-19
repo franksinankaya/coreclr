@@ -1638,7 +1638,7 @@ public:
 #endif
     }
 
-    __declspec(property(get = GetHfaType)) var_types hfaType;
+
     var_types GetHfaType()
     {
 #ifdef FEATURE_HFA
