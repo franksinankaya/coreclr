@@ -4376,7 +4376,7 @@ void Compiler::fgMorphMultiregStructArgs(GenTreeCall* call)
         }
 
         unsigned size = (fgEntryPtr->numRegs + fgEntryPtr->numSlots);
-        if ((size > 1) || fgEntryPtr->isHfaArg)
+        if ((size > 1) || fgEntryPtr->getIsHfaArg())
         {
             foundStructArg = true;
             if (varTypeIsStruct(argx) && !argx->OperIs(GT_FIELD_LIST))
