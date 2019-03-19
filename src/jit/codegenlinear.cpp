@@ -161,7 +161,7 @@ void CodeGen::genCodeForBBlist()
     // It is also not compatible with any function that makes a tailcall: we aren't smart enough to only
     // insert the SP check in the non-tailcall returns.
     //
-    if ((genInterruptible || compiler->compTailCallUsed) && compiler->opts.compStackCheckOnRet)
+    if ((getInterruptible() || compiler->compTailCallUsed) && compiler->opts.compStackCheckOnRet)
     {
         compiler->opts.compStackCheckOnRet = false;
     }
