@@ -865,7 +865,7 @@ void fgArgTabEntry::Dump()
     {
         printf(", processed");
     }
-    if (isHfaRegArg)
+    if (getIsHfaRegArg())
     {
         printf(", isHfa");
     }
@@ -3799,7 +3799,7 @@ GenTreeCall* Compiler::fgMorphArgs(GenTreeCall* call)
         // Get information about this argument.
         var_types hfaType            = argEntry->getHfaType();
         bool      isHfaArg           = (hfaType != TYP_UNDEF);
-        bool      isHfaRegArg        = argEntry->isHfaRegArg;
+        bool      isHfaRegArg        = argEntry->getIsHfaRegArg();
         unsigned  hfaSlots           = argEntry->numRegs;
         bool      passUsingFloatRegs = argEntry->isPassedInFloatRegisters();
         bool      isBackFilled       = argEntry->IsBackFilled();
