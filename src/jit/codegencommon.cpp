@@ -157,7 +157,7 @@ CodeGen::CodeGen(Compiler* theCompiler) : CodeGenInterface(theCompiler)
 
     /* Assume that we not fully interruptible */
 
-    genInterruptible = false;
+    setInterruptible(false);
 #ifdef _TARGET_ARMARCH_
     hasTailCalls = false;
 #endif // _TARGET_ARMARCH_
@@ -2102,7 +2102,7 @@ void CodeGen::genGenerateCode(void** codePtr, ULONG* nativeSizeOfCode)
 #endif
             printf("; %s based frame\n", isFramePointerUsed() ? STR_FPBASE : STR_SPBASE);
 
-        if (genInterruptible)
+        if (getInterruptible())
         {
             printf("; fully interruptible\n");
         }
@@ -2229,7 +2229,7 @@ void CodeGen::genGenerateCode(void** codePtr, ULONG* nativeSizeOfCode)
 
     compiler->EndPhase(PHASE_GENERATE_CODE);
 
-    codeSize = getEmitter()->emitEndCodeGen(compiler, trackedStackPtrsContig, genInterruptible, genFullPtrRegMap,
+    codeSize = getEmitter()->emitEndCodeGen(compiler, trackedStackPtrsContig, getInterruptible(), genFullPtrRegMap,
                                             (compiler->info.compRetType == TYP_REF), compiler->compHndBBtabCount,
                                             &prologSize, &epilogSize, codePtr, &coldCodePtr, &consPtr);
 
@@ -8172,7 +8172,7 @@ void CodeGen::genFnProlog()
 
 #endif // PROFILING_SUPPORTED
 
-    if (!genInterruptible)
+    if (!getInterruptible())
     {
         /*-------------------------------------------------------------------------
          *
@@ -8296,7 +8296,7 @@ void CodeGen::genFnProlog()
     // And again make sure it's big enough for ReJIT
     //
 
-    if (genInterruptible)
+    if (getInterruptible())
     {
         genPrologPadForReJit();
         getEmitter()->emitMarkPrologEnd();

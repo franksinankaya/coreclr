@@ -4824,7 +4824,7 @@ void Compiler::compCompile(void** methodCodePtr, ULONG* methodCodeSize, JitFlags
     EndPhase(PHASE_LINEAR_SCAN);
 
     // Copied from rpPredictRegUse()
-    genFullPtrRegMap = (codeGen->genInterruptible || !codeGen->isFramePointerUsed());
+    genFullPtrRegMap = (codeGen->getInterruptible() || !codeGen->isFramePointerUsed());
 
 #ifdef DEBUG
     fgDebugCheckLinks();
