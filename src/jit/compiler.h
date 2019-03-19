@@ -1565,7 +1565,7 @@ public:
 #endif // FEATURE_VARARG
     }
 
-    __declspec(property(get = getIsHfaArg)) bool isHfaArg;
+
     bool getIsHfaArg()
     {
 #ifdef FEATURE_HFA
