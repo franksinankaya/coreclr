@@ -16198,14 +16198,14 @@ void Compiler::fgSetOptions()
     if (JitConfig.JitFullyInt() || compStressCompile(STRESS_GENERIC_VARN, 30))
     {
         noway_assert(!codeGen->isGCTypeFixed());
-        genInterruptible = true;
+        setInterruptible(true);
     }
 #endif
 
     if (opts.compDbgCode)
     {
         assert(!codeGen->isGCTypeFixed());
-        genInterruptible = true; // debugging is easier this way ...
+        setInterruptible(true); // debugging is easier this way ...
     }
 
     /* Assume we won't need an explicit stack frame if this is allowed */
@@ -16268,7 +16268,7 @@ void Compiler::fgSetOptions()
     {
         assert(!codeGen->isGCTypeFixed());
         // Enforce fully interruptible codegen for funclet unwinding
-        genInterruptible = true;
+        setInterruptible(true);
     }
 #endif // UNIX_X86_ABI
 
@@ -16293,7 +16293,7 @@ void Compiler::fgSetOptions()
         // Even if there is no catch or other way to resume execution in this frame
         // the VM requires the security object to remain alive until later, so
         // Frames with security objects must be fully interruptible.
-        genInterruptible = true;
+        setInterruptible(true);
 
 #endif // JIT32_GCENCODER
     }
@@ -16314,7 +16314,7 @@ void Compiler::fgSetOptions()
         codeGen->setFramePointerRequiredGCInfo(true);
     }
 
-    // printf("method will %s be fully interruptible\n", genInterruptible ? "   " : "not");
+    // printf("method will %s be fully interruptible\n", getInterruptible() ? "   " : "not");
 }
 
 /*****************************************************************************/
