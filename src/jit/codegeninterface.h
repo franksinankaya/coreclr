@@ -347,7 +347,7 @@ public:
     // is to be fully interruptible.
     //
 public:
-    __declspec(property(get = getInterruptible, put = setInterruptible)) bool genInterruptible;
+
     bool getInterruptible()
     {
         return m_cgInterruptible;
