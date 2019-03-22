@@ -1249,14 +1249,14 @@ void LinearScan::recordVarLocationsAtStartOfBB(BasicBlock* bb)
         LclVarDsc* varDsc = &(compiler->lvaTable[varNum]);
         regNumber  regNum = getVarReg(map, varIndex);
 
-        regNumber oldRegNum = varDsc->lvRegNum;
+        regNumber oldRegNum = varDsc->GetRegNum();
         regNumber newRegNum = regNum;
 
         if (oldRegNum != newRegNum)
         {
             JITDUMP("  V%02u(%s->%s)", varNum, compiler->compRegVarName(oldRegNum),
                     compiler->compRegVarName(newRegNum));
-            varDsc->lvRegNum = newRegNum;
+            varDsc->SetRegNum(newRegNum);
             count++;
 
 #ifdef USING_VARIABLE_LIVE_RANGE
@@ -1612,7 +1612,7 @@ void LinearScan::identifyCandidates()
     for (lclNum = 0, varDsc = compiler->lvaTable; lclNum < compiler->lvaCount; lclNum++, varDsc++)
     {
         // Initialize all variables to REG_STK
-        varDsc->lvRegNum = REG_STK;
+        varDsc->SetRegNum(REG_STK);
 #ifndef _TARGET_64BIT_
         varDsc->GetOtherReg() = REG_STK;
 #endif // _TARGET_64BIT_
@@ -5951,7 +5951,7 @@ void LinearScan::updatePreviousInterval(RegRecord* reg, Interval* interval, Regi
 // Details:
 // This method is called for each local reference, during the resolveRegisters
 // phase of LSRA.  It is responsible for keeping the following in sync:
-//   - varDsc->lvRegNum (and lvOtherReg) contain the unique register location.
+//   - varDsc->GetRegNum() (and lvOtherReg) contain the unique register location.
 //     If it is not in the same register through its lifetime, it is set to REG_STK.
 //   - interval->physReg is set to the assigned register
 //     (i.e. at the code location which is currently being handled by resolveRegisters())
@@ -6010,7 +6010,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
         assert(!currentRefPosition->RequiresRegister());
         assert(interval->isSpilled);
 
-        varDsc->lvRegNum = REG_STK;
+        varDsc->SetRegNum(REG_STK);
         if (interval->assignedReg != nullptr && interval->assignedReg->assignedInterval == interval)
         {
             updateAssignedInterval(interval->assignedReg, nullptr, interval->registerType);
@@ -6066,7 +6066,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
     {
         assert(currentRefPosition->refType != RefTypeDef);
         assert(interval->isSpilled);
-        varDsc->lvRegNum = REG_STK;
+        varDsc->SetRegNum(REG_STK);
         if (!spillAfter)
         {
             interval->physReg = assignedReg;
@@ -6088,7 +6088,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
                     // to REG_NA.  Codegen will generate the code by considering
                     // it as a contained memory operand.
                     //
-                    // Note that varDsc->lvRegNum is already to REG_STK above.
+                    // Note that varDsc->GetRegNum() is already to REG_STK above.
                     interval->physReg  = REG_NA;
                     treeNode->gtRegNum = REG_NA;
                     treeNode->gtFlags &= ~GTF_SPILLED;
@@ -6111,7 +6111,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
         // stack.  However, we need to remember that it was spilled.
 
         assert(interval->isSpilled);
-        varDsc->lvRegNum  = REG_STK;
+        varDsc->SetRegNum(REG_STK);
         interval->physReg = REG_NA;
         if (treeNode != nullptr)
         {
@@ -6158,18 +6158,18 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
 
             if (!interval->isSpilled && !interval->isSplit)
             {
-                if (varDsc->lvRegNum != REG_STK)
+                if (varDsc->GetRegNum() != REG_STK)
                 {
                     // If the register assignments don't match, then this interval is split.
-                    if (varDsc->lvRegNum != assignedReg)
+                    if (varDsc->GetRegNum() != assignedReg)
                     {
                         setIntervalAsSplit(interval);
-                        varDsc->lvRegNum = REG_STK;
+                        varDsc->SetRegNum(REG_STK);
                     }
                 }
                 else
                 {
-                    varDsc->lvRegNum = assignedReg;
+		  varDsc->SetRegNum(assignedReg);
                 }
             }
         }
@@ -6181,7 +6181,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
             }
             assert(interval->isSpilled);
             interval->physReg = REG_NA;
-            varDsc->lvRegNum  = REG_STK;
+            varDsc->SetRegNum(REG_STK);
         }
     }
 
@@ -6962,7 +6962,7 @@ void LinearScan::resolveRegisters()
                     // so that it's not considered a candidate for lvRegister, as
                     // this dead def will have to go to the stack.
                     assert(currentRefPosition->refType == RefTypeDef);
-                    varDsc->lvRegNum = REG_STK;
+                    varDsc->SetRegNum(REG_STK);
                 }
                 continue;
             }
@@ -7123,7 +7123,7 @@ void LinearScan::resolveRegisters()
         {
             if (!isCandidateVar(varDsc))
             {
-                varDsc->lvRegNum = REG_STK;
+	      varDsc->SetRegNum(REG_STK);
             }
             else
             {
@@ -7162,7 +7162,7 @@ void LinearScan::resolveRegisters()
                 // was assigned, or (more likely) that the same register was not
                 // used for all references.  In that case, codegen gets the register
                 // from the tree node.
-                if (varDsc->lvRegNum == REG_STK || interval->isSpilled || interval->isSplit)
+                if (varDsc->GetRegNum() == REG_STK || interval->isSpilled || interval->isSplit)
                 {
                     // For codegen purposes, we'll set lvRegNum to whatever register
                     // it's currently in as we go.
@@ -7208,11 +7208,11 @@ void LinearScan::resolveRegisters()
                             assert(
                                 firstRefPosition->spillAfter || firstRefPosition->RegOptional() ||
                                 (firstRefPosition->refType != RefTypeDef && firstRefPosition->refType != RefTypeUse));
-                            varDsc->lvRegNum = REG_STK;
+                            varDsc->SetRegNum(REG_STK);
                         }
                         else
                         {
-                            varDsc->lvRegNum = firstRefPosition->assignedReg();
+			    varDsc->SetRegNum(firstRefPosition->assignedReg());
                         }
                     }
                 }
@@ -7223,7 +7223,7 @@ void LinearScan::resolveRegisters()
                         varDsc->lvOnFrame  = false;
                     }
 #ifdef DEBUG
-                    regMaskTP registerAssignment = genRegMask(varDsc->lvRegNum);
+                    regMaskTP registerAssignment = genRegMask(varDsc->GetRegNum());
                     assert(!interval->isSpilled && !interval->isSplit);
                     RefPosition* refPosition = interval->firstRefPosition;
                     assert(refPosition != nullptr);
@@ -7299,7 +7299,7 @@ void LinearScan::insertMove(
     assert(fromReg != toReg);
 
     // This var can't be marked lvRegister now
-    varDsc->lvRegNum = REG_STK;
+    varDsc->SetRegNum(REG_STK);
 
     GenTree* src = compiler->gtNewLclvNode(lclNum, varDsc->TypeGet());
     SetLsraAdded(src);
@@ -9263,7 +9263,7 @@ void LinearScan::TupleStyleDump(LsraTupleDumpMode mode)
                 }
                 LclVarDsc* varDsc = &(compiler->lvaTable[interval->varNum]);
                 printf("(");
-                regNumber assignedReg = varDsc->lvRegNum;
+                regNumber assignedReg = varDsc->GetRegNum();
                 regNumber argReg      = (varDsc->lvIsRegArg) ? varDsc->lvArgReg : REG_STK;
 
                 assert(reg == assignedReg || varDsc->lvRegister == false);

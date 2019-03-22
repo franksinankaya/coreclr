@@ -4968,7 +4968,7 @@ void Compiler::lvaUpdateArgsWithInitialReg()
 
         if (varDsc->lvIsRegCandidate())
         {
-            varDsc->lvRegNum = varDsc->GetArgInitReg();
+	  varDsc->SetRegNum(varDsc->GetArgInitReg());
         }
     }
 }
@@ -6766,12 +6766,12 @@ void Compiler::lvaDumpRegLocation(unsigned lclNum)
     if (varDsc->TypeGet() == TYP_DOUBLE)
     {
         // The assigned registers are `lvRegNum:RegNext(lvRegNum)`
-        printf("%3s:%-3s    ", getRegName(varDsc->lvRegNum), getRegName(REG_NEXT(varDsc->lvRegNum)));
+        printf("%3s:%-3s    ", getRegName(varDsc->GetRegNum()), getRegName(REG_NEXT(varDsc->GetRegNum())));
     }
     else
 #endif // _TARGET_ARM_
     {
-        printf("%3s        ", getRegName(varDsc->lvRegNum));
+        printf("%3s        ", getRegName(varDsc->GetRegNum()));
     }
 }
 
