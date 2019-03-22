@@ -1550,7 +1550,7 @@ public:
         return isLate;
     }
 
-    __declspec(property(get = getLateArgInx, put = setLateArgInx)) unsigned lateArgInx;
+
     unsigned getLateArgInx()
     {
         assert(isLateArg());
