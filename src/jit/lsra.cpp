@@ -1614,7 +1614,7 @@ void LinearScan::identifyCandidates()
         // Initialize all variables to REG_STK
         varDsc->lvRegNum = REG_STK;
 #ifndef _TARGET_64BIT_
-        varDsc->lvOtherReg = REG_STK;
+        varDsc->GetOtherReg() = REG_STK;
 #endif // _TARGET_64BIT_
 
         if (!enregisterLocalVars)
