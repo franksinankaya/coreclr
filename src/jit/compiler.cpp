@@ -7074,8 +7074,8 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
 #ifdef FEATURE_HW_INTRINSICS
         case GT_HW_INTRINSIC_CHK:
 #endif // FEATURE_HW_INTRINSICS
-            CopyTestDataToCloneTree(from->gtBoundsChk.gtIndex, to->gtBoundsChk.gtIndex);
-            CopyTestDataToCloneTree(from->gtBoundsChk.gtArrLen, to->gtBoundsChk.gtArrLen);
+            CopyTestDataToCloneTree(from->AsBoundsChkRef().gtIndex, to->AsBoundsChkRef().gtIndex);
+            CopyTestDataToCloneTree(from->AsBoundsChkRef().gtArrLen, to->AsBoundsChkRef().gtArrLen);
             return;
 
         default:
