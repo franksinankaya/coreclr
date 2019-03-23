@@ -63,26 +63,26 @@ GenTree* Compiler::fgMorphIntoHelperCall(GenTree* tree, int helper, GenTreeArgLi
     // The helper call ought to be semantically equivalent to the original node, so preserve its VN.
     tree->ChangeOper(GT_CALL, GenTree::PRESERVE_VN);
 
-    tree->gtCall.gtCallType            = CT_HELPER;
-    tree->gtCall.gtCallMethHnd         = eeFindHelper(helper);
-    tree->gtCall.gtCallArgs            = args;
-    tree->gtCall.gtCallObjp            = nullptr;
-    tree->gtCall.gtCallLateArgs        = nullptr;
-    tree->gtCall.fgArgInfo             = nullptr;
-    tree->gtCall.gtRetClsHnd           = nullptr;
-    tree->gtCall.gtCallMoreFlags       = 0;
-    tree->gtCall.gtInlineCandidateInfo = nullptr;
-    tree->gtCall.gtControlExpr         = nullptr;
+    tree->AsCallRef().gtCallType            = CT_HELPER;
+    tree->AsCallRef().gtCallMethHnd         = eeFindHelper(helper);
+    tree->AsCallRef().gtCallArgs            = args;
+    tree->AsCallRef().gtCallObjp            = nullptr;
+    tree->AsCallRef().gtCallLateArgs        = nullptr;
+    tree->AsCallRef().fgArgInfo             = nullptr;
+    tree->AsCallRef().gtRetClsHnd           = nullptr;
+    tree->AsCallRef().gtCallMoreFlags       = 0;
+    tree->AsCallRef().gtInlineCandidateInfo = nullptr;
+    tree->AsCallRef().gtControlExpr         = nullptr;
 
 #if DEBUG
     // Helper calls are never candidates.
 
-    tree->gtCall.gtInlineObservation = InlineObservation::CALLSITE_IS_CALL_TO_HELPER;
+    tree->AsCallRef().gtInlineObservation = InlineObservation::CALLSITE_IS_CALL_TO_HELPER;
 #endif // DEBUG
 
 #ifdef FEATURE_READYTORUN_COMPILER
-    tree->gtCall.gtEntryPoint.addr       = nullptr;
-    tree->gtCall.gtEntryPoint.accessType = IAT_VALUE;
+    tree->AsCallRef().gtEntryPoint.addr       = nullptr;
+    tree->AsCallRef().gtEntryPoint.accessType = IAT_VALUE;
 #endif
 
 #ifndef _TARGET_64BIT_
@@ -932,7 +932,7 @@ fgArgInfo::fgArgInfo(Compiler* comp, GenTreeCall* call, unsigned numArgs)
  */
 fgArgInfo::fgArgInfo(GenTreeCall* newCall, GenTreeCall* oldCall)
 {
-    fgArgInfo* oldArgInfo = oldCall->gtCall.fgArgInfo;
+    fgArgInfo* oldArgInfo = oldCall->AsCallRef().fgArgInfo;
 
     compiler    = oldArgInfo->compiler;
     callTree    = newCall;
@@ -1325,7 +1325,7 @@ void fgArgInfo::UpdateStkArg(fgArgTabEntry* curArgTabEntry, GenTree* node, bool 
 
             // Traverse the late argument list to find this argument so that we can update it.
             unsigned listInx = 0;
-            for (GenTreeArgList *list = callTree->gtCall.gtCallLateArgs; list; list = list->Rest(), listInx++)
+            for (GenTreeArgList *list = callTree->AsCallRef().gtCallLateArgs; list; list = list->Rest(), listInx++)
             {
                 argx = list->Current();
                 assert(!argx->IsArgPlaceHolderNode()); // No place holders nodes are in gtCallLateArgs;
@@ -2032,8 +2032,8 @@ void fgArgInfo::SortArgs()
 #if !FEATURE_FIXED_OUT_ARGS
     // Finally build the regArgList
     //
-    callTree->gtCall.regArgList      = NULL;
-    callTree->gtCall.regArgListCount = regCount;
+    callTree->AsCallRef().regArgList      = NULL;
+    callTree->AsCallRef().regArgListCount = regCount;
 
     unsigned regInx = 0;
     for (curInx = 0; curInx < argCount; curInx++)
@@ -2044,7 +2044,7 @@ void fgArgInfo::SortArgs()
         {
             // Encode the argument register in the register mask
             //
-            callTree->gtCall.regArgList[regInx] = curArgTabEntry->regNum;
+            callTree->AsCallRef().regArgList[regInx] = curArgTabEntry->regNum;
             regInx++;
         }
     }
@@ -2439,9 +2439,9 @@ void fgArgInfo::EvalArgsToTemps()
             else
             {
                 /* must be the gtCallObjp */
-                noway_assert(callTree->gtCall.gtCallObjp == argx);
+                noway_assert(callTree->AsCallRef().gtCallObjp == argx);
 
-                callTree->gtCall.gtCallObjp = setupArg;
+                callTree->AsCallRef().gtCallObjp = setupArg;
             }
         }
 
@@ -2450,7 +2450,7 @@ void fgArgInfo::EvalArgsToTemps()
         if (tmpRegArgNext == nullptr)
         {
             tmpRegArgNext                   = compiler->gtNewArgList(defArg);
-            callTree->gtCall.gtCallLateArgs = tmpRegArgNext;
+            callTree->AsCallRef().gtCallLateArgs = tmpRegArgNext;
         }
         else
         {
@@ -8735,8 +8735,8 @@ NO_TAIL_CALL:
 
         GenTree* innerCall = call->gtCallLateArgs->AsOpRef().gtOp1;
 
-        if (innerCall->gtOper == GT_CALL && (innerCall->gtCall.gtCallMoreFlags & GTF_CALL_M_SPECIAL_INTRINSIC) &&
-            info.compCompHnd->getIntrinsicID(innerCall->gtCall.gtCallMethHnd) ==
+        if (innerCall->gtOper == GT_CALL && (innerCall->AsCallRef().gtCallMoreFlags & GTF_CALL_M_SPECIAL_INTRINSIC) &&
+            info.compCompHnd->getIntrinsicID(innerCall->AsCallRef().gtCallMethHnd) ==
                 CORINFO_INTRINSIC_GetCurrentManagedThread)
         {
             // substitute expression with call to helper
@@ -11035,7 +11035,7 @@ GenTree* Compiler::fgMorphRecognizeBoxNullable(GenTree* compare)
     }
 
     // Get the nullable struct argument
-    GenTree* arg = opCall->gtCall.gtCallArgs->AsOpRef().gtOp2->AsOpRef().gtOp1;
+    GenTree* arg = opCall->AsCallRef().gtCallArgs->AsOpRef().gtOp2->AsOpRef().gtOp1;
 
     // Check for cases that are unsafe to optimize and return the unchanged tree
     if (arg->IsArgPlaceHolderNode() || arg->IsNothingNode() || ((arg->gtFlags & GTF_LATE_ARG) != 0))

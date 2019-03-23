@@ -6453,7 +6453,7 @@ inline bool GenTree::IsCnsNonZeroFltOrDbl()
 
 inline bool GenTree::IsHelperCall()
 {
-    return OperGet() == GT_CALL && gtCall.gtCallType == CT_HELPER;
+    return OperGet() == GT_CALL && AsCallRef().gtCallType == CT_HELPER;
 }
 
 inline var_types GenTree::CastFromType()
