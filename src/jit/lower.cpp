@@ -5496,7 +5496,7 @@ bool Lowering::NodesAreEquivalentLeaves(GenTree* tree1, GenTree* tree2)
         case GT_LCL_VAR_ADDR:
             return tree1->AsLclVarCommonRef().GetLclNum() == tree2->AsLclVarCommonRef().GetLclNum();
         case GT_CLS_VAR_ADDR:
-            return tree1->gtClsVar.gtClsVarHnd == tree2->gtClsVar.gtClsVarHnd;
+            return tree1->AsClsVarRef().gtClsVarHnd == tree2->AsClsVarRef().gtClsVarHnd;
         default:
             return false;
     }
