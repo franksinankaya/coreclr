@@ -1252,7 +1252,7 @@ AGAIN:
                     }
                     break;
                 case GT_CAST:
-                    if (op1->gtCast.gtCastType != op2->gtCast.gtCastType)
+                    if (op1->AsCastRef().gtCastType != op2->AsCastRef().gtCastType)
                     {
                         return false;
                     }
@@ -1930,7 +1930,7 @@ AGAIN:
                     hash += tree->AsArrLenRef().ArrLenOffset();
                     break;
                 case GT_CAST:
-                    hash ^= tree->gtCast.gtCastType;
+                    hash ^= tree->AsCastRef().gtCastType;
                     break;
                 case GT_INDEX:
                     hash += tree->gtIndex.gtIndElemSize;
@@ -7085,8 +7085,8 @@ GenTree* Compiler::gtCloneExpr(
 
             case GT_CAST:
                 copy =
-                    new (this, LargeOpOpcode()) GenTreeCast(tree->TypeGet(), tree->gtCast.CastOp(), tree->IsUnsigned(),
-                                                            tree->gtCast.gtCastType DEBUGARG(/*largeNode*/ TRUE));
+                    new (this, LargeOpOpcode()) GenTreeCast(tree->TypeGet(), tree->AsCastRef().CastOp(), tree->IsUnsigned(),
+                                                            tree->AsCastRef().gtCastType DEBUGARG(/*largeNode*/ TRUE));
                 break;
 
             // The nodes below this are not bashed, so they can be allocated at their individual sizes.
@@ -10637,7 +10637,7 @@ void Compiler::gtDispTree(GenTree*     tree,
         {
             /* Format a message that explains the effect of this GT_CAST */
 
-            var_types fromType  = genActualType(tree->gtCast.CastOp()->TypeGet());
+            var_types fromType  = genActualType(tree->AsCastRef().CastOp()->TypeGet());
             var_types toType    = tree->CastToType();
             var_types finalType = tree->TypeGet();
 
