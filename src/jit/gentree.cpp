@@ -1451,7 +1451,7 @@ AGAIN:
 
         case GT_ARR_ELEM:
 
-            if (op1->gtArrElem.gtArrRank != op2->gtArrElem.gtArrRank)
+            if (op1->AsArrElemRef().gtArrRank != op2->AsArrElemRef().gtArrRank)
             {
                 return false;
             }
@@ -1459,16 +1459,16 @@ AGAIN:
             // NOTE: gtArrElemSize may need to be handled
 
             unsigned dim;
-            for (dim = 0; dim < op1->gtArrElem.gtArrRank; dim++)
+            for (dim = 0; dim < op1->AsArrElemRef().gtArrRank; dim++)
             {
-                if (!Compare(op1->gtArrElem.gtArrInds[dim], op2->gtArrElem.gtArrInds[dim]))
+                if (!Compare(op1->AsArrElemRef().gtArrInds[dim], op2->AsArrElemRef().gtArrInds[dim]))
                 {
                     return false;
                 }
             }
 
-            op1 = op1->gtArrElem.gtArrObj;
-            op2 = op2->gtArrElem.gtArrObj;
+            op1 = op1->AsArrElemRef().gtArrObj;
+            op2 = op2->AsArrElemRef().gtArrObj;
             goto AGAIN;
 
         case GT_ARR_OFFSET:
@@ -1675,15 +1675,15 @@ AGAIN:
             break;
 
         case GT_ARR_ELEM:
-            if (gtHasRef(tree->gtArrElem.gtArrObj, lclNum, defOnly))
+            if (gtHasRef(tree->AsArrElemRef().gtArrObj, lclNum, defOnly))
             {
                 return true;
             }
 
             unsigned dim;
-            for (dim = 0; dim < tree->gtArrElem.gtArrRank; dim++)
+            for (dim = 0; dim < tree->AsArrElemRef().gtArrRank; dim++)
             {
-                if (gtHasRef(tree->gtArrElem.gtArrInds[dim], lclNum, defOnly))
+                if (gtHasRef(tree->AsArrElemRef().gtArrInds[dim], lclNum, defOnly))
                 {
                     return true;
                 }
@@ -2082,12 +2082,12 @@ AGAIN:
 
         case GT_ARR_ELEM:
 
-            hash = genTreeHashAdd(hash, gtHashValue(tree->gtArrElem.gtArrObj));
+            hash = genTreeHashAdd(hash, gtHashValue(tree->AsArrElemRef().gtArrObj));
 
             unsigned dim;
-            for (dim = 0; dim < tree->gtArrElem.gtArrRank; dim++)
+            for (dim = 0; dim < tree->AsArrElemRef().gtArrRank; dim++)
             {
-                hash = genTreeHashAdd(hash, gtHashValue(tree->gtArrElem.gtArrInds[dim]));
+                hash = genTreeHashAdd(hash, gtHashValue(tree->AsArrElemRef().gtArrInds[dim]));
             }
 
             break;
@@ -4224,25 +4224,25 @@ unsigned Compiler::gtSetEvalOrder(GenTree* tree)
 
         case GT_ARR_ELEM:
 
-            level  = gtSetEvalOrder(tree->gtArrElem.gtArrObj);
-            costEx = tree->gtArrElem.gtArrObj->GetCostEx();
-            costSz = tree->gtArrElem.gtArrObj->GetCostSz();
+            level  = gtSetEvalOrder(tree->AsArrElemRef().gtArrObj);
+            costEx = tree->AsArrElemRef().gtArrObj->GetCostEx();
+            costSz = tree->AsArrElemRef().gtArrObj->GetCostSz();
 
             unsigned dim;
-            for (dim = 0; dim < tree->gtArrElem.gtArrRank; dim++)
+            for (dim = 0; dim < tree->AsArrElemRef().gtArrRank; dim++)
             {
-                lvl2 = gtSetEvalOrder(tree->gtArrElem.gtArrInds[dim]);
+                lvl2 = gtSetEvalOrder(tree->AsArrElemRef().gtArrInds[dim]);
                 if (level < lvl2)
                 {
                     level = lvl2;
                 }
-                costEx += tree->gtArrElem.gtArrInds[dim]->GetCostEx();
-                costSz += tree->gtArrElem.gtArrInds[dim]->GetCostSz();
+                costEx += tree->AsArrElemRef().gtArrInds[dim]->GetCostEx();
+                costSz += tree->AsArrElemRef().gtArrInds[dim]->GetCostSz();
             }
 
-            level += tree->gtArrElem.gtArrRank;
-            costEx += 2 + (tree->gtArrElem.gtArrRank * (IND_COST_EX + 1));
-            costSz += 2 + (tree->gtArrElem.gtArrRank * 2);
+            level += tree->AsArrElemRef().gtArrRank;
+            costEx += 2 + (tree->AsArrElemRef().gtArrRank * (IND_COST_EX + 1));
+            costSz += 2 + (tree->AsArrElemRef().gtArrRank * 2);
             break;
 
         case GT_ARR_OFFSET:
@@ -4588,15 +4588,15 @@ GenTree** GenTree::gtGetChildPointer(GenTree* parent) const
             break;
 
         case GT_ARR_ELEM:
-            if (this == parent->gtArrElem.gtArrObj)
+            if (this == parent->AsArrElemRef().gtArrObj)
             {
-                return &(parent->gtArrElem.gtArrObj);
+                return &(parent->AsArrElemRef().gtArrObj);
             }
             for (int i = 0; i < GT_ARR_MAX_RANK; i++)
             {
-                if (this == parent->gtArrElem.gtArrInds[i])
+                if (this == parent->AsArrElemRef().gtArrInds[i])
                 {
-                    return &(parent->gtArrElem.gtArrInds[i]);
+                    return &(parent->AsArrElemRef().gtArrInds[i]);
                 }
             }
             break;
@@ -5267,7 +5267,7 @@ bool GenTree::OperMayThrow(Compiler* comp)
                     comp->fgAddrCouldBeNull(this->AsArrLen()->ArrRef()));
 
         case GT_ARR_ELEM:
-            return comp->fgAddrCouldBeNull(this->gtArrElem.gtArrObj);
+            return comp->fgAddrCouldBeNull(this->AsArrElemRef().gtArrObj);
 
         case GT_ARR_BOUNDS_CHECK:
         case GT_ARR_INDEX:
@@ -7349,13 +7349,13 @@ GenTree* Compiler::gtCloneExpr(
         case GT_ARR_ELEM:
         {
             GenTree* inds[GT_ARR_MAX_RANK];
-            for (unsigned dim = 0; dim < tree->gtArrElem.gtArrRank; dim++)
+            for (unsigned dim = 0; dim < tree->AsArrElemRef().gtArrRank; dim++)
             {
-                inds[dim] = gtCloneExpr(tree->gtArrElem.gtArrInds[dim], addFlags, deepVarNum, deepVarVal);
+                inds[dim] = gtCloneExpr(tree->AsArrElemRef().gtArrInds[dim], addFlags, deepVarNum, deepVarVal);
             }
             copy = new (this, GT_ARR_ELEM)
-                GenTreeArrElem(tree->TypeGet(), gtCloneExpr(tree->gtArrElem.gtArrObj, addFlags, deepVarNum, deepVarVal),
-                               tree->gtArrElem.gtArrRank, tree->gtArrElem.gtArrElemSize, tree->gtArrElem.gtArrElemType,
+                GenTreeArrElem(tree->TypeGet(), gtCloneExpr(tree->AsArrElemRef().gtArrObj, addFlags, deepVarNum, deepVarVal),
+                               tree->AsArrElemRef().gtArrRank, tree->AsArrElemRef().gtArrElemSize, tree->AsArrElemRef().gtArrElemType,
                                &inds[0]);
         }
         break;
@@ -9122,7 +9122,7 @@ void Compiler::gtDispNodeName(GenTree* tree)
     else if (tree->gtOper == GT_ARR_ELEM)
     {
         bufp += SimpleSprintf_s(bufp, buf, sizeof(buf), " %s[", name);
-        for (unsigned rank = tree->gtArrElem.gtArrRank - 1; rank; rank--)
+        for (unsigned rank = tree->AsArrElemRef().gtArrRank - 1; rank; rank--)
         {
             bufp += SimpleSprintf_s(bufp, buf, sizeof(buf), ",");
         }
@@ -11014,13 +11014,13 @@ void Compiler::gtDispTree(GenTree*     tree,
 
             if (!topOnly)
             {
-                gtDispChild(tree->gtArrElem.gtArrObj, indentStack, IIArc, nullptr, topOnly);
+                gtDispChild(tree->AsArrElemRef().gtArrObj, indentStack, IIArc, nullptr, topOnly);
 
                 unsigned dim;
-                for (dim = 0; dim < tree->gtArrElem.gtArrRank; dim++)
+                for (dim = 0; dim < tree->AsArrElemRef().gtArrRank; dim++)
                 {
-                    IndentInfo arcType = ((dim + 1) == tree->gtArrElem.gtArrRank) ? IIArcBottom : IIArc;
-                    gtDispChild(tree->gtArrElem.gtArrInds[dim], indentStack, arcType, nullptr, topOnly);
+                    IndentInfo arcType = ((dim + 1) == tree->AsArrElemRef().gtArrRank) ? IIArcBottom : IIArc;
+                    gtDispChild(tree->AsArrElemRef().gtArrInds[dim], indentStack, arcType, nullptr, topOnly);
                 }
             }
             break;
