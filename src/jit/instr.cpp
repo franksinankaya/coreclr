@@ -923,12 +923,12 @@ AGAIN:
             emitAttr       size;
             if (offs == 0)
             {
-                constVal = (target_ssize_t)(tree->gtLngCon.gtLconVal);
+                constVal = (target_ssize_t)(tree->AsLngConRef().gtLconVal);
                 size     = EA_PTRSIZE;
             }
             else
             {
-                constVal = (target_ssize_t)(tree->gtLngCon.gtLconVal >> 32);
+                constVal = (target_ssize_t)(tree->AsLngConRef().gtLconVal >> 32);
                 size     = EA_4BYTE;
             }
 
