@@ -1807,8 +1807,8 @@ void Lowering::ContainCheckShiftRotate(GenTreeOp* node)
 #endif // !_TARGET_X86_
 
     GenTree* shiftBy = node->gtOp2;
-    if (IsContainableImmed(node, shiftBy) && (shiftBy->gtIntConCommon.IconValue() <= 255) &&
-        (shiftBy->gtIntConCommon.IconValue() >= 0))
+    if (IsContainableImmed(node, shiftBy) && (shiftBy->AsIntConCommonRef().IconValue() <= 255) &&
+        (shiftBy->AsIntConCommonRef().IconValue() >= 0))
     {
         MakeSrcContained(node, shiftBy);
     }
