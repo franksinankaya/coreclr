@@ -1237,7 +1237,7 @@ protected:
         {
             return false;
         }
-        const LclVarDsc* varDsc = &compiler->lvaTable[tree->gtLclVarCommon.GetLclNum()];
+        const LclVarDsc* varDsc = &compiler->lvaTable[tree->AsLclVarCommon()->GetLclNum()];
         return (varDsc->lvIsRegCandidate());
     }
 
