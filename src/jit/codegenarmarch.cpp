@@ -2037,7 +2037,7 @@ void CodeGen::genCodeForLoadOffset(instruction ins, emitAttr size, regNumber dst
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
             offset += base->gtLclFld.gtLclOffs;
-        emit->emitIns_R_S(ins, size, dst, base->gtLclVarCommon.GetLclNum(), offset);
+        emit->emitIns_R_S(ins, size, dst, base->AsLclVarCommonRef().GetLclNum(), offset);
     }
     else
     {
@@ -2056,7 +2056,7 @@ void CodeGen::genCodeForStoreOffset(instruction ins, emitAttr size, regNumber sr
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
             offset += base->gtLclFld.gtLclOffs;
-        emit->emitIns_S_R(ins, size, src, base->gtLclVarCommon.GetLclNum(), offset);
+        emit->emitIns_S_R(ins, size, src, base->AsLclVarCommonRef().GetLclNum(), offset);
     }
     else
     {
