@@ -15032,15 +15032,15 @@ GenTree* Compiler::fgMorphTree(GenTree* tree, MorphAddrContext* mac)
             break;
 
         case GT_CMPXCHG:
-            tree->gtCmpXchg.gtOpLocation  = fgMorphTree(tree->gtCmpXchg.gtOpLocation);
-            tree->gtCmpXchg.gtOpValue     = fgMorphTree(tree->gtCmpXchg.gtOpValue);
-            tree->gtCmpXchg.gtOpComparand = fgMorphTree(tree->gtCmpXchg.gtOpComparand);
+            tree->AsCmpXchgRef().gtOpLocation  = fgMorphTree(tree->AsCmpXchgRef().gtOpLocation);
+            tree->AsCmpXchgRef().gtOpValue     = fgMorphTree(tree->AsCmpXchgRef().gtOpValue);
+            tree->AsCmpXchgRef().gtOpComparand = fgMorphTree(tree->AsCmpXchgRef().gtOpComparand);
 
             tree->gtFlags &= (~GTF_EXCEPT & ~GTF_CALL);
 
-            tree->gtFlags |= tree->gtCmpXchg.gtOpLocation->gtFlags & GTF_ALL_EFFECT;
-            tree->gtFlags |= tree->gtCmpXchg.gtOpValue->gtFlags & GTF_ALL_EFFECT;
-            tree->gtFlags |= tree->gtCmpXchg.gtOpComparand->gtFlags & GTF_ALL_EFFECT;
+            tree->gtFlags |= tree->AsCmpXchgRef().gtOpLocation->gtFlags & GTF_ALL_EFFECT;
+            tree->gtFlags |= tree->AsCmpXchgRef().gtOpValue->gtFlags & GTF_ALL_EFFECT;
+            tree->gtFlags |= tree->AsCmpXchgRef().gtOpComparand->gtFlags & GTF_ALL_EFFECT;
             break;
 
         case GT_STORE_DYN_BLK:
