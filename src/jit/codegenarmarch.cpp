@@ -765,7 +765,7 @@ void CodeGen::genPutArgStk(GenTreePutArgStk* treeNode)
                 }
 #endif // _TARGET_ARM64_
 
-                CORINFO_CLASS_HANDLE objClass = source->gtObj.gtClass;
+                CORINFO_CLASS_HANDLE objClass = source->AsObjRef().gtClass;
 
                 structSize = compiler->info.compCompHnd->getClassSize(objClass);
                 isHfa      = compiler->IsHfa(objClass);
@@ -1118,7 +1118,7 @@ void CodeGen::genPutArgSplit(GenTreePutArgSplit* treeNode)
             assert(baseReg != addrReg);
 
             // We don't split HFA struct
-            assert(!compiler->IsHfa(source->gtObj.gtClass));
+            assert(!compiler->IsHfa(source->AsObjRef().gtClass));
         }
 
         // Put on stack first

@@ -1628,7 +1628,7 @@ void fgArgInfo::ArgsComplete()
                         case 7:
                             // If we have a stack based LclVar we can perform a wider read of 4 or 8 bytes
                             //
-                            if (argObj->gtObj.gtOp1->IsLocalAddrExpr() == nullptr) // Is the source not a LclVar?
+                            if (argObj->AsObjRef().gtOp1->IsLocalAddrExpr() == nullptr) // Is the source not a LclVar?
                             {
                                 // If we don't have a LclVar we need to read exactly 3,5,6 or 7 bytes
                                 // For now we use a a GT_CPBLK to copy the exact size into a GT_LCL_VAR temp.
@@ -4084,7 +4084,7 @@ GenTreeCall* Compiler::fgMorphArgs(GenTreeCall* call)
                             // There are a few special cases where we can omit using a CopyBlk
                             // where we normally would need to use one.
 
-                            if (argObj->gtObj.gtOp1->IsLocalAddrExpr() != nullptr) // Is the source a LclVar?
+                            if (argObj->AsObjRef().gtOp1->IsLocalAddrExpr() != nullptr) // Is the source a LclVar?
                             {
                                 copyBlkClass = NO_CLASS_HANDLE;
                             }

@@ -1311,7 +1311,7 @@ GenTree* Compiler::impAssignStructPtr(GenTree*             destAddr,
         asgType = impNormStructType(structHnd);
         if (src->gtOper == GT_OBJ)
         {
-            assert(src->gtObj.gtClass == structHnd);
+            assert(src->AsObjRef().gtClass == structHnd);
         }
     }
     else if (src->gtOper == GT_INDEX)
@@ -1445,8 +1445,8 @@ GenTree* Compiler::impGetStructAddr(GenTree*             structVal,
 
     if (oper == GT_OBJ && willDeref)
     {
-        assert(structVal->gtObj.gtClass == structHnd);
-        return (structVal->gtObj.Addr());
+        assert(structVal->AsObjRef().gtClass == structHnd);
+        return (structVal->AsObjRef().Addr());
     }
     else if (oper == GT_CALL || oper == GT_RET_EXPR || oper == GT_OBJ || oper == GT_MKREFANY ||
              structVal->OperIsSimdOrHWintrinsic())
@@ -9081,7 +9081,7 @@ REDO_RETURN_NODE:
             op = op1->AsOpRef().gtOp1;
             goto REDO_RETURN_NODE;
         }
-        op->gtObj.gtClass = NO_CLASS_HANDLE;
+        op->AsObjRef().gtClass = NO_CLASS_HANDLE;
         op->ChangeOperUnchecked(GT_IND);
         op->gtFlags |= GTF_IND_TGTANYWHERE;
     }
