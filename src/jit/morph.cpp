@@ -15003,20 +15003,20 @@ GenTree* Compiler::fgMorphTree(GenTree* tree, MorphAddrContext* mac)
         case GT_DYN_BLK:
             if (tree->OperGet() == GT_STORE_DYN_BLK)
             {
-                tree->gtDynBlk.Data() = fgMorphTree(tree->gtDynBlk.Data());
+                tree->AsDynBlkRef().Data() = fgMorphTree(tree->AsDynBlkRef().Data());
             }
-            tree->gtDynBlk.Addr()        = fgMorphTree(tree->gtDynBlk.Addr());
-            tree->gtDynBlk.gtDynamicSize = fgMorphTree(tree->gtDynBlk.gtDynamicSize);
+            tree->AsDynBlkRef().Addr()        = fgMorphTree(tree->AsDynBlkRef().Addr());
+            tree->AsDynBlkRef().gtDynamicSize = fgMorphTree(tree->AsDynBlkRef().gtDynamicSize);
 
             tree->gtFlags &= (~GTF_EXCEPT & ~GTF_CALL);
             tree->SetIndirExceptionFlags(this);
 
             if (tree->OperGet() == GT_STORE_DYN_BLK)
             {
-                tree->gtFlags |= tree->gtDynBlk.Data()->gtFlags & GTF_ALL_EFFECT;
+                tree->gtFlags |= tree->AsDynBlkRef().Data()->gtFlags & GTF_ALL_EFFECT;
             }
-            tree->gtFlags |= tree->gtDynBlk.Addr()->gtFlags & GTF_ALL_EFFECT;
-            tree->gtFlags |= tree->gtDynBlk.gtDynamicSize->gtFlags & GTF_ALL_EFFECT;
+            tree->gtFlags |= tree->AsDynBlkRef().Addr()->gtFlags & GTF_ALL_EFFECT;
+            tree->gtFlags |= tree->AsDynBlkRef().gtDynamicSize->gtFlags & GTF_ALL_EFFECT;
             break;
 
         case GT_INDEX_ADDR:
