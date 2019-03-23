@@ -1364,7 +1364,7 @@ inline void GenTree::SetOper(genTreeOps oper, ValueNumberUpdate vnUpdate)
 
     if (oper == GT_CNS_INT)
     {
-        gtIntCon.gtFieldSeq = nullptr;
+        AsIntConRef().gtFieldSeq = nullptr;
     }
 
 #if defined(_TARGET_ARM_)
@@ -1431,7 +1431,7 @@ inline void GenTree::ChangeOperConst(genTreeOps oper)
     // Some constant subtypes have additional fields that must be initialized.
     if (oper == GT_CNS_INT)
     {
-        gtIntCon.gtFieldSeq = FieldSeqStore::NotAField();
+        AsIntConRef().gtFieldSeq = FieldSeqStore::NotAField();
     }
 }
 
@@ -3352,7 +3352,7 @@ inline int Compiler::LoopDsc::lpIterConst()
 {
     VERIFY_lpIterTree();
     GenTree* rhs = lpIterTree->AsOpRef().gtOp2;
-    return (int)rhs->AsOpRef().gtOp2->gtIntCon.gtIconVal;
+    return (int)rhs->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -3467,7 +3467,7 @@ inline int Compiler::LoopDsc::lpConstLimit()
 
     GenTree* limit = lpLimit();
     assert(limit->OperIsConst());
-    return (int)limit->gtIntCon.gtIconVal;
+    return (int)limit->AsIntConRef().gtIconVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -3786,7 +3786,7 @@ inline GenTree* Compiler::impCheckForNullPointer(GenTree* obj)
         assert(obj->gtType == TYP_REF || obj->gtType == TYP_BYREF);
 
         // We can see non-zero byrefs for RVA statics.
-        if (obj->gtIntCon.gtIconVal != 0)
+        if (obj->AsIntConRef().gtIconVal != 0)
         {
             assert(obj->gtType == TYP_BYREF);
             return obj;

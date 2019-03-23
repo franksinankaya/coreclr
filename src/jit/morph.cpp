@@ -724,7 +724,7 @@ OPTIMIZECAST:
                         else
                         {
                             commaOp2->ChangeOperConst(GT_CNS_INT);
-                            commaOp2->gtIntCon.gtIconVal = 0;
+                            commaOp2->AsIntConRef().gtIconVal = 0;
                             /* Change the types of oper and commaOp2 to TYP_INT */
                             oper->gtType = commaOp2->gtType = TYP_INT;
                         }
@@ -5959,11 +5959,11 @@ GenTree* Compiler::fgMorphArrayIndex(GenTree* tree)
 
     FieldSeqNode* firstElemFseq = GetFieldSeqStore()->CreateSingleton(FieldSeqStore::FirstElemPseudoField);
 
-    if ((cnsOff != nullptr) && (cnsOff->gtIntCon.gtIconVal == elemOffs))
+    if ((cnsOff != nullptr) && (cnsOff->AsIntConRef().gtIconVal == elemOffs))
     {
         // Assign it the [#FirstElem] field sequence
         //
-        cnsOff->gtIntCon.gtFieldSeq = firstElemFseq;
+        cnsOff->AsIntConRef().gtFieldSeq = firstElemFseq;
     }
     else //  We have folded the first element's offset with the index expression
     {
@@ -5979,7 +5979,7 @@ GenTree* Compiler::fgMorphArrayIndex(GenTree* tree)
         }
         else
         {
-            cnsOff->gtIntCon.gtFieldSeq = fieldSeq;
+            cnsOff->AsIntConRef().gtFieldSeq = fieldSeq;
         }
     }
 
@@ -6590,7 +6590,7 @@ GenTree* Compiler::fgMorphField(GenTree* tree, MorphAddrContext* mac)
                     addr->gtType  = TYP_I_IMPL;
                     FieldSeqNode* fieldSeq =
                         fieldMayOverlap ? FieldSeqStore::NotAField() : GetFieldSeqStore()->CreateSingleton(symHnd);
-                    addr->gtIntCon.gtFieldSeq = fieldSeq;
+                    addr->AsIntConRef().gtFieldSeq = fieldSeq;
                     // Translate GTF_FLD_INITCLASS to GTF_ICON_INITCLASS
                     if ((tree->gtFlags & GTF_FLD_INITCLASS) != 0)
                     {
@@ -10809,7 +10809,7 @@ GenTree* Compiler::fgMorphCopyBlock(GenTree* tree)
                     CORINFO_FIELD_HANDLE fieldHnd =
                         info.compCompHnd->getFieldInClass(classHnd, lvaTable[fieldLclNum].lvFldOrdinal);
                     curFieldSeq                          = GetFieldSeqStore()->CreateSingleton(fieldHnd);
-                    fieldOffsetNode->gtIntCon.gtFieldSeq = curFieldSeq;
+                    fieldOffsetNode->AsIntConRef().gtFieldSeq = curFieldSeq;
 
                     dest = gtNewOperNode(GT_ADD, TYP_BYREF, dest, fieldOffsetNode);
 
@@ -11459,7 +11459,7 @@ GenTree* Compiler::fgMorphSmpOp(GenTree* tree, MorphAddrContext* mac)
                         else
                             goto NO_MUL_64RSLT;
 
-                        if (((unsigned)(constOp->AsCastRef().CastOp()->gtIntCon.gtIconVal) < (unsigned)(0x80000000)))
+                        if (((unsigned)(constOp->AsCastRef().CastOp()->AsIntConRef().gtIconVal) < (unsigned)(0x80000000)))
                             constOp->gtFlags ^= GTF_UNSIGNED;
                         else
                             goto NO_MUL_64RSLT;
@@ -11645,8 +11645,8 @@ GenTree* Compiler::fgMorphSmpOp(GenTree* tree, MorphAddrContext* mac)
                 ((tree->gtFlags & GTF_UNSIGNED) == (op2->gtFlags & GTF_UNSIGNED)))
             {
                 if (op2->gtOper == GT_CAST && op2->AsCastRef().CastOp()->gtOper == GT_CNS_INT &&
-                    op2->AsCastRef().CastOp()->gtIntCon.gtIconVal >= 2 &&
-                    op2->AsCastRef().CastOp()->gtIntCon.gtIconVal <= 0x3fffffff &&
+                    op2->AsCastRef().CastOp()->AsIntConRef().gtIconVal >= 2 &&
+                    op2->AsCastRef().CastOp()->AsIntConRef().gtIconVal <= 0x3fffffff &&
                     (tree->gtFlags & GTF_UNSIGNED) == (op2->AsCastRef().CastOp()->gtFlags & GTF_UNSIGNED))
                 {
                     tree->AsOpRef().gtOp2 = op2 = fgMorphCast(op2);
@@ -12405,7 +12405,7 @@ DONE_MORPHING_CHILDREN:
 
             /* Check for "(expr +/- icon1) ==/!= (non-zero-icon2)" */
 
-            if (cns2->gtOper == GT_CNS_INT && cns2->gtIntCon.gtIconVal != 0)
+            if (cns2->gtOper == GT_CNS_INT && cns2->AsIntConRef().gtIconVal != 0)
             {
                 op1 = tree->AsOpRef().gtOp1;
 
@@ -12416,8 +12416,8 @@ DONE_MORPHING_CHILDREN:
                 {
                     /* Got it; change "x+icon1==icon2" to "x==icon2-icon1" */
 
-                    ival1 = op1->AsOpRef().gtOp2->gtIntCon.gtIconVal;
-                    ival2 = cns2->gtIntCon.gtIconVal;
+                    ival1 = op1->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
+                    ival2 = cns2->AsIntConRef().gtIconVal;
 
                     if (op1->gtOper == GT_ADD)
                     {
@@ -12427,7 +12427,7 @@ DONE_MORPHING_CHILDREN:
                     {
                         ival2 += ival1;
                     }
-                    cns2->gtIntCon.gtIconVal = ival2;
+                    cns2->AsIntConRef().gtIconVal = ival2;
 
 #ifdef _TARGET_64BIT_
                     // we need to properly re-sign-extend or truncate as needed.
@@ -12638,7 +12638,7 @@ DONE_MORPHING_CHILDREN:
                         goto SKIP;
                     }
 
-                    ssize_t shiftAmount = rshiftOp->AsOpRef().gtOp2->gtIntCon.gtIconVal;
+                    ssize_t shiftAmount = rshiftOp->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
 
                     if (shiftAmount < 0)
                     {
@@ -12659,13 +12659,13 @@ DONE_MORPHING_CHILDREN:
 
                         UINT32 newAndOperand = ((UINT32)1) << shiftAmount;
 
-                        andOp->AsOpRef().gtOp2->gtIntCon.gtIconVal = newAndOperand;
+                        andOp->AsOpRef().gtOp2->AsIntConRef().gtIconVal = newAndOperand;
 
                         // Reverse the cond if necessary
                         if (ival2 == 1)
                         {
                             gtReverseCond(tree);
-                            cns2->gtIntCon.gtIconVal = 0;
+                            cns2->AsIntConRef().gtIconVal = 0;
                             oper                     = tree->gtOper;
                         }
                     }
@@ -12761,7 +12761,7 @@ DONE_MORPHING_CHILDREN:
             ival1 = (int)andMask->AsIntConCommonRef().LngValue();
             andMask->SetOper(GT_CNS_INT);
             andMask->gtType             = TYP_INT;
-            andMask->gtIntCon.gtIconVal = ival1;
+            andMask->AsIntConRef().gtIconVal = ival1;
 
             /* now change the type of the AND node */
 
@@ -12774,7 +12774,7 @@ DONE_MORPHING_CHILDREN:
             cns2->gtType = TYP_INT;
 
             noway_assert(cns2 == op2);
-            cns2->gtIntCon.gtIconVal = ival2;
+            cns2->AsIntConRef().gtIconVal = ival2;
 
             goto COMPARE;
 
@@ -12829,7 +12829,7 @@ DONE_MORPHING_CHILDREN:
                             // Keep the old ValueNumber for 'tree' as the new expr
                             // will still compute the same value as before
                             tree->SetOper(oper, GenTree::PRESERVE_VN);
-                            cns2->gtIntCon.gtIconVal = 0;
+                            cns2->AsIntConRef().gtIconVal = 0;
 
                             // vnStore is null before the ValueNumber phase has run
                             if (vnStore != nullptr)
@@ -13044,8 +13044,8 @@ DONE_MORPHING_CHILDREN:
 
                         if (cns1->OperGet() == GT_CNS_INT)
                         {
-                            op2->gtIntCon.gtFieldSeq =
-                                GetFieldSeqStore()->Append(cns1->gtIntCon.gtFieldSeq, op2->gtIntCon.gtFieldSeq);
+                            op2->AsIntConRef().gtFieldSeq =
+                                GetFieldSeqStore()->Append(cns1->AsIntConRef().gtFieldSeq, op2->AsIntConRef().gtFieldSeq);
                         }
                         DEBUG_DESTROY_NODE(cns1);
 
@@ -13080,10 +13080,10 @@ DONE_MORPHING_CHILDREN:
                             ((op1->TypeGet() == tree->TypeGet()) || (op1->TypeGet() != TYP_REF)))
                         {
                             if (fgGlobalMorph && (op2->OperGet() == GT_CNS_INT) &&
-                                (op2->gtIntCon.gtFieldSeq != nullptr) &&
-                                (op2->gtIntCon.gtFieldSeq != FieldSeqStore::NotAField()))
+                                (op2->AsIntConRef().gtFieldSeq != nullptr) &&
+                                (op2->AsIntConRef().gtFieldSeq != FieldSeqStore::NotAField()))
                             {
-                                fgAddFieldSeqForZeroOffset(op1, op2->gtIntCon.gtFieldSeq);
+                                fgAddFieldSeqForZeroOffset(op1, op2->AsIntConRef().gtFieldSeq);
                             }
 
                             DEBUG_DESTROY_NODE(op2);
@@ -13103,8 +13103,8 @@ DONE_MORPHING_CHILDREN:
                 noway_assert(!tree->gtOverflow());
 
                 ssize_t mult            = op2->AsIntConCommonRef().IconValue();
-                bool    op2IsConstIndex = op2->OperGet() == GT_CNS_INT && op2->gtIntCon.gtFieldSeq != nullptr &&
-                                       op2->gtIntCon.gtFieldSeq->IsConstantIndexFieldSeq();
+                bool    op2IsConstIndex = op2->OperGet() == GT_CNS_INT && op2->AsIntConRef().gtFieldSeq != nullptr &&
+                                       op2->AsIntConRef().gtFieldSeq->IsConstantIndexFieldSeq();
 
                 assert(!op2IsConstIndex || op2->AsIntCon()->gtFieldSeq->m_next == nullptr);
 
@@ -13146,18 +13146,18 @@ DONE_MORPHING_CHILDREN:
 
                     // If "op2" is a constant array index, the other multiplicand must be a constant.
                     // Transfer the annotation to the other one.
-                    if (op2->OperGet() == GT_CNS_INT && op2->gtIntCon.gtFieldSeq != nullptr &&
-                        op2->gtIntCon.gtFieldSeq->IsConstantIndexFieldSeq())
+                    if (op2->OperGet() == GT_CNS_INT && op2->AsIntConRef().gtFieldSeq != nullptr &&
+                        op2->AsIntConRef().gtFieldSeq->IsConstantIndexFieldSeq())
                     {
-                        assert(op2->gtIntCon.gtFieldSeq->m_next == nullptr);
+                        assert(op2->AsIntConRef().gtFieldSeq->m_next == nullptr);
                         GenTree* otherOp = op1;
                         if (otherOp->OperGet() == GT_NEG)
                         {
                             otherOp = otherOp->AsOpRef().gtOp1;
                         }
                         assert(otherOp->OperGet() == GT_CNS_INT);
-                        assert(otherOp->gtIntCon.gtFieldSeq == FieldSeqStore::NotAField());
-                        otherOp->gtIntCon.gtFieldSeq = op2->gtIntCon.gtFieldSeq;
+                        assert(otherOp->AsIntConRef().gtFieldSeq == FieldSeqStore::NotAField());
+                        otherOp->AsIntConRef().gtFieldSeq = op2->AsIntConRef().gtFieldSeq;
                     }
 
                     if (abs_mult == 1)
@@ -13387,8 +13387,8 @@ DONE_MORPHING_CHILDREN:
                             break;
                         }
 
-                        ival1    = op1->AsOpRef().gtOp2->gtIntCon.gtIconVal;
-                        fieldSeq = op1->AsOpRef().gtOp2->gtIntCon.gtFieldSeq;
+                        ival1    = op1->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
+                        fieldSeq = op1->AsOpRef().gtOp2->AsIntConRef().gtFieldSeq;
 
                         // Does the address have an associated zero-offset field sequence?
                         FieldSeqNode* addrFieldSeq = nullptr;
@@ -13952,7 +13952,7 @@ DONE_MORPHING_CHILDREN:
                     GenTree* commaOp2 = op2->AsOpRef().gtOp2;
 
                     commaOp2->ChangeOperConst(GT_CNS_INT);
-                    commaOp2->gtIntCon.gtIconVal = 0;
+                    commaOp2->AsIntConRef().gtIconVal = 0;
                     /* Change the types of oper and commaOp2 to TYP_INT */
                     op2->gtType = commaOp2->gtType = TYP_INT;
                 }
@@ -13964,7 +13964,7 @@ DONE_MORPHING_CHILDREN:
                     GenTree* commaOp2 = op2->AsOpRef().gtOp2;
 
                     commaOp2->ChangeOperConst(GT_CNS_INT);
-                    commaOp2->gtIntCon.gtIconVal = 0;
+                    commaOp2->AsIntConRef().gtIconVal = 0;
                     /* Change the types of oper and commaOp2 to TYP_BYREF */
                     op2->gtType = commaOp2->gtType = TYP_BYREF;
                 }
@@ -14162,19 +14162,19 @@ GenTree* Compiler::fgMorphSmpOpOptional(GenTreeOp* tree)
                         break;
                     }
 
-                    ssize_t imul = op2->gtIntCon.gtIconVal;
-                    ssize_t iadd = add->gtIntCon.gtIconVal;
+                    ssize_t imul = op2->AsIntConRef().gtIconVal;
+                    ssize_t iadd = add->AsIntConRef().gtIconVal;
 
                     /* Change '(val + iadd) * imul' -> '(val * imul) + (iadd * imul)' */
 
                     oper = GT_ADD;
                     tree->ChangeOper(oper);
 
-                    op2->gtIntCon.gtIconVal = iadd * imul;
+                    op2->AsIntConRef().gtIconVal = iadd * imul;
 
                     op1->ChangeOper(GT_MUL);
 
-                    add->gtIntCon.gtIconVal = imul;
+                    add->AsIntConRef().gtIconVal = imul;
 #ifdef _TARGET_64BIT_
                     if (add->gtType == TYP_INT)
                     {
@@ -14229,11 +14229,11 @@ GenTree* Compiler::fgMorphSmpOpOptional(GenTreeOp* tree)
                     // we are reusing the shift amount node here, but the type we want is that of the shift result
                     op2->gtType = op1->gtType;
 
-                    if (cns->gtOper == GT_CNS_INT && cns->gtIntCon.gtFieldSeq != nullptr &&
-                        cns->gtIntCon.gtFieldSeq->IsConstantIndexFieldSeq())
+                    if (cns->gtOper == GT_CNS_INT && cns->AsIntConRef().gtFieldSeq != nullptr &&
+                        cns->AsIntConRef().gtFieldSeq->IsConstantIndexFieldSeq())
                     {
-                        assert(cns->gtIntCon.gtFieldSeq->m_next == nullptr);
-                        op2->gtIntCon.gtFieldSeq = cns->gtIntCon.gtFieldSeq;
+                        assert(cns->AsIntConRef().gtFieldSeq->m_next == nullptr);
+                        op2->AsIntConRef().gtFieldSeq = cns->AsIntConRef().gtFieldSeq;
                     }
 
                     op1->ChangeOper(GT_LSH);
@@ -14475,7 +14475,7 @@ GenTree* Compiler::fgRecognizeAndMorphBitwiseRotation(GenTree* tree)
         {
             if (leftShiftIndex->gtGetOp2()->IsCnsIntOrI())
             {
-                leftShiftMask  = leftShiftIndex->gtGetOp2()->gtIntCon.gtIconVal;
+                leftShiftMask  = leftShiftIndex->gtGetOp2()->AsIntConRef().gtIconVal;
                 leftShiftIndex = leftShiftIndex->gtGetOp1();
             }
             else
@@ -14488,7 +14488,7 @@ GenTree* Compiler::fgRecognizeAndMorphBitwiseRotation(GenTree* tree)
         {
             if (rightShiftIndex->gtGetOp2()->IsCnsIntOrI())
             {
-                rightShiftMask  = rightShiftIndex->gtGetOp2()->gtIntCon.gtIconVal;
+                rightShiftMask  = rightShiftIndex->gtGetOp2()->AsIntConRef().gtIconVal;
                 rightShiftIndex = rightShiftIndex->gtGetOp1();
             }
             else
@@ -14528,7 +14528,7 @@ GenTree* Compiler::fgRecognizeAndMorphBitwiseRotation(GenTree* tree)
         {
             if (shiftIndexWithAdd->gtGetOp2()->IsCnsIntOrI())
             {
-                if (shiftIndexWithAdd->gtGetOp2()->gtIntCon.gtIconVal == rotatedValueBitSize)
+                if (shiftIndexWithAdd->gtGetOp2()->AsIntConRef().gtIconVal == rotatedValueBitSize)
                 {
                     if (shiftIndexWithAdd->gtGetOp1()->OperGet() == GT_NEG)
                     {
@@ -14561,7 +14561,7 @@ GenTree* Compiler::fgRecognizeAndMorphBitwiseRotation(GenTree* tree)
         }
         else if ((leftShiftIndex->IsCnsIntOrI() && rightShiftIndex->IsCnsIntOrI()))
         {
-            if (leftShiftIndex->gtIntCon.gtIconVal + rightShiftIndex->gtIntCon.gtIconVal == rotatedValueBitSize)
+            if (leftShiftIndex->AsIntConRef().gtIconVal + rightShiftIndex->AsIntConRef().gtIconVal == rotatedValueBitSize)
             {
                 // We found this pattern:
                 // (x << c1) | (x >>> c2)
@@ -14875,7 +14875,7 @@ GenTree* Compiler::fgMorphTree(GenTree* tree, MorphAddrContext* mac)
         // GT_CNS_INT is considered small, so ReplaceWith() won't copy all fields
         if ((tree->gtOper == GT_CNS_INT) && tree->IsIconHandle())
         {
-            copy->gtIntCon.gtCompileTimeHandle = tree->gtIntCon.gtCompileTimeHandle;
+            copy->AsIntConRef().gtCompileTimeHandle = tree->AsIntConRef().gtCompileTimeHandle;
         }
 #endif
 
@@ -15344,7 +15344,7 @@ bool Compiler::fgFoldConditional(BasicBlock* block)
             BasicBlock* bTaken;
             BasicBlock* bNotTaken;
 
-            if (cond->gtIntCon.gtIconVal != 0)
+            if (cond->AsIntConRef().gtIconVal != 0)
             {
                 /* JTRUE 1 - transform the basic block into a BBJ_ALWAYS */
                 block->bbJumpKind = BBJ_ALWAYS;
@@ -15474,7 +15474,7 @@ bool Compiler::fgFoldConditional(BasicBlock* block)
 
                 if (optLoopTable[loopNum].lpBottom == block)
                 {
-                    if (cond->gtIntCon.gtIconVal == 0)
+                    if (cond->AsIntConRef().gtIconVal == 0)
                     {
                         /* This was a bogus loop (condition always false)
                          * Remove the loop from the table */
@@ -15555,7 +15555,7 @@ bool Compiler::fgFoldConditional(BasicBlock* block)
 
             /* Find the actual jump target */
             unsigned switchVal;
-            switchVal = (unsigned)cond->gtIntCon.gtIconVal;
+            switchVal = (unsigned)cond->AsIntConRef().gtIconVal;
             unsigned jumpCnt;
             jumpCnt = block->bbJumpSwt->bbsCount;
             BasicBlock** jumpTab;
@@ -18720,31 +18720,31 @@ void Compiler::fgAddFieldSeqForZeroOffset(GenTree* op1, FieldSeqNode* fieldSeq)
         case GT_ADD:
             if (op1->AsOpRef().gtOp1->OperGet() == GT_CNS_INT)
             {
-                FieldSeqNode* op1Fs = op1->AsOpRef().gtOp1->gtIntCon.gtFieldSeq;
+                FieldSeqNode* op1Fs = op1->AsOpRef().gtOp1->AsIntConRef().gtFieldSeq;
                 if (op1Fs != nullptr)
                 {
                     op1Fs                                = GetFieldSeqStore()->Append(op1Fs, fieldSeq);
-                    op1->AsOpRef().gtOp1->gtIntCon.gtFieldSeq = op1Fs;
+                    op1->AsOpRef().gtOp1->AsIntConRef().gtFieldSeq = op1Fs;
                 }
             }
             else if (op1->AsOpRef().gtOp2->OperGet() == GT_CNS_INT)
             {
-                FieldSeqNode* op2Fs = op1->AsOpRef().gtOp2->gtIntCon.gtFieldSeq;
+                FieldSeqNode* op2Fs = op1->AsOpRef().gtOp2->AsIntConRef().gtFieldSeq;
                 if (op2Fs != nullptr)
                 {
                     op2Fs                                = GetFieldSeqStore()->Append(op2Fs, fieldSeq);
-                    op1->AsOpRef().gtOp2->gtIntCon.gtFieldSeq = op2Fs;
+                    op1->AsOpRef().gtOp2->AsIntConRef().gtFieldSeq = op2Fs;
                 }
             }
             break;
 
         case GT_CNS_INT:
         {
-            FieldSeqNode* op1Fs = op1->gtIntCon.gtFieldSeq;
+            FieldSeqNode* op1Fs = op1->AsIntConRef().gtFieldSeq;
             if (op1Fs != nullptr)
             {
                 op1Fs                    = GetFieldSeqStore()->Append(op1Fs, fieldSeq);
-                op1->gtIntCon.gtFieldSeq = op1Fs;
+                op1->AsIntConRef().gtFieldSeq = op1Fs;
             }
         }
         break;
