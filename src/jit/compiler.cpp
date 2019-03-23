@@ -10574,7 +10574,7 @@ void cNodeIR(Compiler* comp, GenTree* tree)
 
         {
             const char* className = nullptr;
-            const char* fieldName = comp->eeGetFieldName(tree->gtField.gtFldHnd, &className);
+            const char* fieldName = comp->eeGetFieldName(tree->AsField()->gtFldHnd, &className);
 
             chars += printf(" %s.%s", className, fieldName);
         }
