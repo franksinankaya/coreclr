@@ -18739,9 +18739,9 @@ void Compiler::fgSetTreeSeqHelper(GenTree* tree, bool isLIR)
 
         case GT_CMPXCHG:
             // Evaluate the trees left to right
-            fgSetTreeSeqHelper(tree->gtCmpXchg.gtOpLocation, isLIR);
-            fgSetTreeSeqHelper(tree->gtCmpXchg.gtOpValue, isLIR);
-            fgSetTreeSeqHelper(tree->gtCmpXchg.gtOpComparand, isLIR);
+            fgSetTreeSeqHelper(tree->AsCmpXchgRef().gtOpLocation, isLIR);
+            fgSetTreeSeqHelper(tree->AsCmpXchgRef().gtOpValue, isLIR);
+            fgSetTreeSeqHelper(tree->AsCmpXchgRef().gtOpComparand, isLIR);
             break;
 
         case GT_ARR_BOUNDS_CHECK:
