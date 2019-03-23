@@ -3627,7 +3627,7 @@ void Compiler::optUnrollLoops()
         if (init->gtFlags & GTF_STMT_CMPADD)
         {
             /* Must be a duplicated loop condition */
-            noway_assert(init->gtStmt.gtStmtExpr->gtOper == GT_JTRUE);
+            noway_assert(init->AsStmtRef().gtStmtExpr->gtOper == GT_JTRUE);
 
             dupCond = true;
             init    = init->gtPrev;
@@ -3653,11 +3653,11 @@ void Compiler::optUnrollLoops()
         }
 
         noway_assert(init->gtOper == GT_STMT);
-        init = init->gtStmt.gtStmtExpr;
+        init = init->AsStmtRef().gtStmtExpr;
         noway_assert(test->gtOper == GT_STMT);
-        test = test->gtStmt.gtStmtExpr;
+        test = test->AsStmtRef().gtStmtExpr;
         noway_assert(incr->gtOper == GT_STMT);
-        incr = incr->gtStmt.gtStmtExpr;
+        incr = incr->AsStmtRef().gtStmtExpr;
 
         // Don't unroll loops we don't understand.
         if (incr->gtOper != GT_ASG)
@@ -3869,7 +3869,7 @@ void Compiler::optUnrollLoops()
 
                 noway_assert(test && (test->gtNext == nullptr));
                 noway_assert(test->gtOper == GT_STMT);
-                noway_assert(test->gtStmt.gtStmtExpr->gtOper == GT_JTRUE);
+                noway_assert(test->AsStmtRef().gtStmtExpr->gtOper == GT_JTRUE);
 
                 init = test->gtPrev;
                 noway_assert(init && (init->gtNext == test));

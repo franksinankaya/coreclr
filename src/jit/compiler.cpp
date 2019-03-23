@@ -7054,7 +7054,7 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
     switch (oper)
     {
         case GT_STMT:
-            CopyTestDataToCloneTree(from->gtStmt.gtStmtExpr, to->gtStmt.gtStmtExpr);
+            CopyTestDataToCloneTree(from->AsStmtRef().gtStmtExpr, to->AsStmtRef().gtStmtExpr);
             return;
 
         case GT_CALL:
@@ -10067,13 +10067,13 @@ int cLeafIR(Compiler* comp, GenTree* tree)
 
         case GT_IL_OFFSET:
 
-            if (tree->gtStmt.gtStmtILoffsx == BAD_IL_OFFSET)
+            if (tree->AsStmtRef().gtStmtILoffsx == BAD_IL_OFFSET)
             {
                 chars += printf("?");
             }
             else
             {
-                chars += printf("0x%x", jitGetILoffs(tree->gtStmt.gtStmtILoffsx));
+                chars += printf("0x%x", jitGetILoffs(tree->AsStmtRef().gtStmtILoffsx));
             }
             break;
 
