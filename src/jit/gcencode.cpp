@@ -4384,7 +4384,7 @@ void GCInfo::gcMakeRegPtrTable(
 
     if (compiler->codeGen->getInterruptible())
     {
-        assert(compiler->genFullPtrRegMap);
+        assert(compiler->getFullPtrRegMap());
 
         regMaskSmall ptrRegs          = 0;
         regPtrDsc*   regStackArgFirst = nullptr;
@@ -4488,7 +4488,7 @@ void GCInfo::gcMakeRegPtrTable(
     }
     else if (compiler->isFramePointerUsed()) // genInterruptible is false, and we're using EBP as a frame pointer.
     {
-        assert(compiler->genFullPtrRegMap == false);
+        assert(compiler->getFullPtrRegMap() == false);
 
         // Walk the list of pointer register/argument entries.
 
@@ -4594,7 +4594,7 @@ void GCInfo::gcMakeRegPtrTable(
     }
     else // genInterruptible is false and we have an EBP-less frame
     {
-        assert(compiler->genFullPtrRegMap);
+        assert(compiler->getFullPtrRegMap());
 
         // Walk the list of pointer register/argument entries */
         // First count them.
