@@ -7035,14 +7035,14 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
             return;
 
         case GT_CALL:
-            CopyTestDataToCloneTree(from->gtCall.gtCallObjp, to->gtCall.gtCallObjp);
-            CopyTestDataToCloneTree(from->gtCall.gtCallArgs, to->gtCall.gtCallArgs);
-            CopyTestDataToCloneTree(from->gtCall.gtCallLateArgs, to->gtCall.gtCallLateArgs);
+            CopyTestDataToCloneTree(from->AsCallRef().gtCallObjp, to->AsCallRef().gtCallObjp);
+            CopyTestDataToCloneTree(from->AsCallRef().gtCallArgs, to->AsCallRef().gtCallArgs);
+            CopyTestDataToCloneTree(from->AsCallRef().gtCallLateArgs, to->AsCallRef().gtCallLateArgs);
 
-            if (from->gtCall.gtCallType == CT_INDIRECT)
+            if (from->AsCallRef().gtCallType == CT_INDIRECT)
             {
-                CopyTestDataToCloneTree(from->gtCall.gtCallCookie, to->gtCall.gtCallCookie);
-                CopyTestDataToCloneTree(from->gtCall.gtCallAddr, to->gtCall.gtCallAddr);
+                CopyTestDataToCloneTree(from->AsCallRef().gtCallCookie, to->AsCallRef().gtCallCookie);
+                CopyTestDataToCloneTree(from->AsCallRef().gtCallAddr, to->AsCallRef().gtCallAddr);
             }
             // The other call types do not have additional GenTree arguments.
 
@@ -7175,9 +7175,9 @@ void Compiler::compCallArgStats()
 
                 argTotalCalls++;
 
-                if (!call->gtCall.gtCallObjp)
+                if (!call->AsCallRef().gtCallObjp)
                 {
-                    if (call->gtCall.gtCallType == CT_HELPER)
+                    if (call->AsCallRef().gtCallType == CT_HELPER)
                     {
                         argHelperCalls++;
                     }
@@ -10649,12 +10649,12 @@ void cNodeIR(Compiler* comp, GenTree* tree)
 
         case GT_CALL:
 
-            if (tree->gtCall.gtCallType != CT_INDIRECT)
+            if (tree->AsCallRef().gtCallType != CT_INDIRECT)
             {
                 const char* methodName;
                 const char* className;
 
-                methodName = comp->eeGetMethodName(tree->gtCall.gtCallMethHnd, &className);
+                methodName = comp->eeGetMethodName(tree->AsCallRef().gtCallMethHnd, &className);
 
                 chars += printf(" %s.%s", className, methodName);
             }
