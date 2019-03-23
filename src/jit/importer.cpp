@@ -1279,7 +1279,7 @@ GenTree* Compiler::impAssignStructPtr(GenTree*             destAddr,
     }
     else if (src->gtOper == GT_RET_EXPR)
     {
-        GenTreeCall* call = src->gtRetExpr.gtInlineCandidate->AsCall();
+        GenTreeCall* call = src->AsRetExprRef().gtInlineCandidate->AsCall();
         noway_assert(call->gtOper == GT_CALL);
 
         if (call->HasRetBufArg())
@@ -1656,7 +1656,7 @@ GenTree* Compiler::impNormStructVal(GenTree*             structVal,
             break;
 
         case GT_RET_EXPR:
-            structVal->gtRetExpr.gtRetClsHnd = structHnd;
+            structVal->AsRetExprRef().gtRetClsHnd = structHnd;
             makeTemp                         = true;
             break;
 
@@ -2328,7 +2328,7 @@ bool Compiler::impSpillStackEntry(unsigned level,
         if (tree->OperGet() == GT_RET_EXPR)
         {
             JITDUMP("\n*** see V%02u = GT_RET_EXPR, noting temp\n", tnum);
-            GenTree*             call = tree->gtRetExpr.gtInlineCandidate;
+            GenTree*             call = tree->AsRetExprRef().gtInlineCandidate;
             InlineCandidateInfo* ici  = call->gtCall.gtInlineCandidateInfo;
             ici->preexistingSpillTemp = tnum;
         }
