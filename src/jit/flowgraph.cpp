@@ -18732,9 +18732,9 @@ void Compiler::fgSetTreeSeqHelper(GenTree* tree, bool isLIR)
             break;
 
         case GT_ARR_OFFSET:
-            fgSetTreeSeqHelper(tree->gtArrOffs.gtOffset, isLIR);
-            fgSetTreeSeqHelper(tree->gtArrOffs.gtIndex, isLIR);
-            fgSetTreeSeqHelper(tree->gtArrOffs.gtArrObj, isLIR);
+            fgSetTreeSeqHelper(tree->AsArrOffsRef().gtOffset, isLIR);
+            fgSetTreeSeqHelper(tree->AsArrOffsRef().gtIndex, isLIR);
+            fgSetTreeSeqHelper(tree->AsArrOffsRef().gtArrObj, isLIR);
             break;
 
         case GT_CMPXCHG:
@@ -21305,12 +21305,12 @@ void Compiler::fgDebugCheckFlags(GenTree* tree)
 
             case GT_ARR_OFFSET:
 
-                fgDebugCheckFlags(tree->gtArrOffs.gtOffset);
-                chkFlags |= (tree->gtArrOffs.gtOffset->gtFlags & GTF_ALL_EFFECT);
-                fgDebugCheckFlags(tree->gtArrOffs.gtIndex);
-                chkFlags |= (tree->gtArrOffs.gtIndex->gtFlags & GTF_ALL_EFFECT);
-                fgDebugCheckFlags(tree->gtArrOffs.gtArrObj);
-                chkFlags |= (tree->gtArrOffs.gtArrObj->gtFlags & GTF_ALL_EFFECT);
+                fgDebugCheckFlags(tree->AsArrOffsRef().gtOffset);
+                chkFlags |= (tree->AsArrOffsRef().gtOffset->gtFlags & GTF_ALL_EFFECT);
+                fgDebugCheckFlags(tree->AsArrOffsRef().gtIndex);
+                chkFlags |= (tree->AsArrOffsRef().gtIndex->gtFlags & GTF_ALL_EFFECT);
+                fgDebugCheckFlags(tree->AsArrOffsRef().gtArrObj);
+                chkFlags |= (tree->AsArrOffsRef().gtArrObj->gtFlags & GTF_ALL_EFFECT);
                 break;
 
             case GT_ARR_BOUNDS_CHECK:
