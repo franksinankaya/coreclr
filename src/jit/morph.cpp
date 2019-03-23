@@ -408,7 +408,7 @@ GenTree* Compiler::fgMorphCast(GenTree* tree)
             // than 2^{31} for a cast to int.
             int maxWidth = (dstType == TYP_UINT) ? 32 : 31;
 
-            if ((andOp2->OperGet() == GT_CNS_NATIVELONG) && ((andOp2->gtIntConCommon.LngValue() >> maxWidth) == 0))
+            if ((andOp2->OperGet() == GT_CNS_NATIVELONG) && ((andOp2->AsIntConCommon()->LngValue() >> maxWidth) == 0))
             {
                 // This cast can't overflow.
                 tree->gtFlags &= ~(GTF_OVERFLOW | GTF_EXCEPT);
@@ -710,7 +710,7 @@ OPTIMIZECAST:
                         if (tree->gtType == TYP_LONG)
                         {
                             commaOp2->ChangeOperConst(GT_CNS_NATIVELONG);
-                            commaOp2->gtIntConCommon.SetLngValue(0);
+                            commaOp2->AsIntConCommon()->SetLngValue(0);
                             /* Change the types of oper and commaOp2 to TYP_LONG */
                             oper->gtType = commaOp2->gtType = TYP_LONG;
                         }
@@ -8962,7 +8962,7 @@ GenTree* Compiler::fgMorphLeaf(GenTree* tree)
         // Refer to gtNewIconHandleNode() as the template for constructing a constant handle
         //
         tree->SetOper(GT_CNS_INT);
-        tree->gtIntConCommon.SetIconValue(ssize_t(addrInfo.handle));
+        tree->AsIntConCommon()->SetIconValue(ssize_t(addrInfo.handle));
         tree->gtFlags |= GTF_ICON_FTN_ADDR;
 
         switch (addrInfo.accessType)
@@ -11637,8 +11637,8 @@ GenTree* Compiler::fgMorphSmpOp(GenTree* tree, MorphAddrContext* mac)
                     noway_assert(op2->gtOper == GT_CNS_NATIVELONG);
                 }
 
-                if (op2->gtOper == GT_CNS_NATIVELONG && op2->gtIntConCommon.LngValue() >= 2 &&
-                    op2->gtIntConCommon.LngValue() <= 0x3fffffff)
+                if (op2->gtOper == GT_CNS_NATIVELONG && op2->AsIntConCommon()->LngValue() >= 2 &&
+                    op2->AsIntConCommon()->LngValue() <= 0x3fffffff)
                 {
                     tree->AsOp()->gtOp1 = op1 = fgMorphTree(op1);
                     noway_assert(op1->TypeGet() == TYP_LONG);
@@ -11955,7 +11955,7 @@ GenTree* Compiler::fgMorphSmpOp(GenTree* tree, MorphAddrContext* mac)
             if (otherOp->IsCnsIntOrI())
             {
                 ClrSafeInt<size_t> totalOffset(subMac1->m_totalOffset);
-                totalOffset += otherOp->gtIntConCommon.IconValue();
+                totalOffset += otherOp->AsIntConCommon()->IconValue();
                 if (totalOffset.IsOverflow())
                 {
                     // We will consider an offset so large as to overflow as "not a constant" --
@@ -11964,7 +11964,7 @@ GenTree* Compiler::fgMorphSmpOp(GenTree* tree, MorphAddrContext* mac)
                 }
                 else
                 {
-                    subMac1->m_totalOffset += otherOp->gtIntConCommon.IconValue();
+                    subMac1->m_totalOffset += otherOp->AsIntConCommon()->IconValue();
                 }
             }
             else
@@ -12071,7 +12071,7 @@ GenTree* Compiler::fgMorphSmpOp(GenTree* tree, MorphAddrContext* mac)
                     // Is the other operator a constant?
                     if (otherOp->IsCnsIntOrI())
                     {
-                        mac->m_totalOffset += otherOp->gtIntConCommon.IconValue();
+                        mac->m_totalOffset += otherOp->AsIntConCommon()->IconValue();
                     }
                     else
                     {
@@ -12432,14 +12432,14 @@ DONE_MORPHING_CHILDREN:
             ival2 = INT_MAX; // The value of INT_MAX for ival2 just means that the constant value is not 0 or 1
 
             // cast to unsigned allows test for both 0 and 1
-            if ((cns2->gtOper == GT_CNS_INT) && (((size_t)cns2->gtIntConCommon.IconValue()) <= 1U))
+            if ((cns2->gtOper == GT_CNS_INT) && (((size_t)cns2->AsIntConCommon()->IconValue()) <= 1U))
             {
-                ival2 = (size_t)cns2->gtIntConCommon.IconValue();
+                ival2 = (size_t)cns2->AsIntConCommon()->IconValue();
             }
             else // cast to UINT64 allows test for both 0 and 1
-                if ((cns2->gtOper == GT_CNS_LNG) && (((UINT64)cns2->gtIntConCommon.LngValue()) <= 1ULL))
+                if ((cns2->gtOper == GT_CNS_LNG) && (((UINT64)cns2->AsIntConCommon()->LngValue()) <= 1ULL))
             {
-                ival2 = (size_t)cns2->gtIntConCommon.LngValue();
+                ival2 = (size_t)cns2->AsIntConCommon()->LngValue();
             }
 
             if (ival2 != INT_MAX)
@@ -12662,13 +12662,13 @@ DONE_MORPHING_CHILDREN:
 
                         UINT64 newAndOperand = ((UINT64)1) << shiftAmount;
 
-                        andOp->AsOp()->gtOp2->gtIntConCommon.SetLngValue(newAndOperand);
+                        andOp->AsOp()->gtOp2->AsIntConCommon()->SetLngValue(newAndOperand);
 
                         // Reverse the cond if necessary
                         if (ival2 == 1)
                         {
                             gtReverseCond(tree);
-                            cns2->gtIntConCommon.SetLngValue(0);
+                            cns2->AsIntConCommon()->SetLngValue(0);
                             oper = tree->gtOper;
                         }
                     }
@@ -12695,7 +12695,7 @@ DONE_MORPHING_CHILDREN:
 
             /* Is the constant 31 bits or smaller? */
 
-            if ((cns2->gtIntConCommon.LngValue() >> 31) != 0)
+            if ((cns2->AsIntConCommon()->LngValue() >> 31) != 0)
             {
                 goto COMPARE;
             }
@@ -12713,7 +12713,7 @@ DONE_MORPHING_CHILDREN:
                     /* Simply make this into an integer comparison */
 
                     tree->AsOp()->gtOp1 = op1->gtCast.CastOp();
-                    tree->AsOp()->gtOp2 = gtNewIconNode((int)cns2->gtIntConCommon.LngValue(), TYP_INT);
+                    tree->AsOp()->gtOp2 = gtNewIconNode((int)cns2->AsIntConCommon()->LngValue(), TYP_INT);
                 }
 
                 goto COMPARE;
@@ -12729,7 +12729,7 @@ DONE_MORPHING_CHILDREN:
             {
                 goto COMPARE;
             }
-            if ((andMask->gtIntConCommon.LngValue() >> 32) != 0)
+            if ((andMask->AsIntConCommon()->LngValue() >> 32) != 0)
             {
                 goto COMPARE;
             }
@@ -12742,7 +12742,7 @@ DONE_MORPHING_CHILDREN:
 
             noway_assert(andMask == op1->AsOp()->gtOp2);
 
-            ival1 = (int)andMask->gtIntConCommon.LngValue();
+            ival1 = (int)andMask->AsIntConCommon()->LngValue();
             andMask->SetOper(GT_CNS_INT);
             andMask->gtType             = TYP_INT;
             andMask->gtIntCon.gtIconVal = ival1;
@@ -12753,7 +12753,7 @@ DONE_MORPHING_CHILDREN:
 
             /* finally we replace the comparand */
 
-            ival2 = (int)cns2->gtIntConCommon.LngValue();
+            ival2 = (int)cns2->AsIntConCommon()->LngValue();
             cns2->SetOper(GT_CNS_INT);
             cns2->gtType = TYP_INT;
 
@@ -12880,8 +12880,8 @@ DONE_MORPHING_CHILDREN:
                 {
                     /* Negate the constant and change the node to be "+" */
 
-                    op2->gtIntConCommon.SetIconValue(-op2->gtIntConCommon.IconValue());
-                    op2->gtIntCon.gtFieldSeq = FieldSeqStore::NotAField();
+                    op2->AsIntConCommon()->SetIconValue(-op2->AsIntConCommon()->IconValue());
+                    op2->AsIntConRef().gtFieldSeq = FieldSeqStore::NotAField();
                     oper                     = GT_ADD;
                     tree->ChangeOper(oper);
                     goto CM_ADD_OP;
@@ -13017,8 +13017,8 @@ DONE_MORPHING_CHILDREN:
                         (op2->TypeGet() != TYP_REF))                      // Don't fold REFs
                     {
                         cns1 = op1->AsOp()->gtOp2;
-                        op2->gtIntConCommon.SetIconValue(cns1->gtIntConCommon.IconValue() +
-                                                         op2->gtIntConCommon.IconValue());
+                        op2->AsIntConCommon()->SetIconValue(cns1->AsIntConCommon()->IconValue() +
+                                                         op2->AsIntConCommon()->IconValue());
 #ifdef _TARGET_64BIT_
                         if (op2->TypeGet() == TYP_INT)
                         {
@@ -13041,7 +13041,7 @@ DONE_MORPHING_CHILDREN:
 
                     // Fold (x + 0).
 
-                    if ((op2->gtIntConCommon.IconValue() == 0) && !gtIsActiveCSE_Candidate(tree))
+                    if ((op2->AsIntConCommon()->IconValue() == 0) && !gtIsActiveCSE_Candidate(tree))
                     {
 
                         // If this addition is adding an offset to a null pointer,
@@ -13087,7 +13087,7 @@ DONE_MORPHING_CHILDREN:
 #endif // _TARGET_64BIT_
                 noway_assert(!tree->gtOverflow());
 
-                ssize_t mult            = op2->gtIntConCommon.IconValue();
+                ssize_t mult            = op2->AsIntConCommon()->IconValue();
                 bool    op2IsConstIndex = op2->OperGet() == GT_CNS_INT && op2->gtIntCon.gtFieldSeq != nullptr &&
                                        op2->gtIntCon.gtFieldSeq->IsConstantIndexFieldSeq();
 
@@ -13153,7 +13153,7 @@ DONE_MORPHING_CHILDREN:
                     }
 
                     /* Change the multiplication into a shift by log2(val) bits */
-                    op2->gtIntConCommon.SetIconValue(genLog2(abs_mult));
+                    op2->AsIntConCommon()->SetIconValue(genLog2(abs_mult));
                     changeToShift = true;
                 }
 #if LEA_AVAILABLE
@@ -13182,7 +13182,7 @@ DONE_MORPHING_CHILDREN:
                         tree->AsOp()->gtOp1 = op1 = gtNewOperNode(GT_MUL, tree->gtType, op1, factorIcon);
                         fgMorphTreeDone(op1);
 
-                        op2->gtIntConCommon.SetIconValue(shift);
+                        op2->AsIntConCommon()->SetIconValue(shift);
                         changeToShift = true;
                     }
                 }
@@ -13871,7 +13871,7 @@ DONE_MORPHING_CHILDREN:
                         if (typ == TYP_LONG)
                         {
                             commaOp2->ChangeOperConst(GT_CNS_NATIVELONG);
-                            commaOp2->gtIntConCommon.SetLngValue(0);
+                            commaOp2->AsIntConCommon()->SetLngValue(0);
                             /* Change the types of oper and commaOp2 to TYP_LONG */
                             op1->gtType = commaOp2->gtType = TYP_LONG;
                         }
@@ -13885,7 +13885,7 @@ DONE_MORPHING_CHILDREN:
                         else
                         {
                             commaOp2->ChangeOperConst(GT_CNS_INT);
-                            commaOp2->gtIntConCommon.SetIconValue(0);
+                            commaOp2->AsIntConCommon()->SetIconValue(0);
                             /* Change the types of oper and commaOp2 to TYP_INT */
                             op1->gtType = commaOp2->gtType = TYP_INT;
                         }
@@ -13938,7 +13938,7 @@ DONE_MORPHING_CHILDREN:
                     GenTree* commaOp2 = op2->AsOp()->gtOp2;
 
                     commaOp2->ChangeOperConst(GT_CNS_NATIVELONG);
-                    commaOp2->gtIntConCommon.SetLngValue(0);
+                    commaOp2->AsIntConCommon()->SetLngValue(0);
 
                     /* Change the types of oper and commaOp2 to TYP_LONG */
                     op2->gtType = commaOp2->gtType = TYP_LONG;
@@ -14209,8 +14209,8 @@ GenTree* Compiler::fgMorphSmpOpOptional(GenTreeOp* tree)
 
                 if (cns->IsCnsIntOrI() && (op2->GetScaleIndexShf() != 0))
                 {
-                    ssize_t ishf = op2->gtIntConCommon.IconValue();
-                    ssize_t iadd = cns->gtIntConCommon.IconValue();
+                    ssize_t ishf = op2->AsIntConCommon()->IconValue();
+                    ssize_t iadd = cns->AsIntConCommon()->IconValue();
 
                     // printf("Changing '(val+icon1)<<icon2' into '(val<<icon2+icon1<<icon2)'\n");
 
@@ -14218,7 +14218,7 @@ GenTree* Compiler::fgMorphSmpOpOptional(GenTreeOp* tree)
 
                     tree->ChangeOper(GT_ADD);
                     ssize_t result = iadd << ishf;
-                    op2->gtIntConCommon.SetIconValue(result);
+                    op2->AsIntConCommon()->SetIconValue(result);
 #ifdef _TARGET_64BIT_
                     if (op1->gtType == TYP_INT)
                     {
@@ -14238,7 +14238,7 @@ GenTree* Compiler::fgMorphSmpOpOptional(GenTreeOp* tree)
 
                     op1->ChangeOper(GT_LSH);
 
-                    cns->gtIntConCommon.SetIconValue(ishf);
+                    cns->AsIntConCommon()->SetIconValue(ishf);
                 }
             }
 

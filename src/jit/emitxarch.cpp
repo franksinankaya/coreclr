@@ -3220,7 +3220,7 @@ regNumber emitter::emitInsBinary(instruction ins, emitAttr attr, GenTree* dst, G
                             // src is an contained immediate
                             // dst is a class static variable
                             emitIns_C_I(ins, attr, memBase->gtClsVar.gtClsVarHnd, 0,
-                                        (int)src->gtIntConCommon.IconValue());
+                                        (int)src->AsIntConCommon()->IconValue());
                         }
                         else
                         {
@@ -3246,7 +3246,7 @@ regNumber emitter::emitInsBinary(instruction ins, emitAttr attr, GenTree* dst, G
                         assert(otherOp == nullptr);
                         assert(src->IsCnsIntOrI());
 
-                        id = emitNewInstrAmdCns(attr, memIndir->Offset(), (int)src->gtIntConCommon.IconValue());
+                        id = emitNewInstrAmdCns(attr, memIndir->Offset(), (int)src->AsIntConCommon()->IconValue());
                     }
                     else
                     {
@@ -3329,7 +3329,7 @@ regNumber emitter::emitInsBinary(instruction ins, emitAttr attr, GenTree* dst, G
                             assert(cnsOp == src);
                             assert(otherOp == nullptr);
 
-                            sz = emitInsSizeAM(id, insCodeMI(ins), (int)src->gtIntConCommon.IconValue());
+                            sz = emitInsSizeAM(id, insCodeMI(ins), (int)src->AsIntConCommon()->IconValue());
                         }
                         else
                         {
@@ -3412,7 +3412,7 @@ regNumber emitter::emitInsBinary(instruction ins, emitAttr attr, GenTree* dst, G
 
                 // src is an contained immediate
                 // dst is a stack based local variable
-                emitIns_S_I(ins, attr, varNum, offset, (int)src->gtIntConCommon.IconValue());
+                emitIns_S_I(ins, attr, varNum, offset, (int)src->AsIntConCommon()->IconValue());
             }
             else
             {
