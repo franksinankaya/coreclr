@@ -2739,7 +2739,7 @@ void Compiler::impNoteLastILoffs()
 /*****************************************************************************
  * We don't create any GenTree (excluding spills) for a branch.
  * For debugging info, we need a placeholder so that we can note
- * the IL offset in gtStmt.gtStmtOffs. So append an empty statement.
+ * the IL offset in AsStmt()->gtStmtOffs. So append an empty statement.
  */
 
 void Compiler::impNoteBranchOffs()
