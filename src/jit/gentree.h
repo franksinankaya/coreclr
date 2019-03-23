@@ -5898,7 +5898,7 @@ inline bool GenTree::OperIsCopyBlkOp()
 
 inline bool GenTree::IsFPZero()
 {
-    if ((gtOper == GT_CNS_DBL) && (gtDblCon.gtDconVal == 0.0))
+    if ((gtOper == GT_CNS_DBL) && (AsDblConRef().gtDconVal == 0.0))
     {
         return true;
     }
@@ -6445,7 +6445,7 @@ inline bool GenTree::IsCnsNonZeroFltOrDbl()
 {
     if (OperGet() == GT_CNS_DBL)
     {
-        double constValue = gtDblCon.gtDconVal;
+        double constValue = AsDblConRef().gtDconVal;
         return *(__int64*)&constValue != 0;
     }
 
