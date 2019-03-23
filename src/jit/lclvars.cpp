@@ -437,7 +437,7 @@ void Compiler::lvaInitThisPtr(InitVarDscInfo* varDscInfo)
         varDsc->lvIsRegArg = 1;
         noway_assert(varDscInfo->intRegArgNum == 0);
 
-        varDsc->lvArgReg = genMapRegArgNumToRegNum(varDscInfo->allocRegArg(TYP_INT), varDsc->TypeGet());
+        varDsc->SetArgReg(genMapRegArgNumToRegNum(varDscInfo->allocRegArg(TYP_INT), varDsc->TypeGet()));
 #if FEATURE_MULTIREG_ARGS
         varDsc->SetOtherArgReg(REG_NA);
 #endif
@@ -446,7 +446,7 @@ void Compiler::lvaInitThisPtr(InitVarDscInfo* varDscInfo)
 #ifdef DEBUG
         if (verbose)
         {
-            printf("'this'    passed in register %s\n", getRegName(varDsc->lvArgReg));
+            printf("'this'    passed in register %s\n", getRegName(varDsc->GetArgReg()));
         }
 #endif
         compArgSize += TARGET_POINTER_SIZE;
@@ -474,12 +474,12 @@ void Compiler::lvaInitRetBuffArg(InitVarDscInfo* varDscInfo)
 
         if (hasFixedRetBuffReg())
         {
-            varDsc->lvArgReg = theFixedRetBuffReg();
+            varDsc->SetArgReg(theFixedRetBuffReg());
         }
         else
         {
             unsigned retBuffArgNum = varDscInfo->allocRegArg(TYP_INT);
-            varDsc->lvArgReg       = genMapIntRegArgNumToRegNum(retBuffArgNum);
+            varDsc->SetArgReg(genMapIntRegArgNumToRegNum(retBuffArgNum));
         }
 
 #if FEATURE_MULTIREG_ARGS
@@ -514,12 +514,12 @@ void Compiler::lvaInitRetBuffArg(InitVarDscInfo* varDscInfo)
         }
 #endif // FEATURE_SIMD
 
-        assert(isValidIntArgReg(varDsc->lvArgReg));
+        assert(isValidIntArgReg(varDsc->GetArgReg()));
 
 #ifdef DEBUG
         if (verbose)
         {
-            printf("'__retBuf'  passed in register %s\n", getRegName(varDsc->lvArgReg));
+            printf("'__retBuf'  passed in register %s\n", getRegName(varDsc->GetArgReg()));
         }
 #endif
 
@@ -830,7 +830,7 @@ void Compiler::lvaInitUserArgs(InitVarDscInfo* varDscInfo)
             if (varTypeIsStruct(argType))
             {
 #if defined(UNIX_AMD64_ABI)
-                varDsc->lvArgReg = genMapRegArgNumToRegNum(firstAllocatedRegArgNum, firstEightByteType);
+                varDsc->SetArgReg(genMapRegArgNumToRegNum(firstAllocatedRegArgNum, firstEightByteType));
 
                 // If there is a second eightbyte, get a register for it too and map the arg to the reg number.
                 if (structDesc.eightByteCount >= 2)
@@ -845,7 +845,7 @@ void Compiler::lvaInitUserArgs(InitVarDscInfo* varDscInfo)
 		    varDsc->SetOtherArgReg(genMapRegArgNumToRegNum(secondAllocatedRegArgNum, secondEightByteType));
                 }
 #else // ARM32 or ARM64
-                varDsc->lvArgReg = genMapRegArgNumToRegNum(firstAllocatedRegArgNum, TYP_I_IMPL);
+                varDsc->SetArgReg(genMapRegArgNumToRegNum(firstAllocatedRegArgNum, TYP_I_IMPL));
 #ifdef _TARGET_ARM64_
                 if (cSlots == 2)
                 {
@@ -858,7 +858,7 @@ void Compiler::lvaInitUserArgs(InitVarDscInfo* varDscInfo)
             else
 #endif // FEATURE_MULTIREG_ARGS
             {
-                varDsc->lvArgReg = genMapRegArgNumToRegNum(firstAllocatedRegArgNum, argType);
+                varDsc->SetArgReg(genMapRegArgNumToRegNum(firstAllocatedRegArgNum, argType));
             }
 
 #ifdef _TARGET_ARM_
@@ -915,7 +915,7 @@ void Compiler::lvaInitUserArgs(InitVarDscInfo* varDscInfo)
 #endif // defined(UNIX_AMD64_ABI)
                 {
                     isFloat            = varTypeIsFloating(argType);
-                    unsigned regArgNum = genMapRegNumToRegArgNum(varDsc->lvArgReg, argType);
+                    unsigned regArgNum = genMapRegNumToRegArgNum(varDsc->GetArgReg(), argType);
 
                     for (unsigned ix = 0; ix < cSlots; ix++, regArgNum++)
                     {
@@ -1054,7 +1054,7 @@ void Compiler::lvaInitGenericsCtxt(InitVarDscInfo* varDscInfo)
             /* Another register argument */
 
             varDsc->lvIsRegArg = 1;
-            varDsc->lvArgReg   = genMapRegArgNumToRegNum(varDscInfo->regArgNum(TYP_INT), varDsc->TypeGet());
+            varDsc->SetArgReg(genMapRegArgNumToRegNum(varDscInfo->regArgNum(TYP_INT), varDsc->TypeGet()));
 #if FEATURE_MULTIREG_ARGS
             varDsc->SetOtherArgReg(REG_NA);
 #endif
@@ -1065,7 +1065,7 @@ void Compiler::lvaInitGenericsCtxt(InitVarDscInfo* varDscInfo)
 #ifdef DEBUG
             if (verbose)
             {
-                printf("'GenCtxt'   passed in register %s\n", getRegName(varDsc->lvArgReg));
+                printf("'GenCtxt'   passed in register %s\n", getRegName(varDsc->GetArgReg()));
             }
 #endif
         }
@@ -1116,7 +1116,7 @@ void Compiler::lvaInitVarArgsHandle(InitVarDscInfo* varDscInfo)
             unsigned varArgHndArgNum = varDscInfo->allocRegArg(TYP_I_IMPL);
 
             varDsc->lvIsRegArg = 1;
-            varDsc->lvArgReg   = genMapRegArgNumToRegNum(varArgHndArgNum, TYP_I_IMPL);
+            varDsc->SetArgReg(genMapRegArgNumToRegNum(varArgHndArgNum, TYP_I_IMPL));
 #if FEATURE_MULTIREG_ARGS
             varDsc->SetOtherArgReg(REG_NA);
 #endif
@@ -1134,7 +1134,7 @@ void Compiler::lvaInitVarArgsHandle(InitVarDscInfo* varDscInfo)
 #ifdef DEBUG
             if (verbose)
             {
-                printf("'VarArgHnd' passed in register %s\n", getRegName(varDsc->lvArgReg));
+                printf("'VarArgHnd' passed in register %s\n", getRegName(varDsc->GetArgReg()));
             }
 #endif // DEBUG
         }
@@ -2154,7 +2154,7 @@ void Compiler::StructPromotionHelper::PromoteStructVar(unsigned lclNum)
         if (varDsc->lvIsRegArg)
         {
             fieldVarDsc->lvIsRegArg = true;
-            fieldVarDsc->lvArgReg   = varDsc->lvArgReg;
+            fieldVarDsc->SetArgReg(varDsc->GetArgReg());
 #if FEATURE_MULTIREG_ARGS && defined(FEATURE_SIMD)
             if (varTypeIsSIMD(fieldVarDsc) && !compiler->lvaIsImplicitByRefLocal(lclNum))
             {
@@ -4937,7 +4937,7 @@ void Compiler::lvaFixVirtualFrameOffsets()
 bool Compiler::lvaIsPreSpilled(unsigned lclNum, regMaskTP preSpillMask)
 {
     const LclVarDsc& desc = lvaTable[lclNum];
-    return desc.lvIsRegArg && (preSpillMask & genRegMask(desc.lvArgReg));
+    return desc.lvIsRegArg && (preSpillMask & genRegMask(desc.GetArgReg()));
 }
 #endif // _TARGET_ARM_
 
@@ -5102,7 +5102,7 @@ void Compiler::lvaAssignVirtualFrameOffsetsToArgs()
 
             // Early out if we can. If size is 8 and base reg is 2, then the mask is 0x1100
             tempMask |= ((((1 << (roundUp(argSize, TARGET_POINTER_SIZE) / REGSIZE_BYTES))) - 1)
-                         << lvaTable[preSpillLclNum].lvArgReg);
+                         << lvaTable[preSpillLclNum].GetArgReg());
             if (tempMask == preSpillMask)
             {
                 // We won't encounter more pre-spilled registers,
@@ -5366,7 +5366,7 @@ int Compiler::lvaAssignVirtualFrameOffsetToArg(unsigned lclNum,
         // On ARM we spill the registers in codeGen->regSet.rsMaskPreSpillRegArg
         // in the prolog, so we have to fill in lvStkOffs here
         //
-        regMaskTP regMask = genRegMask(varDsc->lvArgReg);
+        regMaskTP regMask = genRegMask(varDsc->GetArgReg());
         if (codeGen->regSet.rsMaskPreSpillRegArg & regMask)
         {
             // Signature: void foo(struct_8, int, struct_4)
@@ -6051,7 +6051,7 @@ void Compiler::lvaAssignVirtualFrameOffsetsToLocals()
                 }
 
 #ifdef _TARGET_ARM64_
-                if (info.compIsVarArgs && varDsc->lvArgReg != theFixedRetBuffArgNum())
+                if (info.compIsVarArgs && varDsc->GetArgReg() != theFixedRetBuffArgNum())
                 {
                     // Stack offset to varargs (parameters) should point to home area which will be preallocated.
                     varDsc->lvStkOffs =
@@ -6065,7 +6065,7 @@ void Compiler::lvaAssignVirtualFrameOffsetsToLocals()
                 // On ARM we spill the registers in codeGen->regSet.rsMaskPreSpillRegArg
                 // in the prolog, thus they don't need stack frame space.
                 //
-                if ((codeGen->regSet.rsMaskPreSpillRegs(false) & genRegMask(varDsc->lvArgReg)) != 0)
+                if ((codeGen->regSet.rsMaskPreSpillRegs(false) & genRegMask(varDsc->GetArgReg())) != 0)
                 {
                     assert(varDsc->lvStkOffs != BAD_STK_OFFS);
                     continue;

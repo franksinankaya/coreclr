@@ -648,7 +648,7 @@ public:
     {
         if (slotNum == 0)
         {
-            return lvArgReg;
+            return GetArgReg();
         }
         else if (slotNum == 1)
         {
@@ -812,7 +812,7 @@ public:
 
     /////////////////////
 
-    __declspec(property(get = GetArgReg, put = SetArgReg)) regNumber lvArgReg;
+
 
     regNumber GetArgReg() const
     {
