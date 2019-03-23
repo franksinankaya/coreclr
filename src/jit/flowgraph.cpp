@@ -14731,7 +14731,7 @@ bool Compiler::fgOptimizeBranch(BasicBlock* bJump)
         /* We call gtPrepareCost to measure the cost of duplicating this tree */
         gtPrepareCost(expr);
 
-        estDupCostSz += expr->gtCostSz;
+        estDupCostSz += expr->GetCostSz();
     }
 
     bool                 allProfileWeightsAreValid = false;
