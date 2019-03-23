@@ -7317,18 +7317,18 @@ GenTree* Compiler::gtCloneExpr(
             case GT_OBJ:
                 copy =
                     new (this, GT_OBJ) GenTreeObj(tree->TypeGet(), tree->AsObj()->Addr(), tree->AsObj()->GetLayout());
-                copy->gtBlk.gtBlkOpGcUnsafe = tree->gtBlk.gtBlkOpGcUnsafe;
+                copy->AsBlk()->gtBlkOpGcUnsafe = tree->AsBlk()->gtBlkOpGcUnsafe;
                 break;
 
             case GT_BLK:
                 copy = new (this, GT_BLK)
                     GenTreeBlk(GT_BLK, tree->TypeGet(), tree->AsBlk()->Addr(), tree->AsBlk()->GetLayout());
-                copy->gtBlk.gtBlkOpGcUnsafe = tree->gtBlk.gtBlkOpGcUnsafe;
+                copy->AsBlk()->gtBlkOpGcUnsafe = tree->AsBlk()->gtBlkOpGcUnsafe;
                 break;
 
             case GT_DYN_BLK:
                 copy = new (this, GT_DYN_BLK) GenTreeDynBlk(tree->AsOp()->gtOp1, tree->AsDynBlk()->gtDynamicSize);
-                copy->gtBlk.gtBlkOpGcUnsafe = tree->gtBlk.gtBlkOpGcUnsafe;
+                copy->AsBlk()->gtBlkOpGcUnsafe = tree->AsBlk()->gtBlkOpGcUnsafe;
                 break;
 
             case GT_BOX:
