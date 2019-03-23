@@ -2391,7 +2391,7 @@ void CodeGen::genLclHeap(GenTree* tree)
         assert(size->isContained());
 
         // If amount is zero then return null in targetReg
-        amount = size->gtIntCon.gtIconVal;
+        amount = size->AsIntConRef().gtIconVal;
         if (amount == 0)
         {
             instGen_Set_Reg_To_Zero(EA_PTRSIZE, targetReg);
@@ -2844,7 +2844,7 @@ void CodeGen::genCodeForInitBlkUnroll(GenTreeBlk* initBlkNode)
         regNumber tmpReg = initBlkNode->GetSingleTempReg();
         assert(genIsValidFloatReg(tmpReg));
 
-        if (initVal->gtIntCon.gtIconVal != 0)
+        if (initVal->AsIntConRef().gtIconVal != 0)
         {
             emit->emitIns_R_R(INS_mov_i2xmm, EA_PTRSIZE, tmpReg, valReg);
             emit->emitIns_R_R(INS_punpckldq, EA_8BYTE, tmpReg, tmpReg);
@@ -4721,7 +4721,7 @@ void CodeGen::genCodeForIndir(GenTreeIndir* tree)
     {
         noway_assert(EA_ATTR(genTypeSize(targetType)) == EA_PTRSIZE);
         emit->emitIns_R_C(ins_Load(TYP_I_IMPL), EA_PTRSIZE, tree->GetRegNum(), FLD_GLOBAL_FS,
-                          (int)addr->gtIntCon.gtIconVal);
+                          (int)addr->AsIntConRef().gtIconVal);
     }
     else
     {
@@ -7660,11 +7660,11 @@ void CodeGen::genPutArgStkFieldList(GenTreePutArgStk* putArgStk)
                         case GT_CNS_INT:
                             if (fieldNode->IsIconHandle())
                             {
-                                inst_IV_handle(INS_push, fieldNode->gtIntCon.gtIconVal);
+                                inst_IV_handle(INS_push, fieldNode->AsIntConRef().gtIconVal);
                             }
                             else
                             {
-                                inst_IV(INS_push, fieldNode->gtIntCon.gtIconVal);
+                                inst_IV(INS_push, fieldNode->AsIntConRef().gtIconVal);
                             }
                             break;
                         default:
@@ -7759,11 +7759,11 @@ void CodeGen::genPutArgStk(GenTreePutArgStk* putArgStk)
     {
         if (data->IsIconHandle())
         {
-            inst_IV_handle(INS_push, data->gtIntCon.gtIconVal);
+            inst_IV_handle(INS_push, data->AsIntConRef().gtIconVal);
         }
         else
         {
-            inst_IV(INS_push, data->gtIntCon.gtIconVal);
+            inst_IV(INS_push, data->AsIntConRef().gtIconVal);
         }
         AddStackLevel(argSize);
     }

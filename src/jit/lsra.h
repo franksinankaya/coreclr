@@ -544,11 +544,11 @@ inline bool leafInRange(GenTree* leaf, int lower, int upper)
     {
         return false;
     }
-    if (leaf->gtIntCon.gtIconVal < lower)
+    if (leaf->AsIntConRef().gtIconVal < lower)
     {
         return false;
     }
-    if (leaf->gtIntCon.gtIconVal > upper)
+    if (leaf->AsIntConRef().gtIconVal > upper)
     {
         return false;
     }
@@ -562,7 +562,7 @@ inline bool leafInRange(GenTree* leaf, int lower, int upper, int multiple)
     {
         return false;
     }
-    if (leaf->gtIntCon.gtIconVal % multiple)
+    if (leaf->AsIntConRef().gtIconVal % multiple)
     {
         return false;
     }
