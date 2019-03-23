@@ -1964,12 +1964,12 @@ GenTree* Compiler::impMethodPointer(CORINFO_RESOLVED_TOKEN* pResolvedToken, CORI
 #ifdef FEATURE_READYTORUN_COMPILER
             if (opts.IsReadyToRun())
             {
-                op1->gtFptrVal.gtEntryPoint = pCallInfo->codePointerLookup.constLookup;
+                op1->AsFptrValRef().gtEntryPoint = pCallInfo->codePointerLookup.constLookup;
             }
             else
             {
-                op1->gtFptrVal.gtEntryPoint.addr       = nullptr;
-                op1->gtFptrVal.gtEntryPoint.accessType = IAT_VALUE;
+                op1->AsFptrValRef().gtEntryPoint.addr       = nullptr;
+                op1->AsFptrValRef().gtEntryPoint.accessType = IAT_VALUE;
             }
 #endif
             break;
