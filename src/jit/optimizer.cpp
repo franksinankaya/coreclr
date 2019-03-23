@@ -820,7 +820,8 @@ bool Compiler::optCheckIterInLoopTest(
             optLoopTable[loopInd].lpFlags |= LPFLG_SIMD_LIMIT;
         }
     }
-    else if (limitOp->gtOper == GT_LCL_VAR && !optIsVarAssigned(from, to, nullptr, limitOp->AsLclVarCommonRef().GetLclNum()))
+    else if (limitOp->gtOper == GT_LCL_VAR &&
+             !optIsVarAssigned(from, to, nullptr, limitOp->AsLclVarCommonRef().GetLclNum()))
     {
         optLoopTable[loopInd].lpFlags |= LPFLG_VAR_LIMIT;
     }
@@ -3668,11 +3669,12 @@ void Compiler::optUnrollLoops()
 
         /* Make sure everything looks ok */
         if ((init->gtOper != GT_ASG) || (init->AsOpRef().gtOp1->gtOper != GT_LCL_VAR) ||
-            (init->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() != lvar) || (init->AsOpRef().gtOp2->gtOper != GT_CNS_INT) ||
-            (init->AsOpRef().gtOp2->AsIntConRef().gtIconVal != lbeg) ||
+            (init->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() != lvar) ||
+            (init->AsOpRef().gtOp2->gtOper != GT_CNS_INT) || (init->AsOpRef().gtOp2->AsIntConRef().gtIconVal != lbeg) ||
 
             !((incr->gtOper == GT_ADD) || (incr->gtOper == GT_SUB)) || (incr->AsOpRef().gtOp1->gtOper != GT_LCL_VAR) ||
-            (incr->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() != lvar) || (incr->AsOpRef().gtOp2->gtOper != GT_CNS_INT) ||
+            (incr->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() != lvar) ||
+            (incr->AsOpRef().gtOp2->gtOper != GT_CNS_INT) ||
             (incr->AsOpRef().gtOp2->AsIntConRef().gtIconVal != iterInc) ||
 
             (test->gtOper != GT_JTRUE))
@@ -3845,7 +3847,7 @@ void Compiler::optUnrollLoops()
             // Gut the old loop body
             for (block = head->bbNext;; block = block->bbNext)
             {
-	        block->setBBTreeList(nullptr);
+                block->setBBTreeList(nullptr);
                 block->bbJumpKind = BBJ_NONE;
                 block->bbFlags &= ~(BBF_NEEDS_GCPOLL | BBF_LOOP_HEAD);
                 if (block->bbJumpDest != nullptr)
@@ -5611,7 +5613,7 @@ bool Compiler::optNarrowTree(GenTree* tree, var_types srct, var_types dstt, Valu
                 if (doit)
                 {
                     tree->ChangeOperConst(GT_CNS_INT);
-                    tree->gtType             = TYP_INT;
+                    tree->gtType                  = TYP_INT;
                     tree->AsIntConRef().gtIconVal = (int)lval;
                     if (vnStore != nullptr)
                     {
@@ -5664,7 +5666,7 @@ bool Compiler::optNarrowTree(GenTree* tree, var_types srct, var_types dstt, Valu
 #ifdef _TARGET_64BIT_
                 if (doit)
                 {
-                    tree->gtType             = TYP_INT;
+                    tree->gtType                  = TYP_INT;
                     tree->AsIntConRef().gtIconVal = (int)ival;
                     if (vnStore != nullptr)
                     {
@@ -5897,7 +5899,7 @@ bool Compiler::optNarrowTree(GenTree* tree, var_types srct, var_types dstt, Valu
                             // Clear the GTF_UNSIGNED flag, as it may have been set on the cast node
                             tree->gtFlags &= ~GTF_UNSIGNED;
                             tree->AsOpRef().gtOp2 = nullptr;
-                            tree->gtVNPair   = op1->gtVNPair; // Set to op1's ValueNumber
+                            tree->gtVNPair        = op1->gtVNPair; // Set to op1's ValueNumber
                         }
                         else
                         {
@@ -6253,7 +6255,7 @@ void Compiler::optPerformHoistExpr(GenTree* origExpr, unsigned lnum)
         /* Empty pre-header - store the single statement in the block */
 
         preHead->setBBTreeList(hoistStmt);
-        hoistStmt->gtPrev   = hoistStmt;
+        hoistStmt->gtPrev = hoistStmt;
     }
 
     hoistStmt->gtNext = nullptr;
@@ -8603,7 +8605,7 @@ void Compiler::optOptimizeBoolsGcStress(BasicBlock* condBlock)
     GenTree* comparandClone = gtCloneExpr(comparand);
 
     noway_assert(relop->AsOpRef().gtOp1 == comparand);
-    genTreeOps oper   = compStressCompile(STRESS_OPT_BOOLS_GC, 50) ? GT_OR : GT_AND;
+    genTreeOps oper        = compStressCompile(STRESS_OPT_BOOLS_GC, 50) ? GT_OR : GT_AND;
     relop->AsOpRef().gtOp1 = gtNewOperNode(oper, TYP_I_IMPL, comparand, comparandClone);
 
     // Comparand type is already checked, and we have const int, there is no harm

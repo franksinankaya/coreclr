@@ -1713,12 +1713,13 @@ void CodeGen::genCodeForIndexAddr(GenTreeIndexAddr* node)
         CodeGen::genSetRegToIcon(tmpReg, (ssize_t)node->gtElemSize, TYP_INT);
 
         // dest = index * tmpReg + base
-        getEmitter()->emitIns_R_R_R_R(INS_MULADD, emitActualTypeSize(node), node->GetRegNum(), index->GetRegNum(), tmpReg,
-                                      base->GetRegNum());
+        getEmitter()->emitIns_R_R_R_R(INS_MULADD, emitActualTypeSize(node), node->GetRegNum(), index->GetRegNum(),
+                                      tmpReg, base->GetRegNum());
     }
 
     // dest = dest + elemOffs
-    getEmitter()->emitIns_R_R_I(INS_add, emitActualTypeSize(node), node->GetRegNum(), node->GetRegNum(), node->gtElemOffset);
+    getEmitter()->emitIns_R_R_I(INS_add, emitActualTypeSize(node), node->GetRegNum(), node->GetRegNum(),
+                                node->gtElemOffset);
 
     gcInfo.gcMarkRegSetNpt(base->gtGetRegMask());
 
@@ -2719,7 +2720,8 @@ void CodeGen::genJmpMethod(GenTree* jmp)
                 getEmitter()->emitIns_R_S(ins_Load(loadType), loadSize, argReg, varNum, 0);
 
                 // Update argReg life and GC Info to indicate varDsc stack slot is dead and argReg is going live.
-                // Note that we cannot modify varDsc->GetRegNum() here because another basic block may not be expecting it.
+                // Note that we cannot modify varDsc->GetRegNum() here because another basic block may not be expecting
+                // it.
                 // Therefore manually update life of argReg.  Note that GT_JMP marks the end of the basic block
                 // and after which reg life and gc info will be recomputed for the new block in genCodeForBBList().
                 regSet.AddMaskVars(genRegMask(argReg));
@@ -3074,7 +3076,7 @@ void CodeGen::genFloatToFloatCast(GenTree* treeNode)
     assert(genIsValidFloatReg(targetReg));
 
     GenTree* op1 = treeNode->AsOpRef().gtOp1;
-    assert(!op1->isContained());               // Cannot be contained
+    assert(!op1->isContained());                  // Cannot be contained
     assert(genIsValidFloatReg(op1->GetRegNum())); // Must be a valid float reg.
 
     var_types dstType = treeNode->CastToType();
@@ -3107,7 +3109,8 @@ void CodeGen::genFloatToFloatCast(GenTree* treeNode)
         insOpts cvtOption = (srcType == TYP_FLOAT) ? INS_OPTS_S_TO_D  // convert Single to Double
                                                    : INS_OPTS_D_TO_S; // convert Double to Single
 
-        getEmitter()->emitIns_R_R(INS_fcvt, emitActualTypeSize(treeNode), treeNode->GetRegNum(), op1->GetRegNum(), cvtOption);
+        getEmitter()->emitIns_R_R(INS_fcvt, emitActualTypeSize(treeNode), treeNode->GetRegNum(), op1->GetRegNum(),
+                                  cvtOption);
     }
     else if (treeNode->GetRegNum() != op1->GetRegNum())
     {

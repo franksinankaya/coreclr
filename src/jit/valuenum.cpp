@@ -6502,8 +6502,8 @@ void Compiler::fgValueNumberTreeConst(GenTree* tree)
 
                 if (tree->IsIconHandle())
                 {
-                    tree->gtVNPair.SetBoth(
-                        vnStore->VNForHandle(ssize_t(tree->AsIntConCommonRef().IconValue()), tree->GetIconHandleFlag()));
+                    tree->gtVNPair.SetBoth(vnStore->VNForHandle(ssize_t(tree->AsIntConCommonRef().IconValue()),
+                                                                tree->GetIconHandleFlag()));
                 }
                 else
                 {
@@ -7265,7 +7265,7 @@ void Compiler::fgValueNumberTree(GenTree* tree)
 
                         assert(rhsVNPair.GetLiberal() != ValueNumStore::NoVN);
 
-                        lhs->gtVNPair                                                 = rhsVNPair;
+                        lhs->gtVNPair                                                    = rhsVNPair;
                         lvaTable[lcl->GetLclNum()].GetPerSsaData(lclDefSsaNum)->m_vnPair = rhsVNPair;
 
 #ifdef DEBUG
@@ -7333,7 +7333,8 @@ void Compiler::fgValueNumberTree(GenTree* tree)
                             {
                                 // We don't know what field this represents.  Assign a new VN to the whole variable
                                 // (since we may be writing to an unknown portion of it.)
-                                newLhsVNPair.SetBoth(vnStore->VNForExpr(compCurBB, lvaGetActualType(lclFld->GetLclNum())));
+                                newLhsVNPair.SetBoth(
+                                    vnStore->VNForExpr(compCurBB, lvaGetActualType(lclFld->GetLclNum())));
                             }
                             else
                             {
@@ -7729,7 +7730,8 @@ void Compiler::fgValueNumberTree(GenTree* tree)
                     }
 
                     // We model statics as indices into GcHeap (which is a subset of ByrefExposed).
-                    FieldSeqNode* fldSeqForStaticVar = GetFieldSeqStore()->CreateSingleton(lhs->AsClsVarRef().gtClsVarHnd);
+                    FieldSeqNode* fldSeqForStaticVar =
+                        GetFieldSeqStore()->CreateSingleton(lhs->AsClsVarRef().gtClsVarHnd);
                     assert(fldSeqForStaticVar != FieldSeqStore::NotAField());
 
                     ValueNum storeVal = rhsVNPair.GetLiberal(); // The value number from the rhs of the assignment
@@ -8110,7 +8112,8 @@ void Compiler::fgValueNumberTree(GenTree* tree)
                             // If we are fetching the array length for an array ref that came from global memory
                             // then for CSE safety we must use the conservative value number for both
                             //
-                            if ((tree->OperGet() == GT_ARR_LENGTH) && ((tree->AsOpRef().gtOp1->gtFlags & GTF_GLOB_REF) != 0))
+                            if ((tree->OperGet() == GT_ARR_LENGTH) &&
+                                ((tree->AsOpRef().gtOp1->gtFlags & GTF_GLOB_REF) != 0))
                             {
                                 // use the conservative value number for both when computing the VN for the ARR_LENGTH
                                 op1VNP.SetBoth(op1VNP.GetConservative());

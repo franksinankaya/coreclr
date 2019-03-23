@@ -1328,7 +1328,8 @@ AGAIN:
 
     /* Check for an addition of a constant */
 
-    if (op2->IsIntCnsFitsInI32() && (op2->gtType != TYP_REF) && FitsIn<INT32>(cns + op2->AsIntConCommonRef().IconValue()))
+    if (op2->IsIntCnsFitsInI32() && (op2->gtType != TYP_REF) &&
+        FitsIn<INT32>(cns + op2->AsIntConCommonRef().IconValue()))
     {
         /* We're adding a constant */
 
@@ -1407,7 +1408,8 @@ AGAIN:
                 break;
             }
 
-            if (op1->AsOpRef().gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op1->AsOpRef().gtOp2->AsIntConRef().gtIconVal))
+            if (op1->AsOpRef().gtOp2->IsIntCnsFitsInI32() &&
+                FitsIn<INT32>(cns + op1->AsOpRef().gtOp2->AsIntConRef().gtIconVal))
             {
                 cns += op1->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
                 op1 = op1->AsOpRef().gtOp1;
@@ -1488,7 +1490,8 @@ AGAIN:
                 break;
             }
 
-            if (op2->AsOpRef().gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op2->AsOpRef().gtOp2->AsIntConRef().gtIconVal))
+            if (op2->AsOpRef().gtOp2->IsIntCnsFitsInI32() &&
+                FitsIn<INT32>(cns + op2->AsOpRef().gtOp2->AsIntConRef().gtIconVal))
             {
                 cns += op2->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
                 op2 = op2->AsOpRef().gtOp1;
@@ -4545,7 +4548,8 @@ void CodeGen::genCheckUseBlockInit()
                         else
                         {
                             // Var is partially enregistered
-                            noway_assert(genTypeSize(varDsc->TypeGet()) > sizeof(int) && varDsc->GetOtherReg() == REG_STK);
+                            noway_assert(genTypeSize(varDsc->TypeGet()) > sizeof(int) &&
+                                         varDsc->GetOtherReg() == REG_STK);
                             initStkLclCnt += genTypeStSz(TYP_INT);
                             counted = true;
                         }

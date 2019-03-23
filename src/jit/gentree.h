@@ -440,8 +440,6 @@ public:
 #define MAX_COST UCHAR_MAX
 #define IND_COST_EX 3 // execution cost for an indirection
 
-
-
     unsigned char GetCostEx() const
     {
         assert(gtCostsInitialized);
@@ -523,8 +521,6 @@ private:
 public:
     // The register number is stored in a small format (8 bits), but the getters return and the setters take
     // a full-size (unsigned) format, to localize the casts here.
-
-
 
     bool canBeContained() const;
 
@@ -3222,7 +3218,7 @@ struct GenTreeCall final : public GenTree
 
         if (idx == 0)
         {
-	    return GetRegNum();
+            return GetRegNum();
         }
 
 #if FEATURE_MULTIREG_RET
@@ -3248,7 +3244,7 @@ struct GenTreeCall final : public GenTree
 
         if (idx == 0)
         {
-	    SetRegNum(reg);
+            SetRegNum(reg);
         }
 #if FEATURE_MULTIREG_RET
         else
@@ -5406,7 +5402,7 @@ struct GenTreeCopyOrReload : public GenTreeUnOp
 
         if (idx == 0)
         {
-	    return GetRegNum();
+            return GetRegNum();
         }
 
 #if FEATURE_MULTIREG_RET
@@ -5432,7 +5428,7 @@ struct GenTreeCopyOrReload : public GenTreeUnOp
 
         if (idx == 0)
         {
-	    SetRegNum(reg);
+            SetRegNum(reg);
         }
 #if FEATURE_MULTIREG_RET
         else
@@ -5949,7 +5945,8 @@ inline bool GenTree::IsIntegralConstVector(ssize_t constVal)
 #ifdef FEATURE_SIMD
     // SIMDIntrinsicInit intrinsic with a const value as initializer
     // represents a const vector.
-    if ((gtOper == GT_SIMD) && (AsSIMDRef().gtSIMDIntrinsicID == SIMDIntrinsicInit) && gtGetOp1()->IsIntegralConst(constVal))
+    if ((gtOper == GT_SIMD) && (AsSIMDRef().gtSIMDIntrinsicID == SIMDIntrinsicInit) &&
+        gtGetOp1()->IsIntegralConst(constVal))
     {
         assert(varTypeIsIntegral(AsSIMDRef().gtSIMDBaseType));
         assert(gtGetOp2IfPresent() == nullptr);

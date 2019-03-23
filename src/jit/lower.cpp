@@ -968,7 +968,7 @@ void Lowering::ReplaceArgWithPutArgOrBitcast(GenTree** argSlot, GenTree* putArgO
     GenTree* arg = *argSlot;
 
     // Replace the argument with the putarg/copy
-    *argSlot                    = putArgOrBitcast;
+    *argSlot                         = putArgOrBitcast;
     putArgOrBitcast->AsOpRef().gtOp1 = arg;
 
     // Insert the putarg/copy into the block
@@ -1377,7 +1377,7 @@ void Lowering::LowerArg(GenTreeCall* call, GenTree** ppArg)
             GenTreeFieldList* fieldList = new (comp, GT_FIELD_LIST) GenTreeFieldList(argLo, 0, TYP_INT, nullptr);
             // Only the first fieldList node (GTF_FIELD_LIST_HEAD) is in the instruction sequence.
             (void)new (comp, GT_FIELD_LIST) GenTreeFieldList(argHi, 4, TYP_INT, fieldList);
-            GenTree* putArg  = NewPutArg(call, fieldList, info, type);
+            GenTree* putArg     = NewPutArg(call, fieldList, info, type);
             putArg->GetRegNum() = info->regNum;
 
             // We can't call ReplaceArgWithPutArgOrBitcast here because it presumes that we are keeping the original
@@ -2054,8 +2054,9 @@ void Lowering::LowerFastTailCall(GenTreeCall* call)
                         tmpLclNum = comp->lvaGrabTemp(
                             true DEBUGARG("Fast tail call lowering is creating a new local variable"));
 
-                        comp->lvaTable[tmpLclNum].lvType            = tmpType;
-                        comp->lvaTable[tmpLclNum].lvDoNotEnregister = comp->lvaTable[lcl->GetLclNum()].lvDoNotEnregister;
+                        comp->lvaTable[tmpLclNum].lvType = tmpType;
+                        comp->lvaTable[tmpLclNum].lvDoNotEnregister =
+                            comp->lvaTable[lcl->GetLclNum()].lvDoNotEnregister;
                     }
 
                     lcl->SetLclNum(tmpLclNum);
@@ -2513,7 +2514,7 @@ GenTree* Lowering::DecomposeLongCompare(GenTree* cmp)
     {
         BlockRange().Remove(cmp);
 
-        GenTree* jcc    = cmpUse.User();
+        GenTree* jcc         = cmpUse.User();
         jcc->AsOpRef().gtOp1 = nullptr;
         jcc->ChangeOper(GT_JCC);
         jcc->gtFlags |= GTF_USE_FLAGS;
@@ -5113,8 +5114,9 @@ GenTree* Lowering::LowerArrElem(GenTree* node)
 
     // Generate the LEA and make it reverse evaluation, because we want to evaluate the index expression before the
     // base.
-    unsigned scale  = arrElem->AsArrElemRef().gtArrElemSize;
-    unsigned offset = comp->eeGetMDArrayDataOffset(arrElem->AsArrElemRef().gtArrElemType, arrElem->AsArrElemRef().gtArrRank);
+    unsigned scale = arrElem->AsArrElemRef().gtArrElemSize;
+    unsigned offset =
+        comp->eeGetMDArrayDataOffset(arrElem->AsArrElemRef().gtArrElemType, arrElem->AsArrElemRef().gtArrRank);
 
     GenTree* leaIndexNode = prevArrOffs;
     if (!jitIsScaleIndexMul(scale))

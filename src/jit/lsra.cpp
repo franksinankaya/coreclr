@@ -128,7 +128,7 @@ void lsraAssignRegToTree(GenTree* tree, regNumber reg, unsigned regIdx)
 {
     if (regIdx == 0)
     {
-      tree->SetRegNum(reg);
+        tree->SetRegNum(reg);
     }
 #if !defined(_TARGET_64BIT_)
     else if (tree->OperIsMultiRegOp())
@@ -6089,7 +6089,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
                     // it as a contained memory operand.
                     //
                     // Note that varDsc->GetRegNum() is already to REG_STK above.
-                    interval->physReg  = REG_NA;
+                    interval->physReg = REG_NA;
                     treeNode->SetRegNum(REG_NA);
                     treeNode->gtFlags &= ~GTF_SPILLED;
                     treeNode->SetContained();
@@ -6115,7 +6115,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
         interval->physReg = REG_NA;
         if (treeNode != nullptr)
         {
-	  treeNode->SetRegNum(REG_NA);
+            treeNode->SetRegNum(REG_NA);
         }
     }
     else // Not reload and Not pure-def that's spillAfter
@@ -6169,7 +6169,7 @@ void LinearScan::resolveLocalRef(BasicBlock* block, GenTree* treeNode, RefPositi
                 }
                 else
                 {
-		  varDsc->SetRegNum(assignedReg);
+                    varDsc->SetRegNum(assignedReg);
                 }
             }
         }
@@ -6379,7 +6379,7 @@ void LinearScan::insertUpperVectorSave(GenTree*     tree,
 
     // Insert the save before the call.
 
-    GenTree* saveLcl  = compiler->gtNewLclvNode(lclVarInterval->varNum, varDsc->lvType);
+    GenTree* saveLcl = compiler->gtNewLclvNode(lclVarInterval->varNum, varDsc->lvType);
     saveLcl->SetRegNum(lclVarReg);
     SetLsraAdded(saveLcl);
 
@@ -7123,7 +7123,7 @@ void LinearScan::resolveRegisters()
         {
             if (!isCandidateVar(varDsc))
             {
-	      varDsc->SetRegNum(REG_STK);
+                varDsc->SetRegNum(REG_STK);
             }
             else
             {
@@ -7149,7 +7149,7 @@ void LinearScan::resolveRegisters()
                     else
 #endif // _TARGET_ARM_
                     {
-		      varDsc->SetArgInitReg(initialReg);
+                        varDsc->SetArgInitReg(initialReg);
                         JITDUMP("  Set V%02u argument initial register to %s\n", lclNum, getRegName(initialReg));
                     }
 
@@ -7212,7 +7212,7 @@ void LinearScan::resolveRegisters()
                         }
                         else
                         {
-			    varDsc->SetRegNum(firstRefPosition->assignedReg());
+                            varDsc->SetRegNum(firstRefPosition->assignedReg());
                         }
                     }
                 }
@@ -7390,15 +7390,15 @@ void LinearScan::insertSwap(
     LclVarDsc* varDsc2 = compiler->lvaTable + lclNum2;
     assert(reg1 != REG_STK && reg1 != REG_NA && reg2 != REG_STK && reg2 != REG_NA);
 
-    GenTree* lcl1  = compiler->gtNewLclvNode(lclNum1, varDsc1->TypeGet());
+    GenTree* lcl1 = compiler->gtNewLclvNode(lclNum1, varDsc1->TypeGet());
     lcl1->SetRegNum(reg1);
     SetLsraAdded(lcl1);
 
-    GenTree* lcl2  = compiler->gtNewLclvNode(lclNum2, varDsc2->TypeGet());
+    GenTree* lcl2 = compiler->gtNewLclvNode(lclNum2, varDsc2->TypeGet());
     lcl2->SetRegNum(reg2);
     SetLsraAdded(lcl2);
 
-    GenTree* swap  = compiler->gtNewOperNode(GT_SWAP, TYP_VOID, lcl1, lcl2);
+    GenTree* swap = compiler->gtNewOperNode(GT_SWAP, TYP_VOID, lcl1, lcl2);
     swap->SetRegNum(REG_NA);
     SetLsraAdded(swap);
 

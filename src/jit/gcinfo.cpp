@@ -667,11 +667,13 @@ GCInfo::WriteBarrierForm GCInfo::gcWriteBarrierFormFromTargetAddress(GenTree* tg
             {
                 if (tgtAddr->AsOpRef().gtOp1->TypeGet() == TYP_BYREF || tgtAddr->AsOpRef().gtOp1->TypeGet() == TYP_REF)
                 {
-                    assert(!(tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_BYREF || tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_REF));
+                    assert(!(tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_BYREF ||
+                             tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_REF));
                     tgtAddr        = tgtAddr->AsOpRef().gtOp1;
                     simplifiedExpr = true;
                 }
-                else if (tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_BYREF || tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_REF)
+                else if (tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_BYREF ||
+                         tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_REF)
                 {
                     tgtAddr        = tgtAddr->AsOpRef().gtOp2;
                     simplifiedExpr = true;

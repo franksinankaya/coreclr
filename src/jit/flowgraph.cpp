@@ -581,7 +581,7 @@ GenTreeStmt* Compiler::fgInsertStmtAtBeg(BasicBlock* block, GenTree* node)
     /* The new tree will now be the first one of the block */
 
     block->setBBTreeList(stmt);
-    stmt->gtNext      = list;
+    stmt->gtNext = list;
 
     /* Are there any statements in the block? */
 
@@ -652,7 +652,7 @@ GenTreeStmt* Compiler::fgInsertStmtAtEnd(BasicBlock* block, GenTree* node)
         /* The block is completely empty */
 
         block->setBBTreeList(stmt);
-        stmt->gtPrev      = stmt;
+        stmt->gtPrev = stmt;
     }
 
     return stmt;
@@ -721,7 +721,7 @@ GenTreeStmt* Compiler::fgInsertStmtNearEnd(BasicBlock* block, GenTree* node)
             /* There is only one stmt in the block */
 
             block->setBBTreeList(stmt);
-            stmt->gtPrev      = last;
+            stmt->gtPrev = last;
         }
         else
         {
@@ -798,7 +798,7 @@ GenTreeStmt* Compiler::fgInsertStmtBefore(BasicBlock* block, GenTreeStmt* insert
         stmt->gtPrev = last;
 
         block->setBBTreeList(stmt);
-        list->gtPrev      = stmt;
+        list->gtPrev = stmt;
     }
     else
     {
@@ -835,8 +835,8 @@ GenTreeStmt* Compiler::fgInsertStmtListAfter(BasicBlock*  block,     // the bloc
 
     if (stmtNext == nullptr)
     {
-        stmtAfter->gtNext         = stmtList;
-        stmtList->gtPrev          = stmtAfter;
+        stmtAfter->gtNext              = stmtList;
+        stmtList->gtPrev               = stmtAfter;
         block->getBBTreeList()->gtPrev = stmtLast;
         goto _Done;
     }
@@ -7540,7 +7540,7 @@ GenTree* Compiler::fgDoNormalizeOnStore(GenTree* tree)
 
                 if (fgCastNeeded(op2, varDsc->TypeGet()))
                 {
-                    op2              = gtNewCastNode(TYP_INT, op2, false, varDsc->TypeGet());
+                    op2                   = gtNewCastNode(TYP_INT, op2, false, varDsc->TypeGet());
                     tree->AsOpRef().gtOp2 = op2;
 
                     // Propagate GTF_COLON_COND
@@ -9329,13 +9329,13 @@ BasicBlock* Compiler::fgSplitBlockAfterStatement(BasicBlock* curr, GenTreeStmt* 
 
     if (stmt != nullptr)
     {
-      newBlock->setBBTreeList(stmt->gtNext);
+        newBlock->setBBTreeList(stmt->gtNext);
         if (newBlock->getBBTreeList())
         {
             newBlock->getBBTreeList()->gtPrev = curr->getBBTreeList()->gtPrev;
         }
         curr->getBBTreeList()->gtPrev = stmt;
-        stmt->gtNext             = nullptr;
+        stmt->gtNext                  = nullptr;
 
         // Update the IL offsets of the blocks to match the split.
 
@@ -9933,13 +9933,13 @@ void Compiler::fgRemoveStmt(BasicBlock* block, GenTreeStmt* stmt)
         }
         else
         {
-	    block->setBBTreeList(tree->gtNext);
+            block->setBBTreeList(tree->gtNext);
             block->getBBTreeList()->gtPrev = tree->gtPrev;
         }
     }
     else if (stmt == block->lastStmt()) // Is it the last statement in the list?
     {
-        stmt->gtPrev->gtNext      = nullptr;
+        stmt->gtPrev->gtNext           = nullptr;
         block->getBBTreeList()->gtPrev = stmt->gtPrev;
     }
     else // The statement is in the middle.
@@ -10267,7 +10267,7 @@ void Compiler::fgCompactBlocks(BasicBlock* block, BasicBlock* bNext)
                 if (blkFirst != nullptr) // If "block" has no statements, fusion will work fine...
                 {
                     // First, bNextPhis at start of block.
-                    GenTree* blkLast  = blkFirst->gtPrev;
+                    GenTree* blkLast = blkFirst->gtPrev;
                     block->setBBTreeList(bNextFirst);
                     // Now, rest of "block" (if it exists) after last phi of "bNext".
                     GenTree* bNextLastPhi = nullptr;
@@ -10319,7 +10319,7 @@ void Compiler::fgCompactBlocks(BasicBlock* block, BasicBlock* bNext)
         else
         {
             /* block was formerly empty and now has bNext's statements */
-	  block->setBBTreeList(stmtList2);
+            block->setBBTreeList(stmtList2);
         }
     }
 
@@ -14270,8 +14270,8 @@ bool Compiler::fgOptimizeSwitchBranches(BasicBlock* block)
 #endif // DEBUG
 
         switchTree->ChangeOper(GT_JTRUE);
-        GenTree* zeroConstNode = gtNewZeroConNode(genActualType(switchVal->TypeGet()));
-        GenTree* condNode      = gtNewOperNode(GT_EQ, TYP_INT, switchVal, zeroConstNode);
+        GenTree* zeroConstNode      = gtNewZeroConNode(genActualType(switchVal->TypeGet()));
+        GenTree* condNode           = gtNewOperNode(GT_EQ, TYP_INT, switchVal, zeroConstNode);
         switchTree->AsOpRef().gtOp1 = condNode;
         switchTree->AsOpRef().gtOp1->gtFlags |= (GTF_RELOP_JMP_USED | GTF_DONT_CSE);
 
@@ -14881,7 +14881,7 @@ bool Compiler::fgOptimizeBranch(BasicBlock* bJump)
     }
     else
     {
-      bJump->setBBTreeList(newStmtList);
+        bJump->setBBTreeList(newStmtList);
         newStmtList->gtPrev = newLastStmt;
     }
 
@@ -18911,7 +18911,7 @@ void Compiler::fgSetBlockOrder()
                 //
                 if (compCanEncodePtrArgCntMax())
                 {
-      		    setInterruptible(true);
+                    setInterruptible(true);
                 }
                 break;
             }
@@ -20520,8 +20520,8 @@ Compiler::fgWalkResult Compiler::fgStress64RsltMulCB(GenTree** pTree, fgWalkData
     tree->AsOpRef().gtOp1 = pComp->gtNewOperNode(GT_NOP, TYP_LONG, tree->AsOpRef().gtOp1);
     tree->AsOpRef().gtOp1 = pComp->gtNewCastNode(TYP_LONG, tree->AsOpRef().gtOp1, false, TYP_LONG);
     tree->AsOpRef().gtOp2 = pComp->gtNewCastNode(TYP_LONG, tree->AsOpRef().gtOp2, false, TYP_LONG);
-    tree->gtType     = TYP_LONG;
-    *pTree           = pComp->gtNewCastNode(TYP_INT, tree, false, TYP_INT);
+    tree->gtType          = TYP_LONG;
+    *pTree                = pComp->gtNewCastNode(TYP_INT, tree, false, TYP_INT);
 
 #ifdef DEBUG
     if (pComp->verbose)
@@ -21507,8 +21507,8 @@ void Compiler::fgDebugCheckNodeLinks(BasicBlock* block, GenTreeStmt* stmt)
             switch (tree->gtOper)
             {
                 case GT_QMARK:
-                    expectedPrevTree =
-                        tree->AsOpRef().gtOp2->AsColon()->ThenNode(); // "then" operand of the GT_COLON (generated second).
+                    expectedPrevTree = tree->AsOpRef().gtOp2->AsColon()->ThenNode(); // "then" operand of the GT_COLON
+                                                                                     // (generated second).
                     break;
 
                 case GT_COLON:
@@ -22091,7 +22091,7 @@ GenTree* Compiler::fgGetStructAsStructPtr(GenTree* tree)
 
         case GT_COMMA:
             tree->AsOpRef().gtOp2 = fgGetStructAsStructPtr(tree->AsOpRef().gtOp2);
-            tree->gtType     = TYP_BYREF;
+            tree->gtType          = TYP_BYREF;
             return tree;
 
         default:
@@ -22145,7 +22145,7 @@ GenTree* Compiler::fgAssignStructInlineeToVar(GenTree* child, CORINFO_CLASS_HAND
         if (child->gtOper == GT_COMMA)
         {
             lastComma->AsOpRef().gtOp2 = newInlinee;
-            newInlinee            = child;
+            newInlinee                 = child;
         }
     }
     else
@@ -23360,7 +23360,8 @@ GenTreeStmt* Compiler::fgInlinePrependStatements(InlineInfo* inlineInfo)
                             // Look for (COMMA (CALL(special dce helper...), (FIELD ...)))
                             GenTree* op1 = actualArgNode->AsOpRef().gtOp1;
                             GenTree* op2 = actualArgNode->AsOpRef().gtOp2;
-                            if (op1->IsCall() && ((op1->AsCallRef().gtCallMoreFlags & GTF_CALL_M_HELPER_SPECIAL_DCE) != 0) &&
+                            if (op1->IsCall() &&
+                                ((op1->AsCallRef().gtCallMoreFlags & GTF_CALL_M_HELPER_SPECIAL_DCE) != 0) &&
                                 (op2->gtOper == GT_FIELD) && ((op2->gtFlags & GTF_EXCEPT) == 0))
                             {
                                 JITDUMP("\nPerforming special dce on unused arg [%06u]:"

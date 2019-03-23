@@ -652,7 +652,7 @@ public:
         }
         else if (slotNum == 1)
         {
-      	    return GetOtherArgReg();
+            return GetOtherArgReg();
         }
         else
         {
@@ -765,8 +765,6 @@ public:
 
     /////////////////////
 
-
-
     regNumber GetRegNum() const
     {
         return (regNumber)_lvRegNum;
@@ -782,7 +780,6 @@ public:
 
 #if defined(_TARGET_64BIT_)
 
-
     regNumber GetOtherReg() const
     {
         assert(!"shouldn't get here"); // can't use "unreached();" because it's NORETURN, which causes C4072
@@ -796,7 +793,6 @@ public:
                                        // "unreachable code" warnings
     }
 #else  // !_TARGET_64BIT_
-
 
     regNumber GetOtherReg() const
     {
@@ -812,8 +808,6 @@ public:
 
     /////////////////////
 
-
-
     regNumber GetArgReg() const
     {
         return (regNumber)_lvArgReg;
@@ -826,7 +820,6 @@ public:
     }
 
 #if FEATURE_MULTIREG_ARGS
-
 
     regNumber GetOtherArgReg() const
     {
@@ -866,8 +859,6 @@ public:
 
     /////////////////////
 
-
-
     regNumber GetArgInitReg() const
     {
         return (regNumber)_lvArgInitReg;
@@ -896,16 +887,16 @@ public:
         regMaskTP regMask = RBM_NONE;
         if (varTypeIsFloating(TypeGet()))
         {
-  	    if (GetRegNum() != REG_STK)
+            if (GetRegNum() != REG_STK)
             {
-	        regMask = genRegMaskFloat(GetRegNum(), TypeGet());
+                regMask = genRegMaskFloat(GetRegNum(), TypeGet());
             }
         }
         else
         {
-	    if (GetRegNum() != REG_STK)
+            if (GetRegNum() != REG_STK)
             {
-	        regMask = genRegMask(GetRegNum());
+                regMask = genRegMask(GetRegNum());
             }
         }
         return regMask;
@@ -1497,7 +1488,6 @@ public:
         return isLate;
     }
 
-
     unsigned getLateArgInx()
     {
         assert(isLateArg());
@@ -1547,7 +1537,6 @@ public:
 #endif
     }
 
-
     bool getIsVararg()
     {
 #ifdef FEATURE_VARARG
@@ -1563,7 +1552,6 @@ public:
 #endif // FEATURE_VARARG
     }
 
-
     bool getIsHfaArg()
     {
 #ifdef FEATURE_HFA
@@ -1573,7 +1561,6 @@ public:
 #endif
     }
 
-
     bool getIsHfaRegArg()
     {
 #ifdef FEATURE_HFA
@@ -1582,7 +1569,6 @@ public:
         return false;
 #endif
     }
-
 
     var_types getHfaType()
     {
@@ -7292,7 +7278,6 @@ public:
     {
         return codeGen->isFramePointerUsed();
     }
-
 
     bool getInterruptible()
     {

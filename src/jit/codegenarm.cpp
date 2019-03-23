@@ -872,7 +872,8 @@ void CodeGen::genCodeForLclVar(GenTreeLclVar* tree)
 
     if (!isRegCandidate && !(tree->gtFlags & GTF_SPILLED))
     {
-        getEmitter()->emitIns_R_S(ins_Load(tree->TypeGet()), emitTypeSize(tree), tree->GetRegNum(), tree->GetLclNum(), 0);
+        getEmitter()->emitIns_R_S(ins_Load(tree->TypeGet()), emitTypeSize(tree), tree->GetRegNum(), tree->GetLclNum(),
+                                  0);
         genProduceReg(tree);
     }
 }
@@ -1333,7 +1334,7 @@ void CodeGen::genIntToFloatCast(GenTree* treeNode)
     assert(genIsValidFloatReg(targetReg));
 
     GenTree* op1 = treeNode->AsOpRef().gtOp1;
-    assert(!op1->isContained());             // Cannot be contained
+    assert(!op1->isContained());                // Cannot be contained
     assert(genIsValidIntReg(op1->GetRegNum())); // Must be a valid int reg.
 
     var_types dstType = treeNode->CastToType();
@@ -1398,7 +1399,7 @@ void CodeGen::genFloatToIntCast(GenTree* treeNode)
     assert(genIsValidIntReg(targetReg)); // Must be a valid int reg.
 
     GenTree* op1 = treeNode->AsOpRef().gtOp1;
-    assert(!op1->isContained());               // Cannot be contained
+    assert(!op1->isContained());                  // Cannot be contained
     assert(genIsValidFloatReg(op1->GetRegNum())); // Must be a valid float reg.
 
     var_types dstType = treeNode->CastToType();
@@ -1519,7 +1520,8 @@ void CodeGen::genCodeForMulLong(GenTreeMultiRegOp* node)
     GenTree*    src1 = node->gtOp1;
     GenTree*    src2 = node->gtOp2;
     instruction ins  = node->IsUnsigned() ? INS_umull : INS_smull;
-    getEmitter()->emitIns_R_R_R_R(ins, EA_4BYTE, node->GetRegNum(), node->gtOtherReg, src1->GetRegNum(), src2->GetRegNum());
+    getEmitter()->emitIns_R_R_R_R(ins, EA_4BYTE, node->GetRegNum(), node->gtOtherReg, src1->GetRegNum(),
+                                  src2->GetRegNum());
     genProduceReg(node);
 }
 

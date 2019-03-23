@@ -842,14 +842,14 @@ void Compiler::lvaInitUserArgs(InitVarDscInfo* varDscInfo)
 
                 if (secondEightByteType != TYP_UNDEF)
                 {
-		    varDsc->SetOtherArgReg(genMapRegArgNumToRegNum(secondAllocatedRegArgNum, secondEightByteType));
+                    varDsc->SetOtherArgReg(genMapRegArgNumToRegNum(secondAllocatedRegArgNum, secondEightByteType));
                 }
 #else // ARM32 or ARM64
                 varDsc->SetArgReg(genMapRegArgNumToRegNum(firstAllocatedRegArgNum, TYP_I_IMPL));
 #ifdef _TARGET_ARM64_
                 if (cSlots == 2)
                 {
-  		    varDsc->SetOtherArgReg(genMapRegArgNumToRegNum(firstAllocatedRegArgNum + 1, TYP_I_IMPL));
+                    varDsc->SetOtherArgReg(genMapRegArgNumToRegNum(firstAllocatedRegArgNum + 1, TYP_I_IMPL));
                     varDscInfo->hasMultiSlotStruct = true;
                 }
 #endif //  _TARGET_ARM64_
@@ -4968,7 +4968,7 @@ void Compiler::lvaUpdateArgsWithInitialReg()
 
         if (varDsc->lvIsRegCandidate())
         {
-	  varDsc->SetRegNum(varDsc->GetArgInitReg());
+            varDsc->SetRegNum(varDsc->GetArgInitReg());
         }
     }
 }
@@ -5352,7 +5352,8 @@ int Compiler::lvaAssignVirtualFrameOffsetToArg(unsigned lclNum,
 #if FEATURE_ARG_SPLIT
         if (this->info.compIsVarArgs)
         {
-            if (varDsc->lvType == TYP_STRUCT && varDsc->GetOtherArgReg() >= MAX_REG_ARG && varDsc->GetOtherArgReg() != REG_NA)
+            if (varDsc->lvType == TYP_STRUCT && varDsc->GetOtherArgReg() >= MAX_REG_ARG &&
+                varDsc->GetOtherArgReg() != REG_NA)
             {
                 // This is a split struct. It will account for an extra (8 bytes)
                 // of alignment.
