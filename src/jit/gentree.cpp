@@ -1493,9 +1493,9 @@ AGAIN:
 #ifdef FEATURE_HW_INTRINSICS
         case GT_HW_INTRINSIC_CHK:
 #endif // FEATURE_HW_INTRINSICS
-            return Compare(op1->gtBoundsChk.gtIndex, op2->gtBoundsChk.gtIndex) &&
-                   Compare(op1->gtBoundsChk.gtArrLen, op2->gtBoundsChk.gtArrLen) &&
-                   (op1->gtBoundsChk.gtThrowKind == op2->gtBoundsChk.gtThrowKind);
+            return Compare(op1->AsBoundsChkRef().gtIndex, op2->AsBoundsChkRef().gtIndex) &&
+                   Compare(op1->AsBoundsChkRef().gtArrLen, op2->AsBoundsChkRef().gtArrLen) &&
+                   (op1->AsBoundsChkRef().gtThrowKind == op2->AsBoundsChkRef().gtThrowKind);
 
         case GT_STORE_DYN_BLK:
         case GT_DYN_BLK:
@@ -1722,11 +1722,11 @@ AGAIN:
 #ifdef FEATURE_HW_INTRINSICS
         case GT_HW_INTRINSIC_CHK:
 #endif // FEATURE_HW_INTRINSICS
-            if (gtHasRef(tree->gtBoundsChk.gtIndex, lclNum, defOnly))
+            if (gtHasRef(tree->AsBoundsChkRef().gtIndex, lclNum, defOnly))
             {
                 return true;
             }
-            if (gtHasRef(tree->gtBoundsChk.gtArrLen, lclNum, defOnly))
+            if (gtHasRef(tree->AsBoundsChkRef().gtArrLen, lclNum, defOnly))
             {
                 return true;
             }
@@ -2146,9 +2146,9 @@ AGAIN:
 #ifdef FEATURE_HW_INTRINSICS
         case GT_HW_INTRINSIC_CHK:
 #endif // FEATURE_HW_INTRINSICS
-            hash = genTreeHashAdd(hash, gtHashValue(tree->gtBoundsChk.gtIndex));
-            hash = genTreeHashAdd(hash, gtHashValue(tree->gtBoundsChk.gtArrLen));
-            hash = genTreeHashAdd(hash, tree->gtBoundsChk.gtThrowKind);
+            hash = genTreeHashAdd(hash, gtHashValue(tree->AsBoundsChkRef().gtIndex));
+            hash = genTreeHashAdd(hash, gtHashValue(tree->AsBoundsChkRef().gtArrLen));
+            hash = genTreeHashAdd(hash, tree->AsBoundsChkRef().gtThrowKind);
             break;
 
         case GT_STORE_DYN_BLK:
@@ -4293,17 +4293,17 @@ unsigned Compiler::gtSetEvalOrder(GenTree* tree)
             costEx = 4; // cmp reg,reg and jae throw (not taken)
             costSz = 7; // jump to cold section
 
-            level = gtSetEvalOrder(tree->gtBoundsChk.gtIndex);
-            costEx += tree->gtBoundsChk.gtIndex->GetCostEx();
-            costSz += tree->gtBoundsChk.gtIndex->GetCostSz();
+            level = gtSetEvalOrder(tree->AsBoundsChkRef().gtIndex);
+            costEx += tree->AsBoundsChkRef().gtIndex->GetCostEx();
+            costSz += tree->AsBoundsChkRef().gtIndex->GetCostSz();
 
-            lvl2 = gtSetEvalOrder(tree->gtBoundsChk.gtArrLen);
+            lvl2 = gtSetEvalOrder(tree->AsBoundsChkRef().gtArrLen);
             if (level < lvl2)
             {
                 level = lvl2;
             }
-            costEx += tree->gtBoundsChk.gtArrLen->GetCostEx();
-            costSz += tree->gtBoundsChk.gtArrLen->GetCostSz();
+            costEx += tree->AsBoundsChkRef().gtArrLen->GetCostEx();
+            costSz += tree->AsBoundsChkRef().gtArrLen->GetCostSz();
 
             break;
 
@@ -4577,13 +4577,13 @@ GenTree** GenTree::gtGetChildPointer(GenTree* parent) const
 #ifdef FEATURE_HW_INTRINSICS
         case GT_HW_INTRINSIC_CHK:
 #endif // FEATURE_HW_INTRINSICS
-            if (this == parent->gtBoundsChk.gtIndex)
+            if (this == parent->AsBoundsChkRef().gtIndex)
             {
-                return &(parent->gtBoundsChk.gtIndex);
+                return &(parent->AsBoundsChkRef().gtIndex);
             }
-            if (this == parent->gtBoundsChk.gtArrLen)
+            if (this == parent->AsBoundsChkRef().gtArrLen)
             {
-                return &(parent->gtBoundsChk.gtArrLen);
+                return &(parent->AsBoundsChkRef().gtArrLen);
             }
             break;
 
@@ -7387,10 +7387,10 @@ GenTree* Compiler::gtCloneExpr(
 #endif // FEATURE_HW_INTRINSICS
             copy = new (this, oper)
                 GenTreeBoundsChk(oper, tree->TypeGet(),
-                                 gtCloneExpr(tree->gtBoundsChk.gtIndex, addFlags, deepVarNum, deepVarVal),
-                                 gtCloneExpr(tree->gtBoundsChk.gtArrLen, addFlags, deepVarNum, deepVarVal),
-                                 tree->gtBoundsChk.gtThrowKind);
-            copy->gtBoundsChk.gtIndRngFailBB = tree->gtBoundsChk.gtIndRngFailBB;
+                                 gtCloneExpr(tree->AsBoundsChkRef().gtIndex, addFlags, deepVarNum, deepVarVal),
+                                 gtCloneExpr(tree->AsBoundsChkRef().gtArrLen, addFlags, deepVarNum, deepVarVal),
+                                 tree->AsBoundsChkRef().gtThrowKind);
+            copy->AsBoundsChkRef().gtIndRngFailBB = tree->AsBoundsChkRef().gtIndRngFailBB;
             break;
 
         case GT_STORE_DYN_BLK:
@@ -9182,7 +9182,7 @@ void Compiler::gtDispNodeName(GenTree* tree)
     }
     else if (tree->gtOper == GT_ARR_BOUNDS_CHECK)
     {
-        switch (tree->gtBoundsChk.gtThrowKind)
+        switch (tree->AsBoundsChkRef().gtThrowKind)
         {
             case SCK_RNGCHK_FAIL:
                 sprintf_s(bufp, sizeof(buf), " %s_Rng", name);
@@ -11058,8 +11058,8 @@ void Compiler::gtDispTree(GenTree*     tree,
 
             if (!topOnly)
             {
-                gtDispChild(tree->gtBoundsChk.gtIndex, indentStack, IIArc, nullptr, topOnly);
-                gtDispChild(tree->gtBoundsChk.gtArrLen, indentStack, IIArcBottom, nullptr, topOnly);
+                gtDispChild(tree->AsBoundsChkRef().gtIndex, indentStack, IIArc, nullptr, topOnly);
+                gtDispChild(tree->AsBoundsChkRef().gtArrLen, indentStack, IIArcBottom, nullptr, topOnly);
             }
             break;
 
