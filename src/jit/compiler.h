@@ -7330,7 +7330,7 @@ public:
 
     bool getFullPtrRegMap()
     {
-        return codeGen->genFullPtrRegMap;
+        return codeGen->doFullPtrRegMap();
     }
     void setFullPtrRegMap(bool value)
     {
