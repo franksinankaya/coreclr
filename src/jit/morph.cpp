@@ -11860,7 +11860,7 @@ GenTree* Compiler::fgMorphSmpOp(GenTree* tree, MorphAddrContext* mac)
 
 #ifdef _TARGET_ARM_
         case GT_INTRINSIC:
-            if (tree->gtIntrinsic.gtIntrinsicId == CORINFO_INTRINSIC_Round)
+            if (tree->AsIntrinsicRef().gtIntrinsicId == CORINFO_INTRINSIC_Round)
             {
                 switch (tree->TypeGet())
                 {
