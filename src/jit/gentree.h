@@ -339,8 +339,7 @@ struct GenTree
     GenTree##fn& As##fn##Ref()                                                                                         \
     {                                                                                                                  \
         return *As##fn();                                                                                              \
-    }                                                                                                                  \
-    __declspec(property(get = As##fn##Ref)) GenTree##fn& gt##fn;
+    }
 
 #define GTSTRUCT_N(fn, ...)                                                                                            \
     GenTree##fn* As##fn()                                                                                              \

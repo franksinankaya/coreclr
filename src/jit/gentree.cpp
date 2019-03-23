@@ -12133,7 +12133,7 @@ GenTree* Compiler::gtFoldTypeCompare(GenTree* tree)
     // Note we may see intrinsified or regular calls to GetType
     if (opOther->OperGet() == GT_INTRINSIC)
     {
-        objOp = opOther->gtUnOp.gtOp1;
+        objOp = opOther->AsUnOpRef().gtOp1;
     }
     else
     {
