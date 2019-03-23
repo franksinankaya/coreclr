@@ -11108,9 +11108,9 @@ void Compiler::gtGetArgMsg(
         else
         {
 #ifdef _TARGET_ARM_
-            if (curArgTabEntry->isSplit)
+            if (curArgTabEntry->getIsSplit())
             {
-                regNumber firstReg = curArgTabEntry->regNum;
+                regNumber firstReg = curArgTabEntry->getRegNum();
                 if (listCount == -1)
                 {
                     if (curArgTabEntry->numRegs == 1)
@@ -11122,7 +11122,7 @@ void Compiler::gtGetArgMsg(
                     {
                         regNumber lastReg   = REG_STK;
                         char      separator = (curArgTabEntry->numRegs == 2) ? ',' : '-';
-                        if (curArgTabEntry->isHfaRegArg)
+                        if (curArgTabEntry->getIsHfaRegArg())
                         {
                             unsigned lastRegNum = genMapFloatRegNumToRegArgNum(firstReg) + curArgTabEntry->numRegs - 1;
                             lastReg             = genMapFloatRegArgNumToRegNum(lastRegNum);
@@ -11140,7 +11140,7 @@ void Compiler::gtGetArgMsg(
                 else
                 {
                     unsigned curArgNum = BAD_VAR_NUM;
-                    bool     isFloat   = curArgTabEntry->isHfaRegArg;
+                    bool     isFloat   = curArgTabEntry->getIsHfaRegArg();
                     if (isFloat)
                     {
                         curArgNum = genMapFloatRegNumToRegArgNum(firstReg) + listCount;
@@ -11238,9 +11238,9 @@ void Compiler::gtGetLateArgMsg(
             sprintf_s(bufp, bufLength, "this in %s%c", compRegVarName(argReg), 0);
         }
 #ifdef _TARGET_ARM_
-        else if (curArgTabEntry->isSplit)
+        else if (curArgTabEntry->getIsSplit())
         {
-            regNumber firstReg = curArgTabEntry->regNum;
+            regNumber firstReg = curArgTabEntry->getRegNum();
             unsigned  argNum   = curArgTabEntry->argNum;
             if (listCount == -1)
             {
@@ -11253,7 +11253,7 @@ void Compiler::gtGetLateArgMsg(
                 {
                     regNumber lastReg   = REG_STK;
                     char      separator = (curArgTabEntry->numRegs == 2) ? ',' : '-';
-                    if (curArgTabEntry->isHfaRegArg)
+                    if (curArgTabEntry->getIsHfaRegArg())
                     {
                         unsigned lastRegNum = genMapFloatRegNumToRegArgNum(firstReg) + curArgTabEntry->numRegs - 1;
                         lastReg             = genMapFloatRegArgNumToRegNum(lastRegNum);
@@ -11270,7 +11270,7 @@ void Compiler::gtGetLateArgMsg(
             else
             {
                 unsigned curArgNum = BAD_VAR_NUM;
-                bool     isFloat   = curArgTabEntry->isHfaRegArg;
+                bool     isFloat   = curArgTabEntry->getIsHfaRegArg();
                 if (isFloat)
                 {
                     curArgNum = genMapFloatRegNumToRegArgNum(firstReg) + listCount;
