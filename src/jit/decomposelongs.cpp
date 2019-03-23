@@ -1065,7 +1065,7 @@ GenTree* DecomposeLongs::DecomposeShift(LIR::Use& use)
     {
         // Reduce count modulo 64 to match behavior found in the shift helpers,
         // Compiler::gtFoldExpr and ValueNumStore::EvalOpIntegral.
-        unsigned int count = shiftByOp->gtIntCon.gtIconVal & 0x3F;
+        unsigned int count = shiftByOp->AsIntConRef().gtIconVal & 0x3F;
         Range().Remove(shiftByOp);
 
         if (count == 0)
@@ -1431,7 +1431,7 @@ GenTree* DecomposeLongs::DecomposeRotate(LIR::Use& use)
         oper = GT_RSH_LO;
     }
 
-    unsigned count = (unsigned)rotateByOp->gtIntCon.gtIconVal;
+    unsigned count = (unsigned)rotateByOp->AsIntConRef().gtIconVal;
     Range().Remove(rotateByOp);
 
     // Make sure the rotate amount is between 0 and 63.
@@ -1615,8 +1615,8 @@ GenTree* DecomposeLongs::DecomposeUMod(LIR::Use& use)
 
     assert(loOp2->OperGet() == GT_CNS_INT);
     assert(hiOp2->OperGet() == GT_CNS_INT);
-    assert((loOp2->gtIntCon.gtIconVal >= 2) && (loOp2->gtIntCon.gtIconVal <= 0x3fffffff));
-    assert(hiOp2->gtIntCon.gtIconVal == 0);
+    assert((loOp2->AsIntConRef().gtIconVal >= 2) && (loOp2->AsIntConRef().gtIconVal <= 0x3fffffff));
+    assert(hiOp2->AsIntConRef().gtIconVal == 0);
 
     // Get rid of op2's hi part. We don't need it.
     Range().Remove(hiOp2);
@@ -1713,7 +1713,7 @@ GenTree* DecomposeLongs::DecomposeSimdGetItem(LIR::Use& use)
     ssize_t index        = 0;
     if (indexIsConst)
     {
-        index = simdTree->AsOpRef().gtOp2->gtIntCon.gtIconVal;
+        index = simdTree->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
     }
 
     GenTree* simdTmpVar    = RepresentOpAsLocalVar(simdTree->AsOpRef().gtOp1, simdTree, &simdTree->AsOpRef().gtOp1);
@@ -1744,7 +1744,7 @@ GenTree* DecomposeLongs::DecomposeSimdGetItem(LIR::Use& use)
         // Reuse the existing index constant node.
         indexTimesTwo1 = simdTree->AsOpRef().gtOp2;
         Range().Remove(indexTimesTwo1);
-        indexTimesTwo1->gtIntCon.gtIconVal = index * 2;
+        indexTimesTwo1->AsIntConRef().gtIconVal = index * 2;
 
         Range().InsertBefore(simdTree, simdTmpVar1, indexTimesTwo1);
     }

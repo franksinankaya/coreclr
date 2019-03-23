@@ -3687,11 +3687,11 @@ void Compiler::lvaMarkLclRefs(GenTree* tree, BasicBlock* block, GenTreeStmt* stm
 
                     case GT_CNS_INT:
 
-                        if (op2->gtIntCon.gtIconVal == 0)
+                        if (op2->AsIntConRef().gtIconVal == 0)
                         {
                             break;
                         }
-                        if (op2->gtIntCon.gtIconVal == 1)
+                        if (op2->AsIntConRef().gtIconVal == 1)
                         {
                             break;
                         }
