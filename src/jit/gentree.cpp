@@ -1393,13 +1393,13 @@ AGAIN:
     switch (oper)
     {
         case GT_FIELD:
-            if (op1->gtField.gtFldHnd != op2->gtField.gtFldHnd)
+            if (op1->AsFieldRef().gtFldHnd != op2->AsFieldRef().gtFldHnd)
             {
                 break;
             }
 
-            op1 = op1->gtField.gtFldObj;
-            op2 = op2->gtField.gtFldObj;
+            op1 = op1->AsFieldRef().gtFldObj;
+            op2 = op2->AsFieldRef().gtFldObj;
 
             if (op1 || op2)
             {
@@ -1590,7 +1590,7 @@ AGAIN:
                 {
                     return true;
                 }
-                else if (tree->gtOper == GT_FIELD && lclNum == (ssize_t)tree->gtField.gtFldHnd)
+                else if (tree->gtOper == GT_FIELD && lclNum == (ssize_t)tree->AsFieldRef().gtFldHnd)
                 {
                     return true;
                 }
@@ -1605,7 +1605,7 @@ AGAIN:
     switch (oper)
     {
         case GT_FIELD:
-            if (lclNum == (ssize_t)tree->gtField.gtFldHnd)
+            if (lclNum == (ssize_t)tree->AsFieldRef().gtFldHnd)
             {
                 if (!defOnly)
                 {
@@ -1613,7 +1613,7 @@ AGAIN:
                 }
             }
 
-            tree = tree->gtField.gtFldObj;
+            tree = tree->AsFieldRef().gtFldObj;
             if (tree)
             {
                 goto AGAIN;
@@ -2066,9 +2066,9 @@ AGAIN:
     switch (tree->gtOper)
     {
         case GT_FIELD:
-            if (tree->gtField.gtFldObj)
+            if (tree->AsFieldRef().gtFldObj)
             {
-                temp = tree->gtField.gtFldObj;
+                temp = tree->AsFieldRef().gtFldObj;
                 assert(temp);
                 hash = genTreeHashAdd(hash, gtHashValue(temp));
             }
@@ -6820,19 +6820,19 @@ GenTree* Compiler::gtClone(GenTree* tree, bool complexOK)
                 // copied from line 9850
 
                 objp = nullptr;
-                if (tree->gtField.gtFldObj)
+                if (tree->AsFieldRef().gtFldObj)
                 {
-                    objp = gtClone(tree->gtField.gtFldObj, false);
+                    objp = gtClone(tree->AsFieldRef().gtFldObj, false);
                     if (!objp)
                     {
                         return objp;
                     }
                 }
 
-                copy = gtNewFieldRef(tree->TypeGet(), tree->gtField.gtFldHnd, objp, tree->gtField.gtFldOffset);
-                copy->gtField.gtFldMayOverlap = tree->gtField.gtFldMayOverlap;
+                copy = gtNewFieldRef(tree->TypeGet(), tree->AsFieldRef().gtFldHnd, objp, tree->AsFieldRef().gtFldOffset);
+                copy->AsFieldRef().gtFldMayOverlap = tree->AsFieldRef().gtFldMayOverlap;
 #ifdef FEATURE_READYTORUN_COMPILER
-                copy->gtField.gtFieldLookup = tree->gtField.gtFieldLookup;
+                copy->AsFieldRef().gtFieldLookup = tree->AsFieldRef().gtFieldLookup;
 #endif
             }
             else if (tree->OperIs(GT_ADD, GT_SUB))
@@ -7334,14 +7334,14 @@ GenTree* Compiler::gtCloneExpr(
 
         case GT_FIELD:
 
-            copy = gtNewFieldRef(tree->TypeGet(), tree->gtField.gtFldHnd, nullptr, tree->gtField.gtFldOffset);
+            copy = gtNewFieldRef(tree->TypeGet(), tree->AsFieldRef().gtFldHnd, nullptr, tree->AsFieldRef().gtFldOffset);
 
-            copy->gtField.gtFldObj = tree->gtField.gtFldObj
-                                         ? gtCloneExpr(tree->gtField.gtFldObj, addFlags, deepVarNum, deepVarVal)
+            copy->AsFieldRef().gtFldObj = tree->AsFieldRef().gtFldObj
+                                         ? gtCloneExpr(tree->AsFieldRef().gtFldObj, addFlags, deepVarNum, deepVarVal)
                                          : nullptr;
-            copy->gtField.gtFldMayOverlap = tree->gtField.gtFldMayOverlap;
+            copy->AsFieldRef().gtFldMayOverlap = tree->AsFieldRef().gtFldMayOverlap;
 #ifdef FEATURE_READYTORUN_COMPILER
-            copy->gtField.gtFieldLookup = tree->gtField.gtFieldLookup;
+            copy->AsFieldRef().gtFieldLookup = tree->AsFieldRef().gtFieldLookup;
 #endif
 
             break;
@@ -10889,20 +10889,20 @@ void Compiler::gtDispTree(GenTree*     tree,
     switch (tree->gtOper)
     {
         case GT_FIELD:
-            if (FieldSeqStore::IsPseudoField(tree->gtField.gtFldHnd))
+            if (FieldSeqStore::IsPseudoField(tree->AsFieldRef().gtFldHnd))
             {
-                printf(" #PseudoField:0x%x", tree->gtField.gtFldOffset);
+                printf(" #PseudoField:0x%x", tree->AsFieldRef().gtFldOffset);
             }
             else
             {
-                printf(" %s", eeGetFieldName(tree->gtField.gtFldHnd), 0);
+                printf(" %s", eeGetFieldName(tree->AsFieldRef().gtFldHnd), 0);
             }
 
-            gtDispCommonEndLine(tree);
-
-            if (tree->gtField.gtFldObj && !topOnly)
+            if (tree->AsFieldRef().gtFldObj && !topOnly)
             {
-                gtDispChild(tree->gtField.gtFldObj, indentStack, IIArcBottom);
+                gtDispVN(tree);
+                printf("\n");
+                gtDispChild(tree->AsFieldRef().gtFldObj, indentStack, IIArcBottom);
             }
 
             break;
@@ -16524,7 +16524,7 @@ CORINFO_CLASS_HANDLE Compiler::gtGetStructHandleIfPresent(GenTree* tree)
                 structHnd = tree->AsIndexAddr()->gtStructElemClass;
                 break;
             case GT_FIELD:
-                info.compCompHnd->getFieldType(tree->gtField.gtFldHnd, &structHnd);
+                info.compCompHnd->getFieldType(tree->AsFieldRef().gtFldHnd, &structHnd);
                 break;
             case GT_ASG:
                 structHnd = gtGetStructHandleIfPresent(tree->gtGetOp1());
@@ -16676,7 +16676,7 @@ CORINFO_CLASS_HANDLE Compiler::gtGetClassHandle(GenTree* tree, bool* pIsExact, b
         case GT_FIELD:
         {
             // For fields, get the type from the field handle.
-            CORINFO_FIELD_HANDLE fieldHnd = obj->gtField.gtFldHnd;
+            CORINFO_FIELD_HANDLE fieldHnd = obj->AsFieldRef().gtFldHnd;
 
             if (fieldHnd != nullptr)
             {
