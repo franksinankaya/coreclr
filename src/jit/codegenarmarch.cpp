@@ -2102,7 +2102,7 @@ void CodeGen::genCodeForLoadOffset(instruction ins, emitAttr size, regNumber dst
     if (base->OperIsLocalAddr())
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
-            offset += base->gtLclFld.gtLclOffs;
+            offset += base->AsLclFld()->gtLclOffs;
         emit->emitIns_R_S(ins, size, dst, base->AsLclVarCommon()->GetLclNum(), offset);
     }
     else
@@ -2121,7 +2121,7 @@ void CodeGen::genCodeForStoreOffset(instruction ins, emitAttr size, regNumber sr
     if (base->OperIsLocalAddr())
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
-            offset += base->gtLclFld.gtLclOffs;
+            offset += base->AsLclFld()->gtLclOffs;
         emit->emitIns_S_R(ins, size, src, base->AsLclVarCommon()->GetLclNum(), offset);
     }
     else
