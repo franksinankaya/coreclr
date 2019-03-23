@@ -242,7 +242,7 @@ void CodeGen::genCodeForTreeNode(GenTree* treeNode)
 
         case GT_BITCAST:
         {
-            GenTree* op1 = treeNode->gtOp.gtOp1;
+            GenTree* op1 = treeNode->AsOp()->gtOp1;
             if (varTypeIsFloating(treeNode) != varTypeIsFloating(op1))
             {
 #ifdef _TARGET_ARM64_
@@ -581,7 +581,7 @@ void CodeGen::genIntrinsic(GenTree* treeNode)
     assert(treeNode->OperIs(GT_INTRINSIC));
 
     // Both operand and its result must be of the same floating point type.
-    GenTree* srcNode = treeNode->gtOp.gtOp1;
+    GenTree* srcNode = treeNode->AsOp()->gtOp1;
     assert(varTypeIsFloating(srcNode));
     assert(srcNode->TypeGet() == treeNode->TypeGet());
 
@@ -773,7 +773,7 @@ void CodeGen::genPutArgStk(GenTreePutArgStk* treeNode)
             {
                 assert(source->OperGet() == GT_OBJ);
 
-                addrNode = source->gtOp.gtOp1;
+                addrNode = source->AsOp()->gtOp1;
 
                 // addrNode can either be a GT_LCL_VAR_ADDR or an address expression
                 //
@@ -1165,7 +1165,7 @@ void CodeGen::genPutArgSplit(GenTreePutArgSplit* treeNode)
         GenTreeLclVarCommon* varNode  = nullptr;
         GenTree*             addrNode = nullptr;
 
-        addrNode = source->gtOp.gtOp1;
+        addrNode = source->AsOp()->gtOp1;
 
         // addrNode can either be a GT_LCL_VAR_ADDR or an address expression
         //
@@ -2189,7 +2189,7 @@ void CodeGen::genCodeForStoreOffset(instruction ins, emitAttr size, regNumber sr
 void CodeGen::genRegCopy(GenTree* treeNode)
 {
     assert(treeNode->OperGet() == GT_COPY);
-    GenTree* op1 = treeNode->gtOp.gtOp1;
+    GenTree* op1 = treeNode->AsOp()->gtOp1;
 
     regNumber sourceReg = genConsumeReg(op1);
 
@@ -2333,7 +2333,7 @@ void CodeGen::genCallInstruction(GenTreeCall* call)
             regNumber       argReg       = curArgTabEntry->getRegNum();
             for (; argListPtr != nullptr; argListPtr = argListPtr->Rest(), iterationNum++)
             {
-                GenTree* putArgRegNode = argListPtr->gtOp.gtOp1;
+                GenTree* putArgRegNode = argListPtr->AsOp()->gtOp1;
                 assert(putArgRegNode->gtOper == GT_PUTARG_REG);
 
                 genConsumeReg(putArgRegNode);
@@ -3184,7 +3184,7 @@ void CodeGen::genFloatToFloatCast(GenTree* treeNode)
     regNumber targetReg = treeNode->GetRegNum();
     assert(genIsValidFloatReg(targetReg));
 
-    GenTree* op1 = treeNode->gtOp.gtOp1;
+    GenTree* op1 = treeNode->AsOp()->gtOp1;
     assert(!op1->isContained());               // Cannot be contained
     assert(genIsValidFloatReg(op1->GetRegNum())); // Must be a valid float reg.
 
