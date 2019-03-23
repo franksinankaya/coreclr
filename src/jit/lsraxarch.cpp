@@ -580,7 +580,7 @@ int LinearScan::BuildNode(GenTree* tree)
             assert(dstCount == 1);
             srcCount                 = 0;
             RefPosition* internalDef = nullptr;
-            if (tree->gtArrOffs.gtOffset->isContained())
+            if (tree->AsArrOffsRef().gtOffset->isContained())
             {
                 srcCount = 2;
             }

@@ -1472,14 +1472,14 @@ AGAIN:
             goto AGAIN;
 
         case GT_ARR_OFFSET:
-            if (op1->gtArrOffs.gtCurrDim != op2->gtArrOffs.gtCurrDim ||
-                op1->gtArrOffs.gtArrRank != op2->gtArrOffs.gtArrRank)
+            if (op1->AsArrOffsRef().gtCurrDim != op2->AsArrOffsRef().gtCurrDim ||
+                op1->AsArrOffsRef().gtArrRank != op2->AsArrOffsRef().gtArrRank)
             {
                 return false;
             }
-            return (Compare(op1->gtArrOffs.gtOffset, op2->gtArrOffs.gtOffset) &&
-                    Compare(op1->gtArrOffs.gtIndex, op2->gtArrOffs.gtIndex) &&
-                    Compare(op1->gtArrOffs.gtArrObj, op2->gtArrOffs.gtArrObj));
+            return (Compare(op1->AsArrOffsRef().gtOffset, op2->AsArrOffsRef().gtOffset) &&
+                    Compare(op1->AsArrOffsRef().gtIndex, op2->AsArrOffsRef().gtIndex) &&
+                    Compare(op1->AsArrOffsRef().gtArrObj, op2->AsArrOffsRef().gtArrObj));
 
         case GT_CMPXCHG:
             return Compare(op1->gtCmpXchg.gtOpLocation, op2->gtCmpXchg.gtOpLocation) &&
@@ -1692,9 +1692,9 @@ AGAIN:
             break;
 
         case GT_ARR_OFFSET:
-            if (gtHasRef(tree->gtArrOffs.gtOffset, lclNum, defOnly) ||
-                gtHasRef(tree->gtArrOffs.gtIndex, lclNum, defOnly) ||
-                gtHasRef(tree->gtArrOffs.gtArrObj, lclNum, defOnly))
+            if (gtHasRef(tree->AsArrOffsRef().gtOffset, lclNum, defOnly) ||
+                gtHasRef(tree->AsArrOffsRef().gtIndex, lclNum, defOnly) ||
+                gtHasRef(tree->AsArrOffsRef().gtArrObj, lclNum, defOnly))
             {
                 return true;
             }
@@ -2093,9 +2093,9 @@ AGAIN:
             break;
 
         case GT_ARR_OFFSET:
-            hash = genTreeHashAdd(hash, gtHashValue(tree->gtArrOffs.gtOffset));
-            hash = genTreeHashAdd(hash, gtHashValue(tree->gtArrOffs.gtIndex));
-            hash = genTreeHashAdd(hash, gtHashValue(tree->gtArrOffs.gtArrObj));
+            hash = genTreeHashAdd(hash, gtHashValue(tree->AsArrOffsRef().gtOffset));
+            hash = genTreeHashAdd(hash, gtHashValue(tree->AsArrOffsRef().gtIndex));
+            hash = genTreeHashAdd(hash, gtHashValue(tree->AsArrOffsRef().gtArrObj));
             break;
 
         case GT_CALL:
@@ -4246,17 +4246,17 @@ unsigned Compiler::gtSetEvalOrder(GenTree* tree)
             break;
 
         case GT_ARR_OFFSET:
-            level  = gtSetEvalOrder(tree->gtArrOffs.gtOffset);
-            costEx = tree->gtArrOffs.gtOffset->GetCostEx();
-            costSz = tree->gtArrOffs.gtOffset->GetCostSz();
-            lvl2   = gtSetEvalOrder(tree->gtArrOffs.gtIndex);
+            level  = gtSetEvalOrder(tree->AsArrOffsRef().gtOffset);
+            costEx = tree->AsArrOffsRef().gtOffset->GetCostEx();
+            costSz = tree->AsArrOffsRef().gtOffset->GetCostSz();
+            lvl2   = gtSetEvalOrder(tree->AsArrOffsRef().gtIndex);
             level  = max(level, lvl2);
-            costEx += tree->gtArrOffs.gtIndex->GetCostEx();
-            costSz += tree->gtArrOffs.gtIndex->GetCostSz();
-            lvl2  = gtSetEvalOrder(tree->gtArrOffs.gtArrObj);
+            costEx += tree->AsArrOffsRef().gtIndex->GetCostEx();
+            costSz += tree->AsArrOffsRef().gtIndex->GetCostSz();
+            lvl2  = gtSetEvalOrder(tree->AsArrOffsRef().gtArrObj);
             level = max(level, lvl2);
-            costEx += tree->gtArrOffs.gtArrObj->GetCostEx();
-            costSz += tree->gtArrOffs.gtArrObj->GetCostSz();
+            costEx += tree->AsArrOffsRef().gtArrObj->GetCostEx();
+            costSz += tree->AsArrOffsRef().gtArrObj->GetCostSz();
             break;
 
         case GT_CMPXCHG:
@@ -4602,17 +4602,17 @@ GenTree** GenTree::gtGetChildPointer(GenTree* parent) const
             break;
 
         case GT_ARR_OFFSET:
-            if (this == parent->gtArrOffs.gtOffset)
+            if (this == parent->AsArrOffsRef().gtOffset)
             {
-                return &(parent->gtArrOffs.gtOffset);
+                return &(parent->AsArrOffsRef().gtOffset);
             }
-            if (this == parent->gtArrOffs.gtIndex)
+            if (this == parent->AsArrOffsRef().gtIndex)
             {
-                return &(parent->gtArrOffs.gtIndex);
+                return &(parent->AsArrOffsRef().gtIndex);
             }
-            if (this == parent->gtArrOffs.gtArrObj)
+            if (this == parent->AsArrOffsRef().gtArrObj)
             {
-                return &(parent->gtArrOffs.gtArrObj);
+                return &(parent->AsArrOffsRef().gtArrObj);
             }
             break;
 
@@ -7363,10 +7363,10 @@ GenTree* Compiler::gtCloneExpr(
         case GT_ARR_OFFSET:
         {
             copy = new (this, GT_ARR_OFFSET)
-                GenTreeArrOffs(tree->TypeGet(), gtCloneExpr(tree->gtArrOffs.gtOffset, addFlags, deepVarNum, deepVarVal),
-                               gtCloneExpr(tree->gtArrOffs.gtIndex, addFlags, deepVarNum, deepVarVal),
-                               gtCloneExpr(tree->gtArrOffs.gtArrObj, addFlags, deepVarNum, deepVarVal),
-                               tree->gtArrOffs.gtCurrDim, tree->gtArrOffs.gtArrRank, tree->gtArrOffs.gtArrElemType);
+                GenTreeArrOffs(tree->TypeGet(), gtCloneExpr(tree->AsArrOffsRef().gtOffset, addFlags, deepVarNum, deepVarVal),
+                               gtCloneExpr(tree->AsArrOffsRef().gtIndex, addFlags, deepVarNum, deepVarVal),
+                               gtCloneExpr(tree->AsArrOffsRef().gtArrObj, addFlags, deepVarNum, deepVarVal),
+                               tree->AsArrOffsRef().gtCurrDim, tree->AsArrOffsRef().gtArrRank, tree->AsArrOffsRef().gtArrElemType);
         }
         break;
 
@@ -9135,8 +9135,8 @@ void Compiler::gtDispNodeName(GenTree* tree)
         unsigned char rank;
         if (tree->gtOper == GT_ARR_OFFSET)
         {
-            currDim = tree->gtArrOffs.gtCurrDim;
-            rank    = tree->gtArrOffs.gtArrRank;
+            currDim = tree->AsArrOffsRef().gtCurrDim;
+            rank    = tree->AsArrOffsRef().gtArrRank;
         }
         else
         {
@@ -11030,9 +11030,9 @@ void Compiler::gtDispTree(GenTree*     tree,
 
             if (!topOnly)
             {
-                gtDispChild(tree->gtArrOffs.gtOffset, indentStack, IIArc, nullptr, topOnly);
-                gtDispChild(tree->gtArrOffs.gtIndex, indentStack, IIArc, nullptr, topOnly);
-                gtDispChild(tree->gtArrOffs.gtArrObj, indentStack, IIArcBottom, nullptr, topOnly);
+                gtDispChild(tree->AsArrOffsRef().gtOffset, indentStack, IIArc, nullptr, topOnly);
+                gtDispChild(tree->AsArrOffsRef().gtIndex, indentStack, IIArc, nullptr, topOnly);
+                gtDispChild(tree->AsArrOffsRef().gtArrObj, indentStack, IIArcBottom, nullptr, topOnly);
             }
             break;
 
