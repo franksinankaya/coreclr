@@ -2147,7 +2147,7 @@ void LinearScan::buildIntervals()
             // In DEBUG, we want to set the gtRegTag to GT_REGTAG_REG, so that subsequent dumps will so the register
             // value.
             // Although this looks like a no-op it sets the tag.
-            node->gtRegNum = node->gtRegNum;
+            node->SetRegNum(node->GetRegNum());
 #endif
 
             buildRefPositionsForNode(node, block, currentLoc);
@@ -2445,7 +2445,7 @@ RefPosition* LinearScan::BuildDef(GenTree* tree, regMaskTP dstCandidates, int mu
 
     if (dstCandidates != RBM_NONE)
     {
-        assert((tree->gtRegNum == REG_NA) || (dstCandidates == genRegMask(tree->GetRegByIndex(multiRegIdx))));
+        assert((tree->GetRegNum() == REG_NA) || (dstCandidates == genRegMask(tree->GetRegByIndex(multiRegIdx))));
     }
 
     if (tree->IsMultiRegNode())
@@ -2454,12 +2454,12 @@ RefPosition* LinearScan::BuildDef(GenTree* tree, regMaskTP dstCandidates, int mu
     }
 
     Interval* interval = newInterval(type);
-    if (tree->gtRegNum != REG_NA)
+    if (tree->GetRegNum() != REG_NA)
     {
         if (!tree->IsMultiRegNode() || (multiRegIdx == 0))
         {
-            assert((dstCandidates == RBM_NONE) || (dstCandidates == genRegMask(tree->gtRegNum)));
-            dstCandidates = genRegMask(tree->gtRegNum);
+            assert((dstCandidates == RBM_NONE) || (dstCandidates == genRegMask(tree->GetRegNum())));
+            dstCandidates = genRegMask(tree->GetRegNum());
         }
         else
         {
@@ -3196,7 +3196,7 @@ int LinearScan::BuildPutArgReg(GenTreeUnOp* node)
 {
     assert(node != nullptr);
     assert(node->OperIsPutArgReg());
-    regNumber argReg = node->gtRegNum;
+    regNumber argReg = node->GetRegNum();
     assert(argReg != REG_NA);
     bool     isSpecialPutArg = false;
     int      srcCount        = 1;
@@ -3294,7 +3294,7 @@ void LinearScan::HandleFloatVarArgs(GenTreeCall* call, GenTree* argNode, bool* c
         *callHasFloatRegArgs = true;
 
         // We'll have to return the internal def and then later create a use for it.
-        regNumber argReg    = argNode->gtRegNum;
+        regNumber argReg    = argNode->GetRegNum();
         regNumber targetReg = compiler->getCallArgIntRegister(argReg);
 
         buildInternalIntRegisterDefForNode(call, genRegMask(targetReg));
