@@ -5922,12 +5922,12 @@ inline bool GenTree::IsFPZero()
 inline bool GenTree::IsIntegralConst(ssize_t constVal)
 
 {
-    if ((gtOper == GT_CNS_INT) && (gtIntConCommon.IconValue() == constVal))
+    if ((gtOper == GT_CNS_INT) && (AsIntConCommonRef().IconValue() == constVal))
     {
         return true;
     }
 
-    if ((gtOper == GT_CNS_LNG) && (gtIntConCommon.LngValue() == constVal))
+    if ((gtOper == GT_CNS_LNG) && (AsIntConCommonRef().LngValue() == constVal))
     {
         return true;
     }

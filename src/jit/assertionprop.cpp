@@ -2434,7 +2434,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                 // Same sized reinterpretation of bits to long
                 newTree = optPrepareTreeForReplacement(tree, tree);
                 tree->ChangeOperConst(GT_CNS_NATIVELONG);
-                tree->gtIntConCommon.SetLngValue(*(reinterpret_cast<INT64*>(&value)));
+                tree->AsIntConCommonRef().SetLngValue(*(reinterpret_cast<INT64*>(&value)));
                 tree->gtVNPair = ValueNumPair(vnLib, vnCns);
             }
             else
@@ -2482,7 +2482,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                         // Same type no conversion required
                         newTree = optPrepareTreeForReplacement(tree, tree);
                         tree->ChangeOperConst(GT_CNS_NATIVELONG);
-                        tree->gtIntConCommon.SetLngValue(value);
+                        tree->AsIntConCommonRef().SetLngValue(value);
                         tree->gtVNPair = ValueNumPair(vnLib, vnCns);
                         break;
 
@@ -2555,7 +2555,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                         // Implicit assignment conversion to larger integer
                         newTree = optPrepareTreeForReplacement(tree, tree);
                         tree->ChangeOperConst(GT_CNS_NATIVELONG);
-                        tree->gtIntConCommon.SetLngValue(value);
+                        tree->AsIntConCommonRef().SetLngValue(value);
                         tree->gtVNPair = ValueNumPair(vnLib, vnCns);
                         break;
 
@@ -2622,7 +2622,7 @@ GenTree* Compiler::optConstantAssertionProp(AssertionDsc* curAssertion,
             if (newTree->gtType == TYP_LONG)
             {
                 newTree->ChangeOperConst(GT_CNS_NATIVELONG);
-                newTree->gtIntConCommon.SetLngValue(curAssertion->op2.lconVal);
+                newTree->AsIntConCommonRef().SetLngValue(curAssertion->op2.lconVal);
             }
             else
             {
@@ -3197,7 +3197,7 @@ GenTree* Compiler::optAssertionPropGlobal_RelOp(ASSERT_VALARG_TP assertions, Gen
         else if (op1->TypeGet() == TYP_LONG)
         {
             op1->ChangeOperConst(GT_CNS_NATIVELONG);
-            op1->gtIntConCommon.SetLngValue(vnStore->ConstantValue<INT64>(vnCns));
+            op1->AsIntConCommonRef().SetLngValue(vnStore->ConstantValue<INT64>(vnCns));
         }
         else if (op1->TypeGet() == TYP_DOUBLE)
         {
