@@ -7150,10 +7150,10 @@ GenTree* Compiler::gtCloneExpr(
             case GT_ARR_INDEX:
                 copy = new (this, GT_ARR_INDEX)
                     GenTreeArrIndex(tree->TypeGet(),
-                                    gtCloneExpr(tree->gtArrIndex.ArrObj(), addFlags, deepVarNum, deepVarVal),
-                                    gtCloneExpr(tree->gtArrIndex.IndexExpr(), addFlags, deepVarNum, deepVarVal),
-                                    tree->gtArrIndex.gtCurrDim, tree->gtArrIndex.gtArrRank,
-                                    tree->gtArrIndex.gtArrElemType);
+                                    gtCloneExpr(tree->AsArrIndexRef().ArrObj(), addFlags, deepVarNum, deepVarVal),
+                                    gtCloneExpr(tree->AsArrIndexRef().IndexExpr(), addFlags, deepVarNum, deepVarVal),
+                                    tree->AsArrIndexRef().gtCurrDim, tree->AsArrIndexRef().gtArrRank,
+                                    tree->AsArrIndexRef().gtArrElemType);
                 break;
 
             case GT_QMARK:
@@ -9143,8 +9143,8 @@ void Compiler::gtDispNodeName(GenTree* tree)
         }
         else
         {
-            currDim = tree->gtArrIndex.gtCurrDim;
-            rank    = tree->gtArrIndex.gtArrRank;
+            currDim = tree->AsArrIndexRef().gtCurrDim;
+            rank    = tree->AsArrIndexRef().gtArrRank;
         }
 
         for (unsigned char dim = 0; dim < rank; dim++)
