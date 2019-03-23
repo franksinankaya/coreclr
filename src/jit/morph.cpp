@@ -8865,7 +8865,7 @@ GenTree* Compiler::fgMorphConst(GenTree* tree)
 
     if (compCurBB->bbJumpKind == BBJ_THROW)
     {
-        CorInfoHelpFunc helper = info.compCompHnd->getLazyStringLiteralHelper(tree->AsgtStrConRef().gtScpHnd);
+        CorInfoHelpFunc helper = info.compCompHnd->getLazyStringLiteralHelper(tree->AsStrConRef().gtScpHnd);
         if (helper != CORINFO_HELP_UNDEF)
         {
             // For un-important blocks, we want to construct the string lazily
@@ -8873,12 +8873,12 @@ GenTree* Compiler::fgMorphConst(GenTree* tree)
             GenTreeArgList* args;
             if (helper == CORINFO_HELP_STRCNS_CURRENT_MODULE)
             {
-                args = gtNewArgList(gtNewIconNode(RidFromToken(tree->AsgtStrConRef().gtSconCPX), TYP_INT));
+                args = gtNewArgList(gtNewIconNode(RidFromToken(tree->AsStrConRef().gtSconCPX), TYP_INT));
             }
             else
             {
-                args = gtNewArgList(gtNewIconNode(RidFromToken(tree->AsgtStrConRef().gtSconCPX), TYP_INT),
-                                    gtNewIconEmbScpHndNode(tree->AsgtStrConRef().gtScpHnd));
+                args = gtNewArgList(gtNewIconNode(RidFromToken(tree->AsStrConRef().gtSconCPX), TYP_INT),
+                                    gtNewIconEmbScpHndNode(tree->AsStrConRef().gtScpHnd));
             }
 
             tree = gtNewHelperCallNode(helper, TYP_REF, args);
@@ -8886,11 +8886,11 @@ GenTree* Compiler::fgMorphConst(GenTree* tree)
         }
     }
 
-    assert(tree->AsgtStrConRef().gtScpHnd == info.compScopeHnd || !IsUninitialized(tree->AsgtStrConRef().gtScpHnd));
+    assert(tree->AsStrConRef().gtScpHnd == info.compScopeHnd || !IsUninitialized(tree->AsStrConRef().gtScpHnd));
 
     LPVOID         pValue;
     InfoAccessType iat =
-        info.compCompHnd->constructStringLiteral(tree->AsgtStrConRef().gtScpHnd, tree->AsgtStrConRef().gtSconCPX, &pValue);
+        info.compCompHnd->constructStringLiteral(tree->AsStrConRef().gtScpHnd, tree->AsStrConRef().gtSconCPX, &pValue);
 
     tree = gtNewStringLiteralNode(iat, pValue);
 
