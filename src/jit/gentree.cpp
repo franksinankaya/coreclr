@@ -1246,7 +1246,7 @@ AGAIN:
             switch (oper)
             {
                 case GT_ARR_LENGTH:
-                    if (op1->gtArrLen.ArrLenOffset() != op2->gtArrLen.ArrLenOffset())
+                    if (op1->AsArrLenRef().ArrLenOffset() != op2->AsArrLenRef().ArrLenOffset())
                     {
                         return false;
                     }
@@ -1927,7 +1927,7 @@ AGAIN:
             switch (oper)
             {
                 case GT_ARR_LENGTH:
-                    hash += tree->gtArrLen.ArrLenOffset();
+                    hash += tree->AsArrLenRef().ArrLenOffset();
                     break;
                 case GT_CAST:
                     hash ^= tree->gtCast.gtCastType;
@@ -7144,7 +7144,7 @@ GenTree* Compiler::gtCloneExpr(
             break;
 
             case GT_ARR_LENGTH:
-                copy = gtNewArrLen(tree->TypeGet(), tree->AsOpRef().gtOp1, tree->gtArrLen.ArrLenOffset());
+                copy = gtNewArrLen(tree->TypeGet(), tree->AsOpRef().gtOp1, tree->AsArrLenRef().ArrLenOffset());
                 break;
 
             case GT_ARR_INDEX:
