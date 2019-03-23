@@ -3927,7 +3927,7 @@ GenTree* Lowering::LowerVirtualVtableCall(GenTreeCall* call)
     unsigned lclNum;
     if (thisPtr->IsLocal())
     {
-        lclNum = thisPtr->gtLclVarCommon.GetLclNum();
+        lclNum = thisPtr->AsLclVarCommonRef().GetLclNum();
     }
     else
     {
@@ -5494,7 +5494,7 @@ bool Lowering::NodesAreEquivalentLeaves(GenTree* tree1, GenTree* tree2)
                    tree1->IsIconHandle() == tree2->IsIconHandle();
         case GT_LCL_VAR:
         case GT_LCL_VAR_ADDR:
-            return tree1->gtLclVarCommon.GetLclNum() == tree2->gtLclVarCommon.GetLclNum();
+            return tree1->AsLclVarCommonRef().GetLclNum() == tree2->AsLclVarCommonRef().GetLclNum();
         case GT_CLS_VAR_ADDR:
             return tree1->gtClsVar.gtClsVarHnd == tree2->gtClsVar.gtClsVarHnd;
         default:

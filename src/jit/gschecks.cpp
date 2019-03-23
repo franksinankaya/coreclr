@@ -136,7 +136,7 @@ Compiler::fgWalkResult Compiler::gsMarkPtrsAndAssignGroups(GenTree** pTree, fgWa
         // local vars and param uses
         case GT_LCL_VAR:
         case GT_LCL_FLD:
-            lclNum = tree->gtLclVarCommon.GetLclNum();
+            lclNum = tree->AsLclVarCommonRef().GetLclNum();
 
             if (pState->isUnderIndir)
             {
@@ -257,7 +257,7 @@ Compiler::fgWalkResult Compiler::gsMarkPtrsAndAssignGroups(GenTree** pTree, fgWa
 
                     if ((isLocVar || isLocFld) && tree->AsOpRef().gtOp2)
                     {
-                        lclNum               = tree->AsOpRef().gtOp1->gtLclVarCommon.GetLclNum();
+                        lclNum               = tree->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum();
                         newState.lvAssignDef = lclNum;
                         newState.isAssignSrc = true;
                     }
@@ -559,7 +559,7 @@ Compiler::fgWalkResult Compiler::gsReplaceShadowParams(GenTree** pTree, fgWalkDa
 
     if (tree->gtOper == GT_LCL_VAR || tree->gtOper == GT_LCL_FLD)
     {
-        UINT paramNum = tree->gtLclVarCommon.GetLclNum();
+        UINT paramNum = tree->AsLclVarCommonRef().GetLclNum();
 
         if (!ShadowParamVarInfo::mayNeedShadowCopy(&comp->lvaTable[paramNum]) ||
             comp->gsShadowVarInfo[paramNum].shadowCopy == NO_SHADOW_COPY)
@@ -567,7 +567,7 @@ Compiler::fgWalkResult Compiler::gsReplaceShadowParams(GenTree** pTree, fgWalkDa
             return WALK_CONTINUE;
         }
 
-        tree->gtLclVarCommon.SetLclNum(comp->gsShadowVarInfo[paramNum].shadowCopy);
+        tree->AsLclVarCommonRef().SetLclNum(comp->gsShadowVarInfo[paramNum].shadowCopy);
 
         // In gsParamsToShadows(), we create a shadow var of TYP_INT for every small type param.
         // Make sure we update the type of the local var tree as well.
