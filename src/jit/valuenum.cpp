@@ -7036,7 +7036,7 @@ void Compiler::fgValueNumberTree(GenTree* tree)
 
             // This group passes through a value from a child node.
             case GT_RET_EXPR:
-                tree->SetVNsFromNode(tree->gtRetExpr.gtInlineCandidate);
+                tree->SetVNsFromNode(tree->AsRetExprRef().gtInlineCandidate);
                 break;
 
             case GT_LCL_FLD:
