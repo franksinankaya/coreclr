@@ -1009,9 +1009,9 @@ private:
     {
         if (tree->IsLocal())
         {
-            unsigned int lclNum = tree->gtLclVarCommon.GetLclNum();
+            unsigned int lclNum = tree->AsLclVarCommonRef().GetLclNum();
             assert(lclNum < compiler->lvaCount);
-            LclVarDsc* varDsc = compiler->lvaTable + tree->gtLclVarCommon.GetLclNum();
+            LclVarDsc* varDsc = compiler->lvaTable + tree->AsLclVarCommonRef().GetLclNum();
 
             return isCandidateVar(varDsc);
         }
