@@ -10031,7 +10031,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
 
         case GT_RET_EXPR:
 
-            chars += printf("t%d", tree->gtRetExpr.gtInlineCandidate->gtTreeID);
+            chars += printf("t%d", tree->AsRetExprRef().gtInlineCandidate->gtTreeID);
             break;
 
         case GT_PHYSREG:
