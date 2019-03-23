@@ -5368,7 +5368,7 @@ void CodeGen::genCallInstruction(GenTreeCall* call)
         fgArgTabEntry* curArgTabEntry = compiler->gtArgEntryByNode(call, argNode->gtSkipReloadOrCopy());
         assert(curArgTabEntry);
 
-        if (curArgTabEntry->regNum == REG_STK)
+        if (curArgTabEntry->getRegNum() == REG_STK)
         {
             continue;
         }
@@ -5387,7 +5387,7 @@ void CodeGen::genCallInstruction(GenTreeCall* call)
 
                 if (iterationNum == 0)
                 {
-                    argReg = curArgTabEntry->regNum;
+                    argReg = curArgTabEntry->getRegNum();
                 }
                 else
                 {
@@ -5408,7 +5408,7 @@ void CodeGen::genCallInstruction(GenTreeCall* call)
         else
 #endif // UNIX_AMD64_ABI
         {
-            regNumber argReg = curArgTabEntry->regNum;
+            regNumber argReg = curArgTabEntry->getRegNum();
             genConsumeReg(argNode);
             if (argNode->GetRegNum() != argReg)
             {
