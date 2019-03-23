@@ -2010,9 +2010,9 @@ AGAIN:
 
 #ifdef FEATURE_SIMD
                 case GT_SIMD:
-                    hash += tree->gtSIMD.gtSIMDIntrinsicID;
-                    hash += tree->gtSIMD.gtSIMDBaseType;
-                    hash += tree->gtSIMD.gtSIMDSize;
+                    hash += tree->AsSIMDRef().gtSIMDIntrinsicID;
+                    hash += tree->AsSIMDRef().gtSIMDBaseType;
+                    hash += tree->AsSIMDRef().gtSIMDSize;
                     break;
 #endif // FEATURE_SIMD
 
@@ -10832,8 +10832,8 @@ void Compiler::gtDispTree(GenTree*     tree,
 #ifdef FEATURE_SIMD
         if (tree->gtOper == GT_SIMD)
         {
-            printf(" %s %s", varTypeName(tree->gtSIMD.gtSIMDBaseType),
-                   simdIntrinsicNames[tree->gtSIMD.gtSIMDIntrinsicID]);
+            printf(" %s %s", varTypeName(tree->AsSIMDRef().gtSIMDBaseType),
+                   simdIntrinsicNames[tree->AsSIMDRef().gtSIMDIntrinsicID]);
         }
 #endif // FEATURE_SIMD
 
