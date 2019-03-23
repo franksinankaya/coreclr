@@ -10036,7 +10036,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
 
         case GT_PHYSREG:
 
-            chars += printf("%s", getRegName(tree->gtPhysReg.gtSrcReg, varTypeIsFloating(tree)));
+            chars += printf("%s", getRegName(tree->AsPhysRegRef().gtSrcReg, varTypeIsFloating(tree)));
             break;
 
         case GT_LABEL:
