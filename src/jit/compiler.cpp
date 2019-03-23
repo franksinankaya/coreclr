@@ -9774,7 +9774,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
                             switch (tree->GetRegTag())
                             {
                                 case GenTree::GT_REGTAG_REG:
-                                    chars += printf(":%s", comp->compRegVarName(tree->gtRegNum));
+                                    chars += printf(":%s", comp->compRegVarName(tree->GetRegNum()));
                                     break;
                                 default:
                                     break;
@@ -9794,7 +9794,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
                         switch (tree->GetRegTag())
                         {
                             case GenTree::GT_REGTAG_REG:
-                                chars += printf("(%s)", comp->compRegVarName(tree->gtRegNum));
+                                chars += printf("(%s)", comp->compRegVarName(tree->GetRegNum()));
                                 break;
                             default:
                                 break;
@@ -9838,7 +9838,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
                             switch (tree->GetRegTag())
                             {
                                 case GenTree::GT_REGTAG_REG:
-                                    chars += printf(":%s", comp->compRegVarName(tree->gtRegNum));
+                                    chars += printf(":%s", comp->compRegVarName(tree->GetRegNum()));
                                     break;
                                 default:
                                     break;
@@ -9858,7 +9858,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
                         switch (tree->GetRegTag())
                         {
                             case GenTree::GT_REGTAG_REG:
-                                chars += printf("(%s)", comp->compRegVarName(tree->gtRegNum));
+                                chars += printf("(%s)", comp->compRegVarName(tree->GetRegNum()));
                                 break;
                             default:
                                 break;
