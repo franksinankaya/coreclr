@@ -1136,11 +1136,11 @@ AssertionIndex Compiler::optCreateAssertion(GenTree*         op1,
                     {
                         noway_assert(op2->gtOper == GT_CNS_DBL);
                         /* If we have an NaN value then don't record it */
-                        if (_isnan(op2->gtDblCon.gtDconVal))
+                        if (_isnan(op2->AsDblConRef().gtDconVal))
                         {
                             goto DONE_ASSERTION; // Don't make an assertion
                         }
-                        assertion->op2.dconVal = op2->gtDblCon.gtDconVal;
+                        assertion->op2.dconVal = op2->AsDblConRef().gtDconVal;
                     }
 
                     //
@@ -2419,7 +2419,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
 
                 newTree = optPrepareTreeForReplacement(tree, tree);
                 tree->ChangeOperConst(GT_CNS_DBL);
-                tree->gtDblCon.gtDconVal = value;
+                tree->AsDblConRef().gtDconVal = value;
                 tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
             }
             break;
@@ -2444,7 +2444,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
 
                 newTree = optPrepareTreeForReplacement(tree, tree);
                 tree->ChangeOperConst(GT_CNS_DBL);
-                tree->gtDblCon.gtDconVal = value;
+                tree->AsDblConRef().gtDconVal = value;
                 tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
             }
             break;
@@ -2496,7 +2496,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                         // Same sized reinterpretation of bits to double
                         newTree = optPrepareTreeForReplacement(tree, tree);
                         tree->ChangeOperConst(GT_CNS_DBL);
-                        tree->gtDblCon.gtDconVal = *(reinterpret_cast<double*>(&value));
+                        tree->AsDblConRef().gtDconVal = *(reinterpret_cast<double*>(&value));
                         tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
                         break;
 
@@ -2563,7 +2563,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                         // Same sized reinterpretation of bits to float
                         newTree = optPrepareTreeForReplacement(tree, tree);
                         tree->ChangeOperConst(GT_CNS_DBL);
-                        tree->gtDblCon.gtDconVal = *(reinterpret_cast<float*>(&value));
+                        tree->AsDblConRef().gtDconVal = *(reinterpret_cast<float*>(&value));
                         tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
                         break;
 
@@ -2615,7 +2615,7 @@ GenTree* Compiler::optConstantAssertionProp(AssertionDsc* curAssertion,
                 return nullptr;
             }
             newTree->ChangeOperConst(GT_CNS_DBL);
-            newTree->gtDblCon.gtDconVal = curAssertion->op2.dconVal;
+            newTree->AsDblConRef().gtDconVal = curAssertion->op2.dconVal;
             break;
 
         case O2K_CONST_LONG:
@@ -3203,7 +3203,7 @@ GenTree* Compiler::optAssertionPropGlobal_RelOp(ASSERT_VALARG_TP assertions, Gen
         {
             double constant = vnStore->ConstantValue<double>(vnCns);
             op1->ChangeOperConst(GT_CNS_DBL);
-            op1->gtDblCon.gtDconVal = constant;
+            op1->AsDblConRef().gtDconVal = constant;
 
             // Nothing can be equal to NaN. So if IL had "op1 == NaN", then we already made op1 NaN,
             // which will yield a false correctly. Instead if IL had "op1 != NaN", then we already
@@ -3215,7 +3215,7 @@ GenTree* Compiler::optAssertionPropGlobal_RelOp(ASSERT_VALARG_TP assertions, Gen
         {
             float constant = vnStore->ConstantValue<float>(vnCns);
             op1->ChangeOperConst(GT_CNS_DBL);
-            op1->gtDblCon.gtDconVal = constant;
+            op1->AsDblConRef().gtDconVal = constant;
             // See comments for TYP_DOUBLE.
             allowReverse = (_isnan(constant) == 0);
         }
@@ -3256,9 +3256,9 @@ GenTree* Compiler::optAssertionPropGlobal_RelOp(ASSERT_VALARG_TP assertions, Gen
             // now. We don't create OAK_EQUAL assertion on floating point from GT_ASG
             // because we depend on value num which would constant prop the NaN.
             op1->ChangeOperConst(GT_CNS_DBL);
-            op1->gtDblCon.gtDconVal = 0;
+            op1->AsDblConRef().gtDconVal = 0;
             op2->ChangeOperConst(GT_CNS_DBL);
-            op2->gtDblCon.gtDconVal = 0;
+            op2->AsDblConRef().gtDconVal = 0;
         }
         // Change the op1 LclVar to the op2 LclVar
         else
