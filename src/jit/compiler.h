@@ -1585,7 +1585,6 @@ public:
         return (regNumber)regNums[i];
     }
 
-    __declspec(property(get = getIsSplit, put = setIsSplit)) bool isSplit;
     bool getIsSplit()
     {
 #ifdef FEATURE_ARG_SPLIT
@@ -1713,7 +1712,7 @@ public:
 
     bool isPassedInRegisters()
     {
-        return !isSplit && (numRegs != 0);
+        return !getIsSplit() && (numRegs != 0);
     }
 
     bool isPassedInFloatRegisters()
@@ -1727,7 +1726,7 @@ public:
 
     bool isSingleRegOrSlot()
     {
-        return !isSplit && ((numRegs == 1) || (numSlots == 1));
+        return !getIsSplit() && ((numRegs == 1) || (numSlots == 1));
     }
 
     // Returns the number of "slots" used, where for this purpose a
