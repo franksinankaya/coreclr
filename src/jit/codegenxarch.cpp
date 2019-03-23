@@ -3030,7 +3030,7 @@ void CodeGen::genCodeForLoadOffset(instruction ins, emitAttr size, regNumber dst
     {
         if (baseNode->gtOper == GT_LCL_FLD_ADDR)
         {
-            offset += baseNode->gtLclFld.gtLclOffs;
+            offset += baseNode->AsLclFld()->gtLclOffs;
         }
         emit->emitIns_R_S(ins, size, dst, baseNode->AsLclVarCommon()->GetLclNum(), offset);
     }
@@ -7224,7 +7224,7 @@ void CodeGen::genSSE41RoundOp(GenTreeOp* treeNode)
                     GenTreeLclFld* lclField = srcNode->AsLclFld();
 
                     varNum = lclField->GetLclNum();
-                    offset = lclField->gtLclFld.gtLclOffs;
+                    offset = lclField->AsLclFld()->gtLclOffs;
                     break;
                 }
 
