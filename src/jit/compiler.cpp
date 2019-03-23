@@ -4109,7 +4109,7 @@ _SetMinOpts:
 
         if (opts.jitFlags->IsSet(JitFlags::JIT_FLAG_RELOC))
         {
-            codeGen->genAlignLoops = false; // loop alignment not supported for prejitted code
+            codeGen->setAlignLoops(false); // loop alignment not supported for prejitted code
 
             // The zapper doesn't set JitFlags::JIT_FLAG_ALIGN_LOOPS, and there is
             // no reason for it to set it as the JIT doesn't currently support loop alignment
@@ -4119,7 +4119,7 @@ _SetMinOpts:
         }
         else
         {
-            codeGen->genAlignLoops = opts.jitFlags->IsSet(JitFlags::JIT_FLAG_ALIGN_LOOPS);
+            codeGen->setAlignLoops(opts.jitFlags->IsSet(JitFlags::JIT_FLAG_ALIGN_LOOPS));
         }
     }
 
