@@ -7179,8 +7179,8 @@ GenTree* Compiler::gtCloneExpr(
 
             case GT_BOX:
                 copy = new (this, GT_BOX)
-                    GenTreeBox(tree->TypeGet(), tree->AsOpRef().gtOp1, tree->gtBox.gtAsgStmtWhenInlinedBoxValue,
-                               tree->gtBox.gtCopyStmtWhenInlinedBoxValue);
+                    GenTreeBox(tree->TypeGet(), tree->AsOpRef().gtOp1, tree->AsBoxRef().gtAsgStmtWhenInlinedBoxValue,
+                               tree->AsBoxRef().gtCopyStmtWhenInlinedBoxValue);
                 break;
 
             case GT_INTRINSIC:
@@ -12306,7 +12306,7 @@ GenTree* Compiler::gtFoldExprSpecial(GenTree* tree)
                 {
                     // The tree under the box must be side effect free
                     // since we will drop it if we optimize.
-                    assert(!gtTreeHasSideEffects(op->gtBox.AsOpRef().gtOp1, GTF_SIDE_EFFECT));
+                    assert(!gtTreeHasSideEffects(op->AsBoxRef().AsOpRef().gtOp1, GTF_SIDE_EFFECT));
 
                     // See if we can optimize away the box and related statements.
                     GenTree* boxSourceTree = gtTryRemoveBoxUpstreamEffects(op);
