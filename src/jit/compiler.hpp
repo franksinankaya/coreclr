@@ -1451,8 +1451,8 @@ inline void GenTree::ChangeOper(genTreeOps oper, ValueNumberUpdate vnUpdate)
     switch (oper)
     {
         case GT_LCL_FLD:
-            gtLclFld.gtLclOffs  = 0;
-            gtLclFld.gtFieldSeq = FieldSeqStore::NotAField();
+            AsLclFldRef().gtLclOffs  = 0;
+            AsLclFldRef().gtFieldSeq = FieldSeqStore::NotAField();
             break;
         default:
             break;

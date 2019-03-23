@@ -2552,7 +2552,7 @@ void CodeGen::genCodeForLoadPairOffset(regNumber dst, regNumber dst2, GenTree* b
     if (base->OperIsLocalAddr())
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
-            offset += base->gtLclFld.gtLclOffs;
+            offset += base->AsLclFldRef().gtLclOffs;
 
         emit->emitIns_R_R_S_S(INS_ldp, EA_8BYTE, EA_8BYTE, dst, dst2, base->AsLclVarCommonRef().GetLclNum(), offset);
     }
@@ -2572,7 +2572,7 @@ void CodeGen::genCodeForStorePairOffset(regNumber src, regNumber src2, GenTree* 
     if (base->OperIsLocalAddr())
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
-            offset += base->gtLclFld.gtLclOffs;
+            offset += base->AsLclFldRef().gtLclOffs;
 
         emit->emitIns_S_S_R_R(INS_stp, EA_8BYTE, EA_8BYTE, src, src2, base->AsLclVarCommonRef().GetLclNum(), offset);
     }
@@ -5069,7 +5069,7 @@ void CodeGen::genStoreLclTypeSIMD12(GenTree* treeNode)
 
     if (treeNode->OperGet() == GT_STORE_LCL_FLD)
     {
-        offs = treeNode->gtLclFld.gtLclOffs;
+        offs = treeNode->AsLclFldRef().gtLclOffs;
     }
 
     GenTree* op1 = treeNode->AsOpRef().gtOp1;
