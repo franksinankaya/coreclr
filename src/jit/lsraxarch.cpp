@@ -454,9 +454,9 @@ int LinearScan::BuildNode(GenTree* tree)
 
             // Comparand is preferenced to RAX.
             // The remaining two operands can be in any reg other than RAX.
-            BuildUse(tree->gtCmpXchg.gtOpLocation, allRegs(TYP_INT) & ~RBM_RAX);
-            BuildUse(tree->gtCmpXchg.gtOpValue, allRegs(TYP_INT) & ~RBM_RAX);
-            BuildUse(tree->gtCmpXchg.gtOpComparand, RBM_RAX);
+            BuildUse(tree->AsCmpXchgRef().gtOpLocation, allRegs(TYP_INT) & ~RBM_RAX);
+            BuildUse(tree->AsCmpXchgRef().gtOpValue, allRegs(TYP_INT) & ~RBM_RAX);
+            BuildUse(tree->AsCmpXchgRef().gtOpComparand, RBM_RAX);
             BuildDef(tree, RBM_RAX);
         }
         break;
