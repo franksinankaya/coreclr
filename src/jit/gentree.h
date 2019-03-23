@@ -6155,7 +6155,7 @@ inline GenTree* GenTree::gtRetExprVal()
     {
         if (retExprVal->gtOper == GT_RET_EXPR)
         {
-            retExprVal = retExprVal->gtRetExpr.gtInlineCandidate;
+            retExprVal = retExprVal->AsRetExprRef().gtInlineCandidate;
         }
         else
         {
