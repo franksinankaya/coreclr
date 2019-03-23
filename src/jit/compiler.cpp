@@ -7072,7 +7072,7 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
             return;
 
         case GT_FIELD:
-            CopyTestDataToCloneTree(from->gtField.gtFldObj, to->gtField.gtFldObj);
+            CopyTestDataToCloneTree(from->AsFieldRef().gtFldObj, to->AsFieldRef().gtFldObj);
             return;
 
         case GT_ARR_ELEM:
@@ -10664,7 +10664,7 @@ void cNodeIR(Compiler* comp, GenTree* tree)
 
         {
             const char* className = nullptr;
-            const char* fieldName = comp->eeGetFieldName(tree->gtField.gtFldHnd, &className);
+            const char* fieldName = comp->eeGetFieldName(tree->AsFieldRef().gtFldHnd, &className);
 
             chars += printf(" %s.%s", className, fieldName);
         }

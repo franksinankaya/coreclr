@@ -18674,7 +18674,7 @@ void Compiler::fgSetTreeSeqHelper(GenTree* tree, bool isLIR)
     switch (oper)
     {
         case GT_FIELD:
-            noway_assert(tree->gtField.gtFldObj == nullptr);
+            noway_assert(tree->AsFieldRef().gtFldObj == nullptr);
             break;
 
         case GT_CALL:
