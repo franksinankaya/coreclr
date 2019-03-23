@@ -1946,7 +1946,7 @@ AGAIN:
                 case GT_RUNTIMELOOKUP:
                     hash =
                         genTreeHashAdd(hash,
-                                       static_cast<unsigned>(reinterpret_cast<uintptr_t>(tree->gtRuntimeLookup.gtHnd)));
+                                       static_cast<unsigned>(reinterpret_cast<uintptr_t>(tree->AsRuntimeLookupRef().gtHnd)));
                     break;
 
                 case GT_OBJ:
@@ -6955,7 +6955,7 @@ GenTree* Compiler::gtCloneExpr(
                 goto DONE;
 
             case GT_CNS_STR:
-                copy = gtNewSconNode(tree->AsgtStrConRef().gtSconCPX, tree->AsgtStrConRef().gtScpHnd);
+                copy = gtNewSconNode(tree->AsStrConRef().gtSconCPX, tree->AsStrConRef().gtScpHnd);
                 goto DONE;
 
             case GT_LCL_VAR:
@@ -7901,7 +7901,7 @@ bool Compiler::gtCompareTree(GenTree* op1, GenTree* op2)
                 break;
 
             case GT_CNS_STR:
-                if (op1->AsgtStrConRef().gtSconCPX == op2->AsgtStrConRef().gtSconCPX)
+                if (op1->AsStrConRef().gtSconCPX == op2->AsStrConRef().gtSconCPX)
                 {
                     return true;
                 }
@@ -9732,12 +9732,12 @@ void Compiler::gtDispNode(GenTree* tree, IndentStack* indentStack, __in __in_z _
             if (tree->gtOper == GT_RUNTIMELOOKUP)
             {
 #ifdef _TARGET_64BIT_
-                printf(" 0x%llx", dspPtr(tree->gtRuntimeLookup.gtHnd));
+                printf(" 0x%llx", dspPtr(tree->AsRuntimeLookupRef().gtHnd));
 #else
-                printf(" 0x%x", dspPtr(tree->gtRuntimeLookup.gtHnd));
+                printf(" 0x%x", dspPtr(tree->AsRuntimeLookupRef().gtHnd));
 #endif
 
-                switch (tree->gtRuntimeLookup.gtHndType)
+                switch (tree->AsRuntimeLookupRef().gtHndType)
                 {
                     case CORINFO_HANDLETYPE_CLASS:
                         printf(" class");
