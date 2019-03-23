@@ -3663,8 +3663,8 @@ void Compiler::lvaMarkLclRefs(GenTree* tree, BasicBlock* block, GenTreeStmt* stm
 
         if (tree->OperIs(GT_ASG))
         {
-            GenTree* op1 = tree->gtOp.gtOp1;
-            GenTree* op2 = tree->gtOp.gtOp2;
+            GenTree* op1 = tree->AsOpRef().gtOp1;
+            GenTree* op2 = tree->AsOpRef().gtOp2;
 
 #if OPT_BOOL_OPS
 
@@ -7400,11 +7400,11 @@ Compiler::fgWalkResult Compiler::lvaStressLclFldCB(GenTree** pTree, fgWalkData* 
             break;
 
         case GT_ADDR:
-            if (tree->gtOp.gtOp1->gtOper != GT_LCL_VAR)
+            if (tree->AsOpRef().gtOp1->gtOper != GT_LCL_VAR)
             {
                 return WALK_CONTINUE;
             }
-            lcl = tree->gtOp.gtOp1;
+            lcl = tree->AsOpRef().gtOp1;
             break;
 
         default:
