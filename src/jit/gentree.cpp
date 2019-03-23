@@ -1885,7 +1885,7 @@ AGAIN:
 #endif
                 break;
             case GT_CNS_STR:
-                add = tree->AsgtStrConRef().gtSconCPX;
+                add = tree->AsStrConRef().gtSconCPX;
                 break;
 
             case GT_JMP:
@@ -2018,10 +2018,10 @@ AGAIN:
 
 #ifdef FEATURE_HW_INTRINSICS
                 case GT_HWIntrinsic:
-                    hash += tree->gtHWIntrinsic.gtHWIntrinsicId;
-                    hash += tree->gtHWIntrinsic.gtSIMDBaseType;
-                    hash += tree->gtHWIntrinsic.gtSIMDSize;
-                    hash += tree->gtHWIntrinsic.gtIndexBaseType;
+                    hash += tree->AsHWIntrinsicRef().gtHWIntrinsicId;
+                    hash += tree->AsHWIntrinsicRef().gtSIMDBaseType;
+                    hash += tree->AsHWIntrinsicRef().gtSIMDSize;
+                    hash += tree->AsHWIntrinsicRef().gtIndexBaseType;
                     break;
 #endif // FEATURE_HW_INTRINSICS
 
@@ -10810,9 +10810,9 @@ void Compiler::gtDispTree(GenTree*     tree,
         if (tree->gtOper == GT_HWIntrinsic)
         {
             printf(" %s %s",
-                   tree->gtHWIntrinsic.gtSIMDBaseType == TYP_UNKNOWN ? ""
-                                                                     : varTypeName(tree->gtHWIntrinsic.gtSIMDBaseType),
-                   HWIntrinsicInfo::lookupName(tree->gtHWIntrinsic.gtHWIntrinsicId));
+                   tree->AsHWIntrinsicRef().gtSIMDBaseType == TYP_UNKNOWN ? ""
+                                                                     : varTypeName(tree->AsHWIntrinsicRef().gtSIMDBaseType),
+                   HWIntrinsicInfo::lookupName(tree->AsHWIntrinsicRef().gtHWIntrinsicId));
         }
 #endif // FEATURE_HW_INTRINSICS
 
