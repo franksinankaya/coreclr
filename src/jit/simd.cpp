@@ -2046,8 +2046,8 @@ bool areFieldsParentsLocatedSame(GenTree* op1, GenTree* op2)
     assert(op1->OperGet() == GT_FIELD);
     assert(op2->OperGet() == GT_FIELD);
 
-    GenTree* op1ObjRef = op1->gtField.gtFldObj;
-    GenTree* op2ObjRef = op2->gtField.gtFldObj;
+    GenTree* op1ObjRef = op1->AsFieldRef().gtFldObj;
+    GenTree* op2ObjRef = op2->AsFieldRef().gtFldObj;
     while (op1ObjRef != nullptr && op2ObjRef != nullptr)
     {
 
@@ -2067,10 +2067,10 @@ bool areFieldsParentsLocatedSame(GenTree* op1, GenTree* op2)
             return true;
         }
         else if (op1ObjRef->OperGet() == GT_FIELD && op2ObjRef->OperGet() == GT_FIELD &&
-                 op1ObjRef->gtField.gtFldHnd == op2ObjRef->gtField.gtFldHnd)
+                 op1ObjRef->AsFieldRef().gtFldHnd == op2ObjRef->AsFieldRef().gtFldHnd)
         {
-            op1ObjRef = op1ObjRef->gtField.gtFldObj;
-            op2ObjRef = op2ObjRef->gtField.gtFldObj;
+            op1ObjRef = op1ObjRef->AsFieldRef().gtFldObj;
+            op2ObjRef = op2ObjRef->AsFieldRef().gtFldObj;
             continue;
         }
         else
@@ -2101,8 +2101,8 @@ bool Compiler::areFieldsContiguous(GenTree* first, GenTree* second)
     var_types firstFieldType  = first->gtType;
     var_types secondFieldType = second->gtType;
 
-    unsigned firstFieldEndOffset = first->gtField.gtFldOffset + genTypeSize(firstFieldType);
-    unsigned secondFieldOffset   = second->gtField.gtFldOffset;
+    unsigned firstFieldEndOffset = first->AsFieldRef().gtFldOffset + genTypeSize(firstFieldType);
+    unsigned secondFieldOffset   = second->AsFieldRef().gtFldOffset;
     if (firstFieldEndOffset == secondFieldOffset && firstFieldType == secondFieldType &&
         areFieldsParentsLocatedSame(first, second))
     {
@@ -2207,7 +2207,7 @@ GenTree* Compiler::createAddressNodeForSIMDInit(GenTree* tree, unsigned simdSize
 
     if (tree->OperGet() == GT_FIELD)
     {
-        GenTree* objRef = tree->gtField.gtFldObj;
+        GenTree* objRef = tree->AsFieldRef().gtFldObj;
         if (objRef != nullptr && objRef->gtOper == GT_ADDR)
         {
             GenTree* obj = objRef->AsOpRef().gtOp1;
@@ -2229,9 +2229,9 @@ GenTree* Compiler::createAddressNodeForSIMDInit(GenTree* tree, unsigned simdSize
             }
         }
 
-        byrefNode = gtCloneExpr(tree->gtField.gtFldObj);
+        byrefNode = gtCloneExpr(tree->AsFieldRef().gtFldObj);
         assert(byrefNode != nullptr);
-        offset = tree->gtField.gtFldOffset;
+        offset = tree->AsFieldRef().gtFldOffset;
     }
     else if (tree->OperGet() == GT_INDEX)
     {
@@ -2319,7 +2319,7 @@ void Compiler::impMarkContiguousSIMDFieldAssignments(GenTreeStmt* stmt)
 
                     if (curDst->OperGet() == GT_FIELD)
                     {
-                        GenTree* objRef = curDst->gtField.gtFldObj;
+                        GenTree* objRef = curDst->AsFieldRef().gtFldObj;
                         if (objRef != nullptr && objRef->gtOper == GT_ADDR)
                         {
                             GenTree* obj = objRef->AsOpRef().gtOp1;
