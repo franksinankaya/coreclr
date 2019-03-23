@@ -6874,22 +6874,22 @@ void Compiler::fgImport()
 
 bool Compiler::fgIsThrow(GenTree* tree)
 {
-    if ((tree->gtOper != GT_CALL) || (tree->gtCall.gtCallType != CT_HELPER))
+    if ((tree->gtOper != GT_CALL) || (tree->AsCallRef().gtCallType != CT_HELPER))
     {
         return false;
     }
 
     // TODO-Throughput: Replace all these calls to eeFindHelper() with a table based lookup
 
-    if ((tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_OVERFLOW)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_VERIFICATION)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_RNGCHKFAIL)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROWDIVZERO)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROWNULLREF)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROW)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_RETHROW)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROW_TYPE_NOT_SUPPORTED)) ||
-        (tree->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROW_PLATFORM_NOT_SUPPORTED)))
+    if ((tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_OVERFLOW)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_VERIFICATION)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_RNGCHKFAIL)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROWDIVZERO)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROWNULLREF)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROW)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_RETHROW)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROW_TYPE_NOT_SUPPORTED)) ||
+        (tree->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_THROW_PLATFORM_NOT_SUPPORTED)))
     {
         noway_assert(tree->gtFlags & GTF_CALL);
         noway_assert(tree->gtFlags & GTF_EXCEPT);
@@ -7279,9 +7279,9 @@ GenTree* Compiler::fgOptimizeDelegateConstructor(GenTreeCall*            call,
     {
         targetMethodHnd = targetMethod->gtFptrVal.gtFptrMethod;
     }
-    else if (oper == GT_CALL && targetMethod->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_VIRTUAL_FUNC_PTR))
+    else if (oper == GT_CALL && targetMethod->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_VIRTUAL_FUNC_PTR))
     {
-        GenTree* handleNode = targetMethod->gtCall.gtCallArgs->Rest()->Rest()->Current();
+        GenTree* handleNode = targetMethod->AsCallRef().gtCallArgs->Rest()->Rest()->Current();
 
         if (handleNode->OperGet() == GT_CNS_INT)
         {
@@ -7476,7 +7476,7 @@ bool Compiler::fgCastNeeded(GenTree* tree, var_types toType)
     }
     else if (tree->OperGet() == GT_CALL)
     {
-        fromType = (var_types)tree->gtCall.gtReturnType;
+        fromType = (var_types)tree->AsCallRef().gtReturnType;
     }
     else
     {
@@ -18680,41 +18680,41 @@ void Compiler::fgSetTreeSeqHelper(GenTree* tree, bool isLIR)
         case GT_CALL:
 
             /* We'll evaluate the 'this' argument value first */
-            if (tree->gtCall.gtCallObjp)
+            if (tree->AsCallRef().gtCallObjp)
             {
-                fgSetTreeSeqHelper(tree->gtCall.gtCallObjp, isLIR);
+                fgSetTreeSeqHelper(tree->AsCallRef().gtCallObjp, isLIR);
             }
 
             /* We'll evaluate the arguments next, left to right
              * NOTE: setListOrder needs cleanup - eliminate the #ifdef afterwards */
 
-            if (tree->gtCall.gtCallArgs)
+            if (tree->AsCallRef().gtCallArgs)
             {
-                fgSetTreeSeqHelper(tree->gtCall.gtCallArgs, isLIR);
+                fgSetTreeSeqHelper(tree->AsCallRef().gtCallArgs, isLIR);
             }
 
             /* Evaluate the temp register arguments list
              * This is a "hidden" list and its only purpose is to
              * extend the life of temps until we make the call */
 
-            if (tree->gtCall.gtCallLateArgs)
+            if (tree->AsCallRef().gtCallLateArgs)
             {
-                fgSetTreeSeqHelper(tree->gtCall.gtCallLateArgs, isLIR);
+                fgSetTreeSeqHelper(tree->AsCallRef().gtCallLateArgs, isLIR);
             }
 
-            if ((tree->gtCall.gtCallType == CT_INDIRECT) && (tree->gtCall.gtCallCookie != nullptr))
+            if ((tree->AsCallRef().gtCallType == CT_INDIRECT) && (tree->AsCallRef().gtCallCookie != nullptr))
             {
-                fgSetTreeSeqHelper(tree->gtCall.gtCallCookie, isLIR);
+                fgSetTreeSeqHelper(tree->AsCallRef().gtCallCookie, isLIR);
             }
 
-            if (tree->gtCall.gtCallType == CT_INDIRECT)
+            if (tree->AsCallRef().gtCallType == CT_INDIRECT)
             {
-                fgSetTreeSeqHelper(tree->gtCall.gtCallAddr, isLIR);
+                fgSetTreeSeqHelper(tree->AsCallRef().gtCallAddr, isLIR);
             }
 
-            if (tree->gtCall.gtControlExpr)
+            if (tree->AsCallRef().gtControlExpr)
             {
-                fgSetTreeSeqHelper(tree->gtCall.gtControlExpr, isLIR);
+                fgSetTreeSeqHelper(tree->AsCallRef().gtControlExpr, isLIR);
             }
 
             break;
@@ -22490,7 +22490,7 @@ Compiler::fgWalkResult Compiler::fgLateDevirtualization(GenTree** pTree, fgWalkD
             unsigned               methodFlags            = 0;
             CORINFO_CONTEXT_HANDLE context                = nullptr;
             const bool             isLateDevirtualization = true;
-            bool explicitTailCall = (call->gtCall.gtCallMoreFlags & GTF_CALL_M_EXPLICIT_TAILCALL) != 0;
+            bool explicitTailCall = (call->AsCallRef().gtCallMoreFlags & GTF_CALL_M_EXPLICIT_TAILCALL) != 0;
             comp->impDevirtualizeCall(call, &method, &methodFlags, &context, nullptr, isLateDevirtualization,
                                       explicitTailCall);
         }
@@ -23345,7 +23345,7 @@ GenTreeStmt* Compiler::fgInlinePrependStatements(InlineInfo* inlineInfo)
                             // Look for (COMMA (CALL(special dce helper...), (FIELD ...)))
                             GenTree* op1 = actualArgNode->AsOpRef().gtOp1;
                             GenTree* op2 = actualArgNode->AsOpRef().gtOp2;
-                            if (op1->IsCall() && ((op1->gtCall.gtCallMoreFlags & GTF_CALL_M_HELPER_SPECIAL_DCE) != 0) &&
+                            if (op1->IsCall() && ((op1->AsCallRef().gtCallMoreFlags & GTF_CALL_M_HELPER_SPECIAL_DCE) != 0) &&
                                 (op2->gtOper == GT_FIELD) && ((op2->gtFlags & GTF_EXCEPT) == 0))
                             {
                                 JITDUMP("\nPerforming special dce on unused arg [%06u]:"
@@ -23365,7 +23365,7 @@ GenTreeStmt* Compiler::fgInlinePrependStatements(InlineInfo* inlineInfo)
                                 GenTree* op1 = addr->AsOpRef().gtOp1;
                                 GenTree* op2 = addr->AsOpRef().gtOp2;
                                 if (op1->IsCall() &&
-                                    ((op1->gtCall.gtCallMoreFlags & GTF_CALL_M_HELPER_SPECIAL_DCE) != 0) &&
+                                    ((op1->AsCallRef().gtCallMoreFlags & GTF_CALL_M_HELPER_SPECIAL_DCE) != 0) &&
                                     op2->IsCnsIntOrI())
                                 {
                                     // Drop the whole tree

@@ -1193,7 +1193,7 @@ GenTree* Compiler::impAssignStructPtr(GenTree*             destAddr,
             // Case of call returning a struct via hidden retbuf arg
 
             // insert the return value buffer into the argument list as first byref parameter
-            src->gtCall.gtCallArgs = gtNewListNode(destAddr, src->gtCall.gtCallArgs);
+            src->AsCallRef().gtCallArgs = gtNewListNode(destAddr, src->AsCallRef().gtCallArgs);
 
             // now returns void, not a struct
             src->gtType = TYP_VOID;
@@ -1205,7 +1205,7 @@ GenTree* Compiler::impAssignStructPtr(GenTree*             destAddr,
         {
             // Case of call returning a struct in one or more registers.
 
-            var_types returnType = (var_types)src->gtCall.gtReturnType;
+            var_types returnType = (var_types)src->AsCallRef().gtReturnType;
 
             // We won't use a return buffer, so change the type of src->gtType to 'returnType'
             src->gtType = genActualType(returnType);
@@ -1245,7 +1245,7 @@ GenTree* Compiler::impAssignStructPtr(GenTree*             destAddr,
                 lcl->gtFlags |= GTF_DONT_CSE;
 #elif defined(UNIX_AMD64_ABI)
                 // Not allowed for FEATURE_CORCLR which is the only SKU available for System V OSs.
-                assert(!src->gtCall.IsVarargs() && "varargs not allowed for System V OSs.");
+                assert(!src->AsCallRef().IsVarargs() && "varargs not allowed for System V OSs.");
 
                 // Make the struct non promotable. The eightbytes could contain multiple fields.
                 // TODO-1stClassStructs: Eliminate this pessimization when we can more generally
@@ -1627,7 +1627,7 @@ GenTree* Compiler::impNormStructVal(GenTree*             structVal,
             break;
 
         case GT_CALL:
-            structVal->gtCall.gtRetClsHnd = structHnd;
+            structVal->AsCallRef().gtRetClsHnd = structHnd;
             makeTemp                      = true;
             break;
 
@@ -2305,7 +2305,7 @@ bool Compiler::impSpillStackEntry(unsigned level,
         {
             JITDUMP("\n*** see V%02u = GT_RET_EXPR, noting temp\n", tnum);
             GenTree*             call = tree->AsRetExprRef().gtInlineCandidate;
-            InlineCandidateInfo* ici  = call->gtCall.gtInlineCandidateInfo;
+            InlineCandidateInfo* ici  = call->AsCallRef().gtInlineCandidateInfo;
             ici->preexistingSpillTemp = tnum;
         }
     }
@@ -3035,14 +3035,14 @@ GenTree* Compiler::impInitializeArrayIntrinsic(CORINFO_SIG_INFO* sig)
     //
 
     // Check to see if the ldtoken helper call is what we see here.
-    if (fieldTokenNode->gtOper != GT_CALL || (fieldTokenNode->gtCall.gtCallType != CT_HELPER) ||
-        (fieldTokenNode->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_FIELDDESC_TO_STUBRUNTIMEFIELD)))
+    if (fieldTokenNode->gtOper != GT_CALL || (fieldTokenNode->AsCallRef().gtCallType != CT_HELPER) ||
+        (fieldTokenNode->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_FIELDDESC_TO_STUBRUNTIMEFIELD)))
     {
         return nullptr;
     }
 
     // Strip helper call away
-    fieldTokenNode = fieldTokenNode->gtCall.gtCallArgs->Current();
+    fieldTokenNode = fieldTokenNode->AsCallRef().gtCallArgs->Current();
 
     if (fieldTokenNode->gtOper == GT_IND)
     {
@@ -3090,7 +3090,7 @@ GenTree* Compiler::impInitializeArrayIntrinsic(CORINFO_SIG_INFO* sig)
     //
 
     GenTree* newArrayCall = arrayAssignment->AsOpRef().gtOp2;
-    if ((newArrayCall->gtOper != GT_CALL) || (newArrayCall->gtCall.gtCallType != CT_HELPER))
+    if ((newArrayCall->gtOper != GT_CALL) || (newArrayCall->AsCallRef().gtCallType != CT_HELPER))
     {
         return nullptr;
     }
@@ -3101,17 +3101,17 @@ GenTree* Compiler::impInitializeArrayIntrinsic(CORINFO_SIG_INFO* sig)
 
     bool isMDArray = false;
 
-    if (newArrayCall->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_DIRECT) &&
-        newArrayCall->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_OBJ) &&
-        newArrayCall->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_VC) &&
-        newArrayCall->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_ALIGN8)
+    if (newArrayCall->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_DIRECT) &&
+        newArrayCall->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_OBJ) &&
+        newArrayCall->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_VC) &&
+        newArrayCall->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_ALIGN8)
 #ifdef FEATURE_READYTORUN_COMPILER
-        && newArrayCall->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_R2R_DIRECT) &&
-        newArrayCall->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_READYTORUN_NEWARR_1)
+        && newArrayCall->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEWARR_1_R2R_DIRECT) &&
+        newArrayCall->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_READYTORUN_NEWARR_1)
 #endif
             )
     {
-        if (newArrayCall->gtCall.gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEW_MDARR_NONVARARG))
+        if (newArrayCall->AsCallRef().gtCallMethHnd != eeFindHelper(CORINFO_HELP_NEW_MDARR_NONVARARG))
         {
             return nullptr;
         }
@@ -3119,7 +3119,7 @@ GenTree* Compiler::impInitializeArrayIntrinsic(CORINFO_SIG_INFO* sig)
         isMDArray = true;
     }
 
-    CORINFO_CLASS_HANDLE arrayClsHnd = (CORINFO_CLASS_HANDLE)newArrayCall->gtCall.compileTimeHelperArgumentHandle;
+    CORINFO_CLASS_HANDLE arrayClsHnd = (CORINFO_CLASS_HANDLE)newArrayCall->AsCallRef().compileTimeHelperArgumentHandle;
 
     //
     // Make sure we found a compile time handle to the array
@@ -3142,7 +3142,7 @@ GenTree* Compiler::impInitializeArrayIntrinsic(CORINFO_SIG_INFO* sig)
             return nullptr;
         }
 
-        GenTreeArgList* tokenArg = newArrayCall->gtCall.gtCallArgs;
+        GenTreeArgList* tokenArg = newArrayCall->AsCallRef().gtCallArgs;
         assert(tokenArg != nullptr);
         GenTreeArgList* numArgsArg = tokenArg->Rest();
         assert(numArgsArg != nullptr);
@@ -3281,9 +3281,9 @@ GenTree* Compiler::impInitializeArrayIntrinsic(CORINFO_SIG_INFO* sig)
 
         GenTree* arrayLengthNode;
 
-        GenTreeArgList* args = newArrayCall->gtCall.gtCallArgs;
+        GenTreeArgList* args = newArrayCall->AsCallRef().gtCallArgs;
 #ifdef FEATURE_READYTORUN_COMPILER
-        if (newArrayCall->gtCall.gtCallMethHnd == eeFindHelper(CORINFO_HELP_READYTORUN_NEWARR_1))
+        if (newArrayCall->AsCallRef().gtCallMethHnd == eeFindHelper(CORINFO_HELP_READYTORUN_NEWARR_1))
         {
             // Array length is 1st argument for readytorun helper
             arrayLengthNode = args->Current();
@@ -3658,7 +3658,7 @@ GenTree* Compiler::impIntrinsic(GenTree*                newobjThis,
         case CORINFO_INTRINSIC_GetTypeFromHandle:
             op1 = impStackTop(0).val;
             CorInfoHelpFunc typeHandleHelper;
-            if (op1->gtOper == GT_CALL && (op1->gtCall.gtCallType == CT_HELPER) &&
+            if (op1->gtOper == GT_CALL && (op1->AsCallRef().gtCallType == CT_HELPER) &&
                 gtIsTypeHandleToRuntimeTypeHandleHelper(op1->AsCall(), &typeHandleHelper))
             {
                 op1 = impPopStack().val;
@@ -3672,8 +3672,8 @@ GenTree* Compiler::impIntrinsic(GenTree*                newobjThis,
                     assert(typeHandleHelper == CORINFO_HELP_TYPEHANDLE_TO_RUNTIMETYPEHANDLE_MAYBENULL);
                     typeHandleHelper = CORINFO_HELP_TYPEHANDLE_TO_RUNTIMETYPE_MAYBENULL;
                 }
-                assert(op1->gtCall.gtCallArgs->AsOpRef().gtOp2 == nullptr);
-                op1         = gtNewHelperCallNode(typeHandleHelper, TYP_REF, op1->gtCall.gtCallArgs);
+                assert(op1->AsCallRef().gtCallArgs->AsOpRef().gtOp2 == nullptr);
+                op1         = gtNewHelperCallNode(typeHandleHelper, TYP_REF, op1->AsCallRef().gtCallArgs);
                 op1->gtType = TYP_REF;
                 retNode     = op1;
             }
@@ -3682,7 +3682,7 @@ GenTree* Compiler::impIntrinsic(GenTree*                newobjThis,
 
         case CORINFO_INTRINSIC_RTH_GetValueInternal:
             op1 = impStackTop(0).val;
-            if (op1->gtOper == GT_CALL && (op1->gtCall.gtCallType == CT_HELPER) &&
+            if (op1->gtOper == GT_CALL && (op1->AsCallRef().gtCallType == CT_HELPER) &&
                 gtIsTypeHandleToRuntimeTypeHandleHelper(op1->AsCall()))
             {
                 // Old tree
@@ -3697,7 +3697,7 @@ GenTree* Compiler::impIntrinsic(GenTree*                newobjThis,
                 op1 = impPopStack().val;
 
                 // Get native TypeHandle argument to old helper
-                op1 = op1->gtCall.gtCallArgs;
+                op1 = op1->AsCallRef().gtCallArgs;
                 assert(op1->OperIsList());
                 assert(op1->AsOpRef().gtOp2 == nullptr);
                 op1     = op1->AsOpRef().gtOp1;
@@ -6031,7 +6031,7 @@ void Compiler::impImportNewObjArray(CORINFO_RESOLVED_TOKEN* pResolvedToken, CORI
     }
 
     node->gtFlags |= args->gtFlags & GTF_GLOB_EFFECT;
-    node->gtCall.compileTimeHelperArgumentHandle = (CORINFO_GENERIC_HANDLE)pResolvedToken->hClass;
+    node->AsCallRef().compileTimeHelperArgumentHandle = (CORINFO_GENERIC_HANDLE)pResolvedToken->hClass;
 
     // Remember that this basic block contains 'new' of a md array
     compCurBB->bbFlags |= BBF_HAS_NEWARRAY;
@@ -6389,7 +6389,7 @@ void Compiler::impPopArgsForUnmanagedCall(GenTree* call, CORINFO_SIG_INFO* sig)
     // For "thiscall", the first argument goes in a register. Since its
     // order does not need to be changed, we do not need to spill it
 
-    if (call->gtCall.gtCallMoreFlags & GTF_CALL_M_UNMGD_THISCALL)
+    if (call->AsCallRef().gtCallMoreFlags & GTF_CALL_M_UNMGD_THISCALL)
     {
         assert(argsToReverse);
         argsToReverse--;
@@ -6432,9 +6432,9 @@ void Compiler::impPopArgsForUnmanagedCall(GenTree* call, CORINFO_SIG_INFO* sig)
     /* The argument list is now "clean" - no out-of-order side effects
      * Pop the argument list in reverse order */
 
-    GenTree* args = call->gtCall.gtCallArgs = impPopRevList(sig->numArgs, sig, sig->numArgs - argsToReverse);
+    GenTree* args = call->AsCallRef().gtCallArgs = impPopRevList(sig->numArgs, sig, sig->numArgs - argsToReverse);
 
-    if (call->gtCall.gtCallMoreFlags & GTF_CALL_M_UNMGD_THISCALL)
+    if (call->AsCallRef().gtCallMoreFlags & GTF_CALL_M_UNMGD_THISCALL)
     {
         GenTree* thisPtr = args->Current();
         impBashVarAddrsToI(thisPtr);
@@ -6611,7 +6611,7 @@ GenTree* Compiler::impImportStaticFieldAccess(CORINFO_RESOLVED_TOKEN* pResolvedT
                 op1 = gtNewHelperCallNode(CORINFO_HELP_READYTORUN_STATIC_BASE, TYP_BYREF);
                 op1->gtFlags |= callFlags;
 
-                op1->gtCall.setEntryPoint(pFieldInfo->fieldLookup);
+                op1->AsCallRef().setEntryPoint(pFieldInfo->fieldLookup);
             }
             else
 #endif
@@ -6647,7 +6647,7 @@ GenTree* Compiler::impImportStaticFieldAccess(CORINFO_RESOLVED_TOKEN* pResolvedT
             op1            = gtNewHelperCallNode(CORINFO_HELP_READYTORUN_GENERIC_STATIC_BASE, type, args);
             op1->gtFlags |= callFlags;
 
-            op1->gtCall.setEntryPoint(pFieldInfo->fieldLookup);
+            op1->AsCallRef().setEntryPoint(pFieldInfo->fieldLookup);
             FieldSeqNode* fs = GetFieldSeqStore()->CreateSingleton(pResolvedToken->hField);
             op1              = gtNewOperNode(GT_ADD, type, op1,
                                 new (this, GT_CNS_INT) GenTreeIntCon(TYP_I_IMPL, pFieldInfo->offset, fs));
@@ -7179,9 +7179,9 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 #ifdef DEBUG
         // We cannot lazily obtain the signature of a CALLI call because it has no method
         // handle that we can use, so we need to save its full call signature here.
-        assert(call->gtCall.callSig == nullptr);
-        call->gtCall.callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
-        *call->gtCall.callSig = calliSig;
+        assert(call->AsCallRef().callSig == nullptr);
+        call->AsCallRef().callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
+        *call->AsCallRef().callSig = calliSig;
 #endif // DEBUG
 
         if (IsTargetAbi(CORINFO_CORERT_ABI))
@@ -7444,13 +7444,13 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
                 {
                     // The stub address is known at compile time
                     call = gtNewCallNode(CT_USER_FUNC, callInfo->hMethod, callRetTyp, nullptr, ilOffset);
-                    call->gtCall.gtStubCallStubAddr = callInfo->stubLookup.constLookup.addr;
+                    call->AsCallRef().gtStubCallStubAddr = callInfo->stubLookup.constLookup.addr;
                     call->gtFlags |= GTF_CALL_VIRT_STUB;
                     assert(callInfo->stubLookup.constLookup.accessType != IAT_PPVALUE &&
                            callInfo->stubLookup.constLookup.accessType != IAT_RELPVALUE);
                     if (callInfo->stubLookup.constLookup.accessType == IAT_PVALUE)
                     {
-                        call->gtCall.gtCallMoreFlags |= GTF_CALL_M_VIRTSTUB_REL_INDIRECT;
+                        call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_VIRTSTUB_REL_INDIRECT;
                     }
                 }
 
@@ -7516,7 +7516,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
                 // Create the actual call node
 
                 call                    = gtNewIndCallNode(fptr, callRetTyp, args, ilOffset);
-                call->gtCall.gtCallObjp = thisPtrCopy;
+                call->AsCallRef().gtCallObjp = thisPtrCopy;
                 call->gtFlags |= GTF_EXCEPT | (fptr->gtFlags & GTF_GLOB_EFFECT);
 
                 if ((sig->sigInst.methInstCount != 0) && IsTargetAbi(CORINFO_CORERT_ABI))
@@ -7556,7 +7556,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 #ifdef FEATURE_READYTORUN_COMPILER
                 if (opts.IsReadyToRun())
                 {
-                    call->gtCall.setEntryPoint(callInfo->codePointerLookup.constLookup);
+                    call->AsCallRef().setEntryPoint(callInfo->codePointerLookup.constLookup);
                 }
 #endif
                 break;
@@ -7609,13 +7609,13 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 
         if (mflags & CORINFO_FLG_NOGCCHECK)
         {
-            call->gtCall.gtCallMoreFlags |= GTF_CALL_M_NOGCCHECK;
+            call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_NOGCCHECK;
         }
 
         // Mark call if it's one of the ones we will maybe treat as an intrinsic
         if (isSpecialIntrinsic)
         {
-            call->gtCall.gtCallMoreFlags |= GTF_CALL_M_SPECIAL_INTRINSIC;
+            call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_SPECIAL_INTRINSIC;
         }
     }
     assert(sig);
@@ -7642,11 +7642,11 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
         assert(mflags & CORINFO_FLG_FINAL);
 
         /* Set the delegate flag */
-        call->gtCall.gtCallMoreFlags |= GTF_CALL_M_DELEGATE_INV;
+        call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_DELEGATE_INV;
 
         if (callInfo->secureDelegateInvoke)
         {
-            call->gtCall.gtCallMoreFlags |= GTF_CALL_M_SECURE_DELEGATE_INV;
+            call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_SECURE_DELEGATE_INV;
         }
 
         if (opcode == CEE_CALLVIRT)
@@ -7677,10 +7677,10 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 #endif // !FEATURE_VARARG
 
 #ifdef UNIX_X86_ABI
-    if (call->gtCall.callSig == nullptr)
+    if (call->AsCallRef().callSig == nullptr)
     {
-        call->gtCall.callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
-        *call->gtCall.callSig = *sig;
+        call->AsCallRef().callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
+        *call->AsCallRef().callSig = *sig;
     }
 #endif // UNIX_X86_ABI
 
@@ -7692,7 +7692,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
         /* Set the right flags */
 
         call->gtFlags |= GTF_CALL_POP_ARGS;
-        call->gtCall.gtCallMoreFlags |= GTF_CALL_M_VARARGS;
+        call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_VARARGS;
 
         /* Can't allow tailcall for varargs as it is caller-pop. The caller
            will be expecting to pop a certain number of arguments, but if we
@@ -7722,9 +7722,9 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 #ifdef DEBUG
             // We cannot lazily obtain the signature of a vararg call because using its method
             // handle will give us only the declared argument list, not the full argument list.
-            assert(call->gtCall.callSig == nullptr);
-            call->gtCall.callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
-            *call->gtCall.callSig = *sig;
+            assert(call->AsCallRef().callSig == nullptr);
+            call->AsCallRef().callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
+            *call->AsCallRef().callSig = *sig;
 #endif
 
             // For vararg calls we must be sure to load the return type of the
@@ -7841,7 +7841,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
         cookie->gtFlags |= GTF_DONT_CSE;
         cookieConst->gtFlags |= GTF_DONT_CSE;
 
-        call->gtCall.gtCallCookie = cookie;
+        call->AsCallRef().gtCallCookie = cookie;
 
         if (canTailCall)
         {
@@ -7895,7 +7895,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 
     if (sig->callConv & CORINFO_CALLCONV_PARAMTYPE)
     {
-        assert(call->gtCall.gtCallType == CT_USER_FUNC);
+        assert(call->AsCallRef().gtCallType == CT_USER_FUNC);
         if (clsHnd == nullptr)
         {
             NO_WAY("CALLI on parameterized type");
@@ -8039,7 +8039,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
     //-------------------------------------------------------------------------
     // The main group of arguments
 
-    args = call->gtCall.gtCallArgs = impPopList(sig->numArgs, sig, extraArg);
+    args = call->AsCallRef().gtCallArgs = impPopList(sig->numArgs, sig, extraArg);
 
     if (args)
     {
@@ -8069,10 +8069,10 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 
         // Store the "this" value in the call
         call->gtFlags |= obj->gtFlags & GTF_GLOB_EFFECT;
-        call->gtCall.gtCallObjp = obj;
+        call->AsCallRef().gtCallObjp = obj;
 
         // Is this a virtual or interface call?
-        if (call->gtCall.IsVirtual())
+        if (call->AsCallRef().IsVirtual())
         {
             // only true object pointers can be virtual
             assert(obj->gtType == TYP_REF);
@@ -8087,7 +8087,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 
         if (impIsThis(obj))
         {
-            call->gtCall.gtCallMoreFlags |= GTF_CALL_M_NONVIRT_SAME_THIS;
+            call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_NONVIRT_SAME_THIS;
         }
     }
 
@@ -8125,7 +8125,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 #if defined(DEBUG) || defined(INLINE_DATA)
 
                 // Keep track of the raw IL offset of the call
-                call->gtCall.gtRawILOffset = rawILOffset;
+                call->AsCallRef().gtRawILOffset = rawILOffset;
 
 #endif // defined(DEBUG) || defined(INLINE_DATA)
 
@@ -8227,8 +8227,8 @@ DONE:
         {
             // True virtual or indirect calls, shouldn't pass in a callee handle.
             CORINFO_METHOD_HANDLE exactCalleeHnd =
-                ((call->gtCall.gtCallType != CT_USER_FUNC) || call->gtCall.IsVirtual()) ? nullptr : methHnd;
-            GenTree* thisArg = call->gtCall.gtCallObjp;
+                ((call->AsCallRef().gtCallType != CT_USER_FUNC) || call->AsCallRef().IsVirtual()) ? nullptr : methHnd;
+            GenTree* thisArg = call->AsCallRef().gtCallObjp;
 
             if (info.compCompHnd->canTailCall(info.compMethodHnd, methHnd, exactCalleeHnd, explicitTailCall))
             {
@@ -8236,7 +8236,7 @@ DONE:
                 {
                     // In case of explicit tail calls, mark it so that it is not considered
                     // for in-lining.
-                    call->gtCall.gtCallMoreFlags |= GTF_CALL_M_EXPLICIT_TAILCALL;
+                    call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_EXPLICIT_TAILCALL;
 #ifdef DEBUG
                     if (verbose)
                     {
@@ -8258,7 +8258,7 @@ DONE:
                     // reason, it will survive to the morphing stage at which point it will be
                     // transformed into a tail call after performing additional checks.
 
-                    call->gtCall.gtCallMoreFlags |= GTF_CALL_M_IMPLICIT_TAILCALL;
+                    call->AsCallRef().gtCallMoreFlags |= GTF_CALL_M_IMPLICIT_TAILCALL;
 #ifdef DEBUG
                     if (verbose)
                     {
@@ -8322,19 +8322,19 @@ DONE:
 
         // Tail calls require us to save the call site's sig info so we can obtain an argument
         // copying thunk from the EE later on.
-        if (call->gtCall.callSig == nullptr)
+        if (call->AsCallRef().callSig == nullptr)
         {
-            call->gtCall.callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
-            *call->gtCall.callSig = *sig;
+            call->AsCallRef().callSig  = new (this, CMK_CorSig) CORINFO_SIG_INFO;
+            *call->AsCallRef().callSig = *sig;
         }
 
         if (compIsForInlining() && opcode == CEE_CALLVIRT)
         {
-            GenTree* callObj = call->gtCall.gtCallObjp;
+            GenTree* callObj = call->AsCallRef().gtCallObjp;
             assert(callObj != nullptr);
 
-            if ((call->gtCall.IsVirtual() || (call->gtFlags & GTF_CALL_NULLCHECK)) &&
-                impInlineIsGuaranteedThisDerefBeforeAnySideEffects(call->gtCall.gtCallArgs, callObj,
+            if ((call->AsCallRef().IsVirtual() || (call->gtFlags & GTF_CALL_NULLCHECK)) &&
+                impInlineIsGuaranteedThisDerefBeforeAnySideEffects(call->AsCallRef().gtCallArgs, callObj,
                                                                    impInlineInfo->inlArgInfo))
             {
                 impInlineInfo->thisDereferencedFirst = true;
@@ -8344,7 +8344,7 @@ DONE:
 #if defined(DEBUG) || defined(INLINE_DATA)
 
         // Keep track of the raw IL offset of the call
-        call->gtCall.gtRawILOffset = rawILOffset;
+        call->AsCallRef().gtRawILOffset = rawILOffset;
 
 #endif // defined(DEBUG) || defined(INLINE_DATA)
 
@@ -8827,12 +8827,12 @@ GenTree* Compiler::impFixupStructReturnType(GenTree* op, CORINFO_CLASS_HANDLE re
 
         if (op->gtOper == GT_CALL)
         {
-            if (op->gtCall.IsVarargs())
+            if (op->AsCallRef().IsVarargs())
             {
                 // We cannot tail call because control needs to return to fixup the calling
                 // convention for result return.
-                op->gtCall.gtCallMoreFlags &= ~GTF_CALL_M_TAILCALL;
-                op->gtCall.gtCallMoreFlags &= ~GTF_CALL_M_EXPLICIT_TAILCALL;
+                op->AsCallRef().gtCallMoreFlags &= ~GTF_CALL_M_TAILCALL;
+                op->AsCallRef().gtCallMoreFlags &= ~GTF_CALL_M_EXPLICIT_TAILCALL;
             }
             else
             {
@@ -8863,12 +8863,12 @@ GenTree* Compiler::impFixupStructReturnType(GenTree* op, CORINFO_CLASS_HANDLE re
 
         if (op->gtOper == GT_CALL)
         {
-            if (op->gtCall.IsVarargs())
+            if (op->AsCallRef().IsVarargs())
             {
                 // We cannot tail call because control needs to return to fixup the calling
                 // convention for result return.
-                op->gtCall.gtCallMoreFlags &= ~GTF_CALL_M_TAILCALL;
-                op->gtCall.gtCallMoreFlags &= ~GTF_CALL_M_EXPLICIT_TAILCALL;
+                op->AsCallRef().gtCallMoreFlags &= ~GTF_CALL_M_TAILCALL;
+                op->AsCallRef().gtCallMoreFlags &= ~GTF_CALL_M_EXPLICIT_TAILCALL;
             }
             else
             {
@@ -14498,7 +14498,7 @@ void Compiler::impImportBlockCode(BasicBlock* block)
                     op1 = gtNewHelperCallNode(info.compCompHnd->getNewArrHelper(resolvedToken.hClass), TYP_REF, args);
                 }
 
-                op1->gtCall.compileTimeHelperArgumentHandle = (CORINFO_GENERIC_HANDLE)resolvedToken.hClass;
+                op1->AsCallRef().compileTimeHelperArgumentHandle = (CORINFO_GENERIC_HANDLE)resolvedToken.hClass;
 
                 /* Remember that this basic block contains 'new' of an sd array */
 
@@ -14785,7 +14785,7 @@ void Compiler::impImportBlockCode(BasicBlock* block)
                                               helperArgs);
 
                     // The handle struct is returned in register
-                    op1->gtCall.gtReturnType = GetRuntimeHandleUnderlyingType();
+                    op1->AsCallRef().gtReturnType = GetRuntimeHandleUnderlyingType();
 
                     tiRetVal = typeInfo(TI_STRUCT, impGetTypeHandleClass());
                 }
@@ -14825,7 +14825,7 @@ void Compiler::impImportBlockCode(BasicBlock* block)
                 op1 = gtNewHelperCallNode(helper, TYP_STRUCT, helperArgs);
 
                 // The handle struct is returned in register
-                op1->gtCall.gtReturnType = GetRuntimeHandleUnderlyingType();
+                op1->AsCallRef().gtReturnType = GetRuntimeHandleUnderlyingType();
 
                 tiRetVal = verMakeTypeInfo(tokenType);
                 impPushOnStack(op1, tiRetVal);
@@ -15918,7 +15918,7 @@ void Compiler::impLoadLoc(unsigned ilLclNum, IL_OFFSET offset)
  */
 void Compiler::impMarkLclDstNotPromotable(unsigned tmpNum, GenTree* src, CORINFO_CLASS_HANDLE hClass)
 {
-    if (src->gtOper == GT_CALL && src->gtCall.IsVarargs() && IsHfa(hClass))
+    if (src->gtOper == GT_CALL && src->AsCallRef().IsVarargs() && IsHfa(hClass))
     {
         int       hfaSlots = GetHfaCount(hClass);
         var_types hfaType  = GetHfaType(hClass);
@@ -17938,7 +17938,7 @@ void Compiler::impMakeDiscretionaryInlineObservations(InlineInfo* pInlineInfo, I
         // Check if the callee has the same 'this' as the root.
         if (pInlineInfo != nullptr)
         {
-            GenTree* thisArg = pInlineInfo->iciCall->gtCall.gtCallObjp;
+            GenTree* thisArg = pInlineInfo->iciCall->AsCallRef().gtCallObjp;
             assert(thisArg);
             bool isSameThis = impIsThis(thisArg);
             inlineResult->NoteBool(InlineObservation::CALLSITE_IS_SAME_THIS, isSameThis);
@@ -18211,7 +18211,7 @@ void Compiler::impCheckCanInline(GenTreeCall*           call,
 
             if (dwRestrictions & INLINE_SAME_THIS)
             {
-                GenTree* thisArg = pParam->call->gtCall.gtCallObjp;
+                GenTree* thisArg = pParam->call->AsCallRef().gtCallObjp;
                 assert(thisArg);
 
                 if (!pParam->pThis->impIsThis(thisArg))
@@ -18472,8 +18472,8 @@ void Compiler::impInlineInitVars(InlineInfo* pInlineInfo)
 
     /* Get hold of the 'this' pointer and the argument list proper */
 
-    GenTree* thisArg = call->gtCall.gtCallObjp;
-    GenTree* argList = call->gtCall.gtCallArgs;
+    GenTree* thisArg = call->AsCallRef().gtCallObjp;
+    GenTree* argList = call->AsCallRef().gtCallArgs;
     unsigned argCnt  = 0; // Count of the arguments
 
     assert((methInfo->args.hasThis()) == (thisArg != nullptr));
@@ -20424,7 +20424,7 @@ void Compiler::addGuardedDevirtualizationCandidate(GenTreeCall*          call,
     //
     // If transforming these provides a benefit, we could save this off in the same way
     // we save the stub address below.
-    if ((call->gtCallType == CT_INDIRECT) && (call->gtCall.gtCallCookie != nullptr))
+    if ((call->gtCallType == CT_INDIRECT) && (call->AsCallRef().gtCallCookie != nullptr))
     {
         return;
     }
