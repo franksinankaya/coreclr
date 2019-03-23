@@ -1988,7 +1988,7 @@ AGAIN:
 
                 case GT_BLK:
                 case GT_STORE_BLK:
-                    hash += tree->gtBlk.gtBlkSize;
+                    hash += tree->AsBlkRef().gtBlkSize;
                     break;
 
                 case GT_OBJ:
@@ -7162,19 +7162,19 @@ GenTree* Compiler::gtCloneExpr(
 
             case GT_OBJ:
                 copy = new (this, GT_OBJ)
-                    GenTreeObj(tree->TypeGet(), tree->AsOpRef().gtOp1, tree->AsObj()->gtClass, tree->gtBlk.gtBlkSize);
+                    GenTreeObj(tree->TypeGet(), tree->AsOpRef().gtOp1, tree->AsObj()->gtClass, tree->AsBlkRef().gtBlkSize);
                 copy->AsObj()->CopyGCInfo(tree->AsObj());
-                copy->gtBlk.gtBlkOpGcUnsafe = tree->gtBlk.gtBlkOpGcUnsafe;
+                copy->AsBlkRef().gtBlkOpGcUnsafe = tree->AsBlkRef().gtBlkOpGcUnsafe;
                 break;
 
             case GT_BLK:
-                copy = new (this, GT_BLK) GenTreeBlk(GT_BLK, tree->TypeGet(), tree->AsOpRef().gtOp1, tree->gtBlk.gtBlkSize);
-                copy->gtBlk.gtBlkOpGcUnsafe = tree->gtBlk.gtBlkOpGcUnsafe;
+                copy = new (this, GT_BLK) GenTreeBlk(GT_BLK, tree->TypeGet(), tree->AsOpRef().gtOp1, tree->AsBlkRef().gtBlkSize);
+                copy->AsBlkRef().gtBlkOpGcUnsafe = tree->AsBlkRef().gtBlkOpGcUnsafe;
                 break;
 
             case GT_DYN_BLK:
                 copy = new (this, GT_DYN_BLK) GenTreeDynBlk(tree->AsOpRef().gtOp1, tree->AsDynBlkRef().gtDynamicSize);
-                copy->gtBlk.gtBlkOpGcUnsafe = tree->gtBlk.gtBlkOpGcUnsafe;
+                copy->AsBlkRef().gtBlkOpGcUnsafe = tree->AsBlkRef().gtBlkOpGcUnsafe;
                 break;
 
             case GT_BOX:
