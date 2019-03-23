@@ -4874,7 +4874,7 @@ GenTree* Compiler::fgMorphMultiregStructArg(GenTree* arg, fgArgTabEntry* fgEntry
             assert(varNum < lvaCount);
             LclVarDsc* varDsc = &lvaTable[varNum];
 
-            unsigned baseOffset = (argValue->OperGet() == GT_LCL_FLD) ? argValue->gtLclFld.gtLclOffs : 0;
+            unsigned baseOffset = (argValue->OperGet() == GT_LCL_FLD) ? argValue->AsLclFldRef().gtLclOffs : 0;
             unsigned lastOffset = baseOffset + structSize;
 
             // The allocated size of our LocalVar must be at least as big as lastOffset
@@ -8917,7 +8917,7 @@ GenTree* Compiler::fgMorphLeaf(GenTree* tree)
         if (info.compIsVarArgs)
         {
             GenTree* newTree =
-                fgMorphStackArgForVarArgs(tree->gtLclFld.GetLclNum(), tree->gtType, tree->gtLclFld.gtLclOffs);
+                fgMorphStackArgForVarArgs(tree->AsLclFldRef().GetLclNum(), tree->gtType, tree->AsLclFldRef().gtLclOffs);
             if (newTree != nullptr)
             {
                 if (newTree->OperIsBlk() && ((tree->gtFlags & GTF_VAR_DEF) == 0))
@@ -17428,13 +17428,13 @@ void Compiler::fgMorphLocalField(GenTree* tree, GenTree* parent)
 {
     noway_assert(tree->OperGet() == GT_LCL_FLD);
 
-    unsigned   lclNum = tree->gtLclFld.GetLclNum();
+    unsigned   lclNum = tree->AsLclFldRef().GetLclNum();
     LclVarDsc* varDsc = &lvaTable[lclNum];
 
     if (varTypeIsStruct(varDsc) && (varDsc->lvPromoted))
     {
         // Promoted struct
-        unsigned   fldOffset     = tree->gtLclFld.gtLclOffs;
+        unsigned   fldOffset     = tree->AsLclFldRef().gtLclOffs;
         unsigned   fieldLclIndex = 0;
         LclVarDsc* fldVarDsc     = nullptr;
 
@@ -17452,7 +17452,7 @@ void Compiler::fgMorphLocalField(GenTree* tree, GenTree* parent)
                 )
         {
             // There is an existing sub-field we can use.
-            tree->gtLclFld.SetLclNum(fieldLclIndex);
+            tree->AsLclFldRef().SetLclNum(fieldLclIndex);
 
             // The field must be an enregisterable type; otherwise it would not be a promoted field.
             // The tree type may not match, e.g. for return types that have been morphed, but both
