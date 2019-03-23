@@ -2088,8 +2088,8 @@ VarName Compiler::compVarName(regNumber reg, bool isFloatReg)
         {
             /* If the variable is not in a register, or not in the register we're looking for, quit. */
             /* Also, if it is a compiler generated variable (i.e. slot# > info.compVarScopesCount), don't bother. */
-            if ((varDsc->lvRegister != 0) && (varDsc->GetRegNum() == reg) && (varDsc->IsFloatRegType() || !isFloatReg) &&
-                (varDsc->lvSlotNum < info.compVarScopesCount))
+            if ((varDsc->lvRegister != 0) && (varDsc->GetRegNum() == reg) &&
+                (varDsc->IsFloatRegType() || !isFloatReg) && (varDsc->lvSlotNum < info.compVarScopesCount))
             {
                 /* check if variable in that register is live */
                 if (VarSetOps::IsMember(this, compCurLife, varDsc->lvVarIndex))
@@ -9648,7 +9648,8 @@ int cSsaNumIR(Compiler* comp, GenTree* tree)
         }
         else
         {
-            chars += printf("<%s:%d>", (tree->gtFlags & GTF_VAR_DEF) ? "d" : "u", tree->AsLclVarCommonRef().GetSsaNum());
+            chars +=
+                printf("<%s:%d>", (tree->gtFlags & GTF_VAR_DEF) ? "d" : "u", tree->AsLclVarCommonRef().GetSsaNum());
         }
     }
 

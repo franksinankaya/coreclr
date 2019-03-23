@@ -553,7 +553,7 @@ Compiler::fgWalkResult Compiler::gsReplaceShadowParams(GenTree** pTree, fgWalkDa
 
     if (tree->gtOper == GT_ASG)
     {
-        asg  = tree;             // "asg" is the assignment tree.
+        asg  = tree;                  // "asg" is the assignment tree.
         tree = tree->AsOpRef().gtOp1; // "tree" is the local var tree at the left-hand size of the assignment.
     }
 

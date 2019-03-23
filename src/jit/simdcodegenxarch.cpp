@@ -848,8 +848,8 @@ void CodeGen::genSIMDIntrinsicInit(GenTreeSIMD* simdNode)
             else if (op1->OperIsLocalAddr())
             {
                 unsigned offset = (op1->OperGet() == GT_LCL_FLD_ADDR) ? op1->AsLclFldRef().gtLclOffs : 0;
-                getEmitter()->emitIns_R_S(ins, emitTypeSize(targetType), targetReg, op1->AsLclVarCommonRef().GetLclNum(),
-                                          offset);
+                getEmitter()->emitIns_R_S(ins, emitTypeSize(targetType), targetReg,
+                                          op1->AsLclVarCommonRef().GetLclNum(), offset);
             }
             else
             {

@@ -7604,13 +7604,14 @@ void emitter::emitInsLoadStoreOp(instruction ins, emitAttr attr, regNumber dataR
                     if (lsl > 0)
                     {
                         // Generate code to set tmpReg = base + index*scale
-                        emitIns_R_R_R_I(INS_add, leaBasePartialAddrAttr, tmpReg, memBase->GetRegNum(), index->GetRegNum(),
-                                        lsl, INS_FLAGS_DONT_CARE, INS_OPTS_LSL);
+                        emitIns_R_R_R_I(INS_add, leaBasePartialAddrAttr, tmpReg, memBase->GetRegNum(),
+                                        index->GetRegNum(), lsl, INS_FLAGS_DONT_CARE, INS_OPTS_LSL);
                     }
                     else // no scale
                     {
                         // Generate code to set tmpReg = base + index
-                        emitIns_R_R_R(INS_add, leaBasePartialAddrAttr, tmpReg, memBase->GetRegNum(), index->GetRegNum());
+                        emitIns_R_R_R(INS_add, leaBasePartialAddrAttr, tmpReg, memBase->GetRegNum(),
+                                      index->GetRegNum());
                     }
 
                     noway_assert(emitInsIsLoad(ins) || (tmpReg != dataReg));
@@ -7639,8 +7640,8 @@ void emitter::emitInsLoadStoreOp(instruction ins, emitAttr attr, regNumber dataR
                 if (lsl > 0)
                 {
                     // Then load/store dataReg from/to [memBase + index*scale]
-                    emitIns_R_R_R_I(ins, attr, dataReg, memBase->GetRegNum(), index->GetRegNum(), lsl, INS_FLAGS_DONT_CARE,
-                                    INS_OPTS_LSL);
+                    emitIns_R_R_R_I(ins, attr, dataReg, memBase->GetRegNum(), index->GetRegNum(), lsl,
+                                    INS_FLAGS_DONT_CARE, INS_OPTS_LSL);
                 }
                 else // no scale
                 {
@@ -7792,7 +7793,8 @@ regNumber emitter::emitInsTernary(instruction ins, emitAttr attr, GenTree* dst, 
 
     if (intConst != nullptr)
     {
-        emitIns_R_R_I(ins, attr, dst->GetRegNum(), nonIntReg->GetRegNum(), (target_ssize_t)intConst->IconValue(), flags);
+        emitIns_R_R_I(ins, attr, dst->GetRegNum(), nonIntReg->GetRegNum(), (target_ssize_t)intConst->IconValue(),
+                      flags);
     }
     else
     {

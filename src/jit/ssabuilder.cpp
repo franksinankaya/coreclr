@@ -99,7 +99,7 @@ void Compiler::fgResetForSsa()
         }
         if (blk->getBBTreeList() != nullptr)
         {
-            GenTree* last   = blk->getBBTreeList()->gtPrev;
+            GenTree* last = blk->getBBTreeList()->gtPrev;
             blk->setBBTreeList(blk->FirstNonPhiDef());
             if (blk->getBBTreeList() != nullptr)
             {
@@ -1255,8 +1255,9 @@ void SsaBuilder::AssignPhiNodeRhsVariables(BasicBlock* block, SsaRenameState* pR
             // (Can we assert that its the head of the list?  This should only happen when we add
             // during renaming for a definition that occurs within a try, and then that's the last
             // value of the var within that basic block.)
-            GenTreeArgList* argList = (phiNode->AsOpRef().gtOp1 == nullptr ? nullptr : phiNode->AsOpRef().gtOp1->AsArgList());
-            bool            found   = false;
+            GenTreeArgList* argList =
+                (phiNode->AsOpRef().gtOp1 == nullptr ? nullptr : phiNode->AsOpRef().gtOp1->AsArgList());
+            bool found = false;
             while (argList != nullptr)
             {
                 if (argList->Current()->AsLclVarCommon()->GetSsaNum() == ssaNum)
@@ -1268,9 +1269,9 @@ void SsaBuilder::AssignPhiNodeRhsVariables(BasicBlock* block, SsaRenameState* pR
             }
             if (!found)
             {
-                GenTree* newPhiArg =
-                    new (m_pCompiler, GT_PHI_ARG) GenTreePhiArg(tree->AsOpRef().gtOp1->TypeGet(), lclNum, ssaNum, block);
-                argList             = (phiNode->AsOpRef().gtOp1 == nullptr ? nullptr : phiNode->AsOpRef().gtOp1->AsArgList());
+                GenTree* newPhiArg = new (m_pCompiler, GT_PHI_ARG)
+                    GenTreePhiArg(tree->AsOpRef().gtOp1->TypeGet(), lclNum, ssaNum, block);
+                argList = (phiNode->AsOpRef().gtOp1 == nullptr ? nullptr : phiNode->AsOpRef().gtOp1->AsArgList());
                 phiNode->AsOpRef().gtOp1 = new (m_pCompiler, GT_LIST) GenTreeArgList(newPhiArg, argList);
                 DBG_SSA_JITDUMP("  Added phi arg u:%d for V%02u from " FMT_BB " in " FMT_BB ".\n", ssaNum, lclNum,
                                 block->bbNum, succ->bbNum);
@@ -1901,7 +1902,8 @@ void Compiler::JitTestCheckSSA()
             {
                 printf("  Node: ");
                 printTreeID(lcl);
-                printf(", SSA name = <%d, %d> -- SSA name class %d.\n", lcl->GetLclNum(), lcl->GetSsaNum(), tlAndN.m_num);
+                printf(", SSA name = <%d, %d> -- SSA name class %d.\n", lcl->GetLclNum(), lcl->GetSsaNum(),
+                       tlAndN.m_num);
             }
             SSAName ssaNm;
             if (labelToSSA->Lookup(tlAndN.m_num, &ssaNm))
@@ -1919,8 +1921,8 @@ void Compiler::JitTestCheckSSA()
                 {
                     printf("Node: ");
                     printTreeID(lcl);
-                    printf(", SSA name = <%d, %d> was declared in SSA name class %d,\n", lcl->GetLclNum(), lcl->GetSsaNum(),
-                           tlAndN.m_num);
+                    printf(", SSA name = <%d, %d> was declared in SSA name class %d,\n", lcl->GetLclNum(),
+                           lcl->GetSsaNum(), tlAndN.m_num);
                     printf(
                         "but this SSA name <%d,%d> has already been associated with a different SSA name class: %d.\n",
                         ssaNm.m_lvNum, ssaNm.m_ssaNum, num2);
@@ -1931,8 +1933,8 @@ void Compiler::JitTestCheckSSA()
                 {
                     printf("Node: ");
                     printTreeID(lcl);
-                    printf(", SSA name = <%d, %d> was declared in SSA name class %d,\n", lcl->GetLclNum(), lcl->GetSsaNum(),
-                           tlAndN.m_num);
+                    printf(", SSA name = <%d, %d> was declared in SSA name class %d,\n", lcl->GetLclNum(),
+                           lcl->GetSsaNum(), tlAndN.m_num);
                     printf("but that name class was previously bound to a different SSA name: <%d,%d>.\n",
                            ssaNm.m_lvNum, ssaNm.m_ssaNum);
                     unreached();
@@ -1948,8 +1950,8 @@ void Compiler::JitTestCheckSSA()
                 {
                     printf("Node: ");
                     printTreeID(lcl);
-                    printf(", SSA name = <%d, %d> was declared in SSA name class %d,\n", lcl->GetLclNum(), lcl->GetSsaNum(),
-                           tlAndN.m_num);
+                    printf(", SSA name = <%d, %d> was declared in SSA name class %d,\n", lcl->GetLclNum(),
+                           lcl->GetSsaNum(), tlAndN.m_num);
                     printf("but this SSA name has already been associated with a different name class: %d.\n", num);
                     unreached();
                 }

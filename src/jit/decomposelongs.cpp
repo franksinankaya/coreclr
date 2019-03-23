@@ -470,7 +470,7 @@ GenTree* DecomposeLongs::DecomposeStoreLclVar(LIR::Use& use)
     GenTree*       loStore  = tree;
     loStore->AsLclVarCommon()->SetLclNum(loVarNum);
     loStore->AsOpRef().gtOp1 = value->gtOp1;
-    loStore->gtType     = TYP_INT;
+    loStore->gtType          = TYP_INT;
 
     const unsigned hiVarNum = loVarNum + 1;
     GenTree*       hiStore  = m_compiler->gtNewLclLNode(hiVarNum, TYP_INT);
@@ -802,7 +802,7 @@ GenTree* DecomposeLongs::DecomposeStoreInd(LIR::Use& use)
     Range().Remove(gtLong);
     Range().Remove(dataHigh);
     storeIndLow->AsOpRef().gtOp2 = dataLow;
-    storeIndLow->gtType     = TYP_INT;
+    storeIndLow->gtType          = TYP_INT;
 
     GenTree* addrBaseHigh = new (m_compiler, GT_LCL_VAR)
         GenTreeLclVar(GT_LCL_VAR, addrBase->TypeGet(), addrBase->AsLclVarCommon()->GetLclNum());
@@ -890,8 +890,8 @@ GenTree* DecomposeLongs::DecomposeNot(LIR::Use& use)
 
     Range().Remove(gtLong);
 
-    GenTree* loResult    = tree;
-    loResult->gtType     = TYP_INT;
+    GenTree* loResult         = tree;
+    loResult->gtType          = TYP_INT;
     loResult->AsOpRef().gtOp1 = loOp1;
 
     GenTree* hiResult = new (m_compiler, GT_NOT) GenTreeOp(GT_NOT, TYP_INT, hiOp1, nullptr);
@@ -923,8 +923,8 @@ GenTree* DecomposeLongs::DecomposeNeg(LIR::Use& use)
 
     Range().Remove(gtLong);
 
-    GenTree* loResult    = tree;
-    loResult->gtType     = TYP_INT;
+    GenTree* loResult         = tree;
+    loResult->gtType          = TYP_INT;
     loResult->AsOpRef().gtOp1 = loOp1;
 
     GenTree* zero = m_compiler->gtNewZeroConNode(TYP_INT);
@@ -992,7 +992,7 @@ GenTree* DecomposeLongs::DecomposeArith(LIR::Use& use)
     // will be the lo halves of op1 from above.
     GenTree* loResult = tree;
     loResult->SetOper(GetLoOper(oper));
-    loResult->gtType     = TYP_INT;
+    loResult->gtType          = TYP_INT;
     loResult->AsOpRef().gtOp1 = loOp1;
     loResult->AsOpRef().gtOp2 = loOp2;
 
@@ -1449,8 +1449,8 @@ GenTree* DecomposeLongs::DecomposeRotate(LIR::Use& use)
         LIR::Use hiOp1Use(Range(), &gtLong->AsOpRef().gtOp2, gtLong);
         hiOp1Use.ReplaceWithLclVar(m_compiler, m_blockWeight);
 
-        hiResult           = loOp1Use.Def();
-        loResult           = hiOp1Use.Def();
+        hiResult                = loOp1Use.Def();
+        loResult                = hiOp1Use.Def();
         gtLong->AsOpRef().gtOp1 = loResult;
         gtLong->AsOpRef().gtOp2 = hiResult;
 
@@ -1623,9 +1623,9 @@ GenTree* DecomposeLongs::DecomposeUMod(LIR::Use& use)
     Range().Remove(op2);
 
     // Lo part is the GT_UMOD
-    GenTree* loResult    = tree;
+    GenTree* loResult         = tree;
     loResult->AsOpRef().gtOp2 = loOp2;
-    loResult->gtType     = TYP_INT;
+    loResult->gtType          = TYP_INT;
 
     // Set the high part to 0
     GenTree* hiResult = m_compiler->gtNewZeroConNode(TYP_INT);

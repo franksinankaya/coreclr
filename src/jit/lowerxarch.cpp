@@ -154,7 +154,8 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
     if (!isInitBlk)
     {
         // CopyObj or CopyBlk
-        if ((blkNode->OperGet() == GT_STORE_OBJ) && ((blkNode->AsObj()->GetGcPtrCount() == 0) || blkNode->gtBlkOpGcUnsafe))
+        if ((blkNode->OperGet() == GT_STORE_OBJ) &&
+            ((blkNode->AsObj()->GetGcPtrCount() == 0) || blkNode->gtBlkOpGcUnsafe))
         {
             blkNode->SetOper(GT_STORE_BLK);
         }
@@ -209,7 +210,7 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
                 else
                 {
                     initVal->AsIntConRef().gtIconVal = 0x0101010101010101LL * fill;
-                    initVal->gtType             = TYP_LONG;
+                    initVal->gtType                  = TYP_LONG;
                     if ((fill == 0) && ((size & 0xf) == 0))
                     {
                         MakeSrcContained(blkNode, source);
@@ -235,7 +236,7 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
 #ifdef _TARGET_AMD64_
             blkNode->gtBlkOpKind = GenTreeBlk::BlkOpKindHelper;
 #else  // !_TARGET_AMD64_
-            blkNode->gtBlkOpKind            = GenTreeBlk::BlkOpKindRepInstr;
+            blkNode->gtBlkOpKind                 = GenTreeBlk::BlkOpKindRepInstr;
 #endif // !_TARGET_AMD64_
         }
     }
@@ -1454,7 +1455,7 @@ void Lowering::ContainCheckCallOperands(GenTreeCall* call)
             {
                 // We may have cases where we have set a register target on the ctrlExpr, but if it
                 // contained we must clear it.
-	        ctrlExpr->SetRegNum(REG_NA);
+                ctrlExpr->SetRegNum(REG_NA);
                 MakeSrcContained(call, ctrlExpr);
             }
         }

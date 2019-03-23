@@ -1577,15 +1577,15 @@ public:
         {
             if (m_context->CodeOptKind() == Compiler::SMALL_CODE)
             {
-                m_Cost     = Expr()->GetCostSz();      // the estimated code size
-                m_Size     = Expr()->GetCostSz();      // always the gtCostSz
+                m_Cost     = Expr()->GetCostSz();   // the estimated code size
+                m_Size     = Expr()->GetCostSz();   // always the gtCostSz
                 m_defCount = m_CseDsc->csdDefCount; // def count
                 m_useCount = m_CseDsc->csdUseCount; // use count (excluding the implicit uses at defs)
             }
             else
             {
-                m_Cost     = Expr()->GetCostEx();      // the estimated execution cost
-                m_Size     = Expr()->GetCostSz();      // always the gtCostSz
+                m_Cost     = Expr()->GetCostEx();   // the estimated execution cost
+                m_Size     = Expr()->GetCostSz();   // always the gtCostSz
                 m_defCount = m_CseDsc->csdDefWtCnt; // weighted def count
                 m_useCount = m_CseDsc->csdUseWtCnt; // weighted use count (excluding the implicit uses at defs)
             }
@@ -2340,7 +2340,7 @@ public:
 
                 // assign the proper Value Numbers
                 asg->gtVNPair.SetBoth(ValueNumStore::VNForVoid()); // The GT_ASG node itself is $VN.Void
-                asg->AsOpRef().gtOp1->gtVNPair = val->gtVNPair;         // The dest op is the same as 'val'
+                asg->AsOpRef().gtOp1->gtVNPair = val->gtVNPair;    // The dest op is the same as 'val'
 
                 noway_assert(asg->AsOpRef().gtOp1->gtOper == GT_LCL_VAR);
 

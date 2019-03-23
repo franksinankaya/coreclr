@@ -237,7 +237,8 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
     if (!isInitBlk)
     {
         // CopyObj or CopyBlk
-        if ((blkNode->OperGet() == GT_STORE_OBJ) && ((blkNode->AsObj()->GetGcPtrCount() == 0) || blkNode->gtBlkOpGcUnsafe))
+        if ((blkNode->OperGet() == GT_STORE_OBJ) &&
+            ((blkNode->AsObj()->GetGcPtrCount() == 0) || blkNode->gtBlkOpGcUnsafe))
         {
             blkNode->SetOper(GT_STORE_BLK);
         }
@@ -285,7 +286,7 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
             else
             {
                 initVal->AsIntConRef().gtIconVal = 0x0101010101010101LL * fill;
-                initVal->gtType             = TYP_LONG;
+                initVal->gtType                  = TYP_LONG;
             }
             blkNode->gtBlkOpKind = GenTreeBlk::BlkOpKindUnroll;
         }
@@ -441,8 +442,8 @@ void Lowering::LowerRotate(GenTree* tree)
 
         if (rotateLeftIndexNode->IsCnsIntOrI())
         {
-            ssize_t rotateLeftIndex                 = rotateLeftIndexNode->AsIntConRef().gtIconVal;
-            ssize_t rotateRightIndex                = rotatedValueBitSize - rotateLeftIndex;
+            ssize_t rotateLeftIndex                      = rotateLeftIndexNode->AsIntConRef().gtIconVal;
+            ssize_t rotateRightIndex                     = rotatedValueBitSize - rotateLeftIndex;
             rotateLeftIndexNode->AsIntConRef().gtIconVal = rotateRightIndex;
         }
         else
@@ -521,7 +522,7 @@ void Lowering::LowerHWIntrinsic(GenTreeHWIntrinsic* node)
                 // Unsigned >= 0 ==> Always true
                 // Unsigned < 0 ==> Always false
                 node->gtHWIntrinsicId = setAllVector;
-                node->AsOpRef().gtOp1      = comp->gtNewLconNode((intrinsicID == NI_ARM64_SIMD_GE_ZERO) ? ~0ULL : 0ULL);
+                node->AsOpRef().gtOp1 = comp->gtNewLconNode((intrinsicID == NI_ARM64_SIMD_GE_ZERO) ? ~0ULL : 0ULL);
                 BlockRange().InsertBefore(node, node->AsOpRef().gtOp1);
                 if ((origOp1->gtFlags & GTF_ALL_EFFECT) == 0)
                 {

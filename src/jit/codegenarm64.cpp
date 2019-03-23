@@ -3370,7 +3370,7 @@ void CodeGen::genIntToFloatCast(GenTree* treeNode)
     assert(genIsValidFloatReg(targetReg));
 
     GenTree* op1 = treeNode->AsOpRef().gtOp1;
-    assert(!op1->isContained());             // Cannot be contained
+    assert(!op1->isContained());                // Cannot be contained
     assert(genIsValidIntReg(op1->GetRegNum())); // Must be a valid int reg.
 
     var_types dstType = treeNode->CastToType();
@@ -3448,7 +3448,7 @@ void CodeGen::genFloatToIntCast(GenTree* treeNode)
     assert(genIsValidIntReg(targetReg)); // Must be a valid int reg.
 
     GenTree* op1 = treeNode->AsOpRef().gtOp1;
-    assert(!op1->isContained());               // Cannot be contained
+    assert(!op1->isContained());                  // Cannot be contained
     assert(genIsValidFloatReg(op1->GetRegNum())); // Must be a valid float reg.
 
     var_types dstType = treeNode->CastToType();

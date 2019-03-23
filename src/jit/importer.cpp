@@ -1628,12 +1628,12 @@ GenTree* Compiler::impNormStructVal(GenTree*             structVal,
 
         case GT_CALL:
             structVal->AsCallRef().gtRetClsHnd = structHnd;
-            makeTemp                      = true;
+            makeTemp                           = true;
             break;
 
         case GT_RET_EXPR:
             structVal->AsRetExprRef().gtRetClsHnd = structHnd;
-            makeTemp                         = true;
+            makeTemp                              = true;
             break;
 
         case GT_ARGPLACE:
@@ -1642,7 +1642,7 @@ GenTree* Compiler::impNormStructVal(GenTree*             structVal,
 
         case GT_INDEX:
             // This will be transformed to an OBJ later.
-            alreadyNormalized                    = true;
+            alreadyNormalized                         = true;
             structVal->AsIndexRef().gtStructElemClass = structHnd;
             structVal->AsIndexRef().gtIndElemSize     = info.compCompHnd->getClassSize(structHnd);
             break;
@@ -1715,7 +1715,7 @@ GenTree* Compiler::impNormStructVal(GenTree*             structVal,
             if (blockNode->OperIsSimdOrHWintrinsic())
             {
                 parent->AsOpRef().gtOp2 = impNormStructVal(blockNode, structHnd, curLevel, forceNormalization);
-                alreadyNormalized  = true;
+                alreadyNormalized       = true;
             }
             else
 #endif
@@ -1730,8 +1730,8 @@ GenTree* Compiler::impNormStructVal(GenTree*             structVal,
                 // GT_COMMA below the blockNode addr.
                 GenTree* blockNodeAddr = blockNode->AsOpRef().gtOp1;
                 assert(blockNodeAddr->gtType == TYP_BYREF);
-                GenTree* commaNode    = parent;
-                commaNode->gtType     = TYP_BYREF;
+                GenTree* commaNode         = parent;
+                commaNode->gtType          = TYP_BYREF;
                 commaNode->AsOpRef().gtOp2 = blockNodeAddr;
                 blockNode->AsOpRef().gtOp1 = commaNode;
                 if (parent == structVal)
@@ -2338,7 +2338,8 @@ void Compiler::impSpillStackEnsure(bool spillLeaves)
 
         // Temps introduced by the importer itself don't need to be spilled
 
-        bool isTempLcl = (tree->OperGet() == GT_LCL_VAR) && (tree->AsLclVarCommonRef().GetLclNum() >= info.compLocalsCount);
+        bool isTempLcl =
+            (tree->OperGet() == GT_LCL_VAR) && (tree->AsLclVarCommonRef().GetLclNum() >= info.compLocalsCount);
 
         if (isTempLcl)
         {
@@ -2564,7 +2565,7 @@ BasicBlock* Compiler::impPushCatchArgOnStack(BasicBlock* hndBlk, CORINFO_CLASS_H
 #if defined(JIT32_GCENCODER)
     const bool forceInsertNewBlock = isSingleBlockFilter || compStressCompile(STRESS_CATCH_ARG, 5);
 #else
-    const bool forceInsertNewBlock                                     = compStressCompile(STRESS_CATCH_ARG, 5);
+    const bool forceInsertNewBlock                                             = compStressCompile(STRESS_CATCH_ARG, 5);
 #endif // defined(JIT32_GCENCODER)
 
     /* Spill GT_CATCH_ARG to a temp if there are jumps to the beginning of the handler */
@@ -3079,8 +3080,8 @@ GenTree* Compiler::impInitializeArrayIntrinsic(CORINFO_SIG_INFO* sig)
     //
     GenTree* arrayAssignment = impLastStmt->gtStmtExpr;
     if ((arrayAssignment->gtOper != GT_ASG) || (arrayAssignment->AsOpRef().gtOp1->gtOper != GT_LCL_VAR) ||
-        (arrayLocalNode->gtOper != GT_LCL_VAR) ||
-        (arrayAssignment->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() != arrayLocalNode->AsLclVarCommonRef().GetLclNum()))
+        (arrayLocalNode->gtOper != GT_LCL_VAR) || (arrayAssignment->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() !=
+                                                   arrayLocalNode->AsLclVarCommonRef().GetLclNum()))
     {
         return nullptr;
     }
@@ -7515,7 +7516,7 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
 
                 // Create the actual call node
 
-                call                    = gtNewIndCallNode(fptr, callRetTyp, args, ilOffset);
+                call                         = gtNewIndCallNode(fptr, callRetTyp, args, ilOffset);
                 call->AsCallRef().gtCallObjp = thisPtrCopy;
                 call->gtFlags |= GTF_EXCEPT | (fptr->gtFlags & GTF_GLOB_EFFECT);
 
@@ -8162,7 +8163,8 @@ var_types Compiler::impImportCall(OPCODE                  opcode,
                 }
 
                 assert(newobjThis->gtOper == GT_LCL_VAR);
-                impPushOnStack(gtNewLclvNode(newobjThis->AsLclVarCommonRef().GetLclNum(), TYP_REF), typeInfo(TI_REF, clsHnd));
+                impPushOnStack(gtNewLclvNode(newobjThis->AsLclVarCommonRef().GetLclNum(), TYP_REF),
+                               typeInfo(TI_REF, clsHnd));
             }
         }
         return callRetTyp;
@@ -11525,9 +11527,9 @@ void Compiler::impImportBlockCode(BasicBlock* block)
                         assert(lclTyp != TYP_STRUCT || op1->AsIndexRef().gtStructElemClass != nullptr);
                         if (lclTyp == TYP_STRUCT)
                         {
-                            size                       = info.compCompHnd->getClassSize(ldelemClsHnd);
+                            size                            = info.compCompHnd->getClassSize(ldelemClsHnd);
                             op1->AsIndexRef().gtIndElemSize = size;
-                            op1->gtType                = lclTyp;
+                            op1->gtType                     = lclTyp;
                         }
                     }
 
@@ -11624,7 +11626,8 @@ void Compiler::impImportBlockCode(BasicBlock* block)
                 // This does not need CORINFO_HELP_ARRADDR_ST
                 if (arrayNodeFrom->OperGet() == GT_INDEX && arrayNodeFrom->AsOpRef().gtOp1->gtOper == GT_LCL_VAR &&
                     arrayNodeTo->gtOper == GT_LCL_VAR &&
-                    arrayNodeTo->AsLclVarCommonRef().GetLclNum() == arrayNodeFrom->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() &&
+                    arrayNodeTo->AsLclVarCommonRef().GetLclNum() ==
+                        arrayNodeFrom->AsOpRef().gtOp1->AsLclVarCommonRef().GetLclNum() &&
                     !lvaTable[arrayNodeTo->AsLclVarCommonRef().GetLclNum()].lvAddrExposed)
                 {
                     JITDUMP("\nstelem of ref from same array: skipping covariant store check\n");
@@ -16229,7 +16232,8 @@ bool Compiler::impReturnInstruction(BasicBlock* block, int prefixFlags, OPCODE& 
                         // Some other block(s) have seen the CEE_RET first.
                         // Better they spilled to the same temp.
                         assert(impInlineInfo->retExpr->gtOper == GT_LCL_VAR);
-                        assert(impInlineInfo->retExpr->AsLclVarCommonRef().GetLclNum() == op2->AsLclVarCommonRef().GetLclNum());
+                        assert(impInlineInfo->retExpr->AsLclVarCommonRef().GetLclNum() ==
+                               op2->AsLclVarCommonRef().GetLclNum());
                     }
 #endif
                 }
@@ -16977,7 +16981,7 @@ SPILLSTACK:
                     {
                         unsigned temp = lvaGrabTemp(true DEBUGARG("spill addStmt JTRUE ref Op1"));
                         impAssignTempGen(temp, relOp->AsOpRef().gtOp1, level);
-                        type              = genActualType(lvaTable[temp].TypeGet());
+                        type                   = genActualType(lvaTable[temp].TypeGet());
                         relOp->AsOpRef().gtOp1 = gtNewLclvNode(temp, type);
                     }
 
@@ -16985,7 +16989,7 @@ SPILLSTACK:
                     {
                         unsigned temp = lvaGrabTemp(true DEBUGARG("spill addStmt JTRUE ref Op2"));
                         impAssignTempGen(temp, relOp->AsOpRef().gtOp2, level);
-                        type              = genActualType(lvaTable[temp].TypeGet());
+                        type                   = genActualType(lvaTable[temp].TypeGet());
                         relOp->AsOpRef().gtOp2 = gtNewLclvNode(temp, type);
                     }
                 }

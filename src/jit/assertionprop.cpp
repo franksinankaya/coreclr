@@ -2410,7 +2410,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                 newTree = optPrepareTreeForReplacement(tree, tree);
                 tree->ChangeOperConst(GT_CNS_INT);
                 tree->AsIntConRef().gtIconVal = *(reinterpret_cast<int*>(&value));
-                tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
+                tree->gtVNPair                = ValueNumPair(vnLib, vnCns);
             }
             else
             {
@@ -2420,7 +2420,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                 newTree = optPrepareTreeForReplacement(tree, tree);
                 tree->ChangeOperConst(GT_CNS_DBL);
                 tree->AsDblConRef().gtDconVal = value;
-                tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
+                tree->gtVNPair                = ValueNumPair(vnLib, vnCns);
             }
             break;
         }
@@ -2445,7 +2445,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                 newTree = optPrepareTreeForReplacement(tree, tree);
                 tree->ChangeOperConst(GT_CNS_DBL);
                 tree->AsDblConRef().gtDconVal = value;
-                tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
+                tree->gtVNPair                = ValueNumPair(vnLib, vnCns);
             }
             break;
         }
@@ -2475,7 +2475,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                         newTree = optPrepareTreeForReplacement(tree, tree);
                         tree->ChangeOperConst(GT_CNS_INT);
                         tree->AsIntConRef().gtIconVal = (int)value;
-                        tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
+                        tree->gtVNPair                = ValueNumPair(vnLib, vnCns);
                         break;
 
                     case TYP_LONG:
@@ -2497,7 +2497,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                         newTree = optPrepareTreeForReplacement(tree, tree);
                         tree->ChangeOperConst(GT_CNS_DBL);
                         tree->AsDblConRef().gtDconVal = *(reinterpret_cast<double*>(&value));
-                        tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
+                        tree->gtVNPair                = ValueNumPair(vnLib, vnCns);
                         break;
 
                     default:
@@ -2564,7 +2564,7 @@ GenTree* Compiler::optVNConstantPropOnTree(BasicBlock* block, GenTree* tree)
                         newTree = optPrepareTreeForReplacement(tree, tree);
                         tree->ChangeOperConst(GT_CNS_DBL);
                         tree->AsDblConRef().gtDconVal = *(reinterpret_cast<float*>(&value));
-                        tree->gtVNPair           = ValueNumPair(vnLib, vnCns);
+                        tree->gtVNPair                = ValueNumPair(vnLib, vnCns);
                         break;
 
                     case TYP_DOUBLE:
@@ -2628,7 +2628,7 @@ GenTree* Compiler::optConstantAssertionProp(AssertionDsc* curAssertion,
             {
                 newTree->ChangeOperConst(GT_CNS_INT);
                 newTree->AsIntConRef().gtIconVal = (int)curAssertion->op2.lconVal;
-                newTree->gtType             = TYP_INT;
+                newTree->gtType                  = TYP_INT;
             }
             break;
 
@@ -3377,7 +3377,7 @@ GenTree* Compiler::optAssertionPropLocal_RelOp(ASSERT_VALARG_TP assertions, GenT
     }
 
     op2->AsIntConRef().gtIconVal = foldResult;
-    op2->gtType             = TYP_INT;
+    op2->gtType                  = TYP_INT;
 
     return optAssertionProp_Update(op2, tree, stmt);
 }
@@ -4782,7 +4782,7 @@ GenTree* Compiler::optVNConstantPropOnJTrue(BasicBlock* block, GenTree* test)
     GenTree* sideEffList = optPrepareTreeForReplacement(test, nullptr);
 
     // Transform the relop's operands to be both zeroes.
-    ValueNum vnZero             = vnStore->VNZeroForType(TYP_INT);
+    ValueNum vnZero                  = vnStore->VNZeroForType(TYP_INT);
     relop->AsOpRef().gtOp1           = gtNewIconNode(0);
     relop->AsOpRef().gtOp1->gtVNPair = ValueNumPair(vnZero, vnZero);
     relop->AsOpRef().gtOp2           = gtNewIconNode(0);

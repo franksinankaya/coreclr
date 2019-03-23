@@ -904,8 +904,8 @@ inline GenTree::GenTree(genTreeOps oper, var_types type DEBUGARG(bool largeNode)
     ClearAssertion();
 #endif
 
-    gtNext   = nullptr;
-    gtPrev   = nullptr;
+    gtNext = nullptr;
+    gtPrev = nullptr;
     SetRegNum(REG_NA);
     INDEBUG(gtRegTag = GT_REGTAG_NONE;)
 
@@ -1279,7 +1279,7 @@ inline void GenTree::gtBashToNOP()
 {
     ChangeOper(GT_NOP);
 
-    gtType     = TYP_VOID;
+    gtType          = TYP_VOID;
     AsOpRef().gtOp1 = AsOpRef().gtOp2 = nullptr;
 
     gtFlags &= ~(GTF_ALL_EFFECT | GTF_REVERSE_OPS);
@@ -3383,7 +3383,8 @@ inline void Compiler::LoopDsc::VERIFY_lpTestTree()
 
     GenTree* iterator = nullptr;
     GenTree* limit    = nullptr;
-    if ((lpTestTree->AsOpRef().gtOp2->gtOper == GT_LCL_VAR) && (lpTestTree->AsOpRef().gtOp2->gtFlags & GTF_VAR_ITERATOR) != 0)
+    if ((lpTestTree->AsOpRef().gtOp2->gtOper == GT_LCL_VAR) &&
+        (lpTestTree->AsOpRef().gtOp2->gtFlags & GTF_VAR_ITERATOR) != 0)
     {
         iterator = lpTestTree->AsOpRef().gtOp2;
         limit    = lpTestTree->AsOpRef().gtOp1;
@@ -3813,7 +3814,8 @@ inline bool Compiler::impIsThis(GenTree* obj)
     }
     else
     {
-        return ((obj != nullptr) && (obj->gtOper == GT_LCL_VAR) && lvaIsOriginalThisArg(obj->AsLclVarCommonRef().GetLclNum()));
+        return ((obj != nullptr) && (obj->gtOper == GT_LCL_VAR) &&
+                lvaIsOriginalThisArg(obj->AsLclVarCommonRef().GetLclNum()));
     }
 }
 

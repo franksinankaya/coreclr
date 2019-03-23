@@ -342,7 +342,8 @@ void Compiler::optBlockCopyProp(BasicBlock* block, LclNumToGenTreePtrStack* curS
             //
             if (optIsSsaLocal(tree) && (tree->gtFlags & GTF_VAR_DEF))
             {
-                VarSetOps::AddElemD(this, optCopyPropKillSet, lvaTable[tree->AsLclVarCommonRef().GetLclNum()].lvVarIndex);
+                VarSetOps::AddElemD(this, optCopyPropKillSet,
+                                    lvaTable[tree->AsLclVarCommonRef().GetLclNum()].lvVarIndex);
             }
         }
 

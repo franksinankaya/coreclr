@@ -992,7 +992,7 @@ void Compiler::fgExtendDbgLifetimes()
                 }
                 else
                 {
-                    GenTree* store    = new (this, GT_STORE_LCL_VAR) GenTreeLclVar(GT_STORE_LCL_VAR, type, varNum);
+                    GenTree* store         = new (this, GT_STORE_LCL_VAR) GenTreeLclVar(GT_STORE_LCL_VAR, type, varNum);
                     store->AsOpRef().gtOp1 = zero;
                     store->gtFlags |= (GTF_VAR_DEF | GTF_ASG);
 
@@ -2382,7 +2382,7 @@ bool Compiler::fgRemoveDeadStore(GenTree**        pTree,
 #endif // DEBUG
                     asgNode->AsOpRef().gtOp1 = sideEffList->AsOpRef().gtOp1;
                     asgNode->AsOpRef().gtOp2 = sideEffList->AsOpRef().gtOp2;
-                    asgNode->gtType     = sideEffList->gtType;
+                    asgNode->gtType          = sideEffList->gtType;
                 }
                 else
                 {

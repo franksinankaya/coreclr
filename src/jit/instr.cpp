@@ -889,7 +889,7 @@ AGAIN:
 
 #if CPU_LOAD_STORE_ARCH
             assert(!"GT_CLS_VAR not supported in ARM backend");
-#else  // CPU_LOAD_STORE_ARCH
+#else // CPU_LOAD_STORE_ARCH
             getEmitter()->emitIns_R_C(ins, size, reg, tree->AsClsVarRef().gtClsVarHnd, offs);
 #endif // CPU_LOAD_STORE_ARCH
             return;
@@ -908,7 +908,8 @@ AGAIN:
             assert(offs == 0);
 
             // TODO-CrossBitness: we wouldn't need the cast below if GenTreeIntCon::gtIconVal had target_ssize_t type.
-            inst_RV_IV(ins, reg, (target_ssize_t)tree->AsIntConRef().gtIconVal, emitActualTypeSize(tree->TypeGet()), flags);
+            inst_RV_IV(ins, reg, (target_ssize_t)tree->AsIntConRef().gtIconVal, emitActualTypeSize(tree->TypeGet()),
+                       flags);
             break;
 
         case GT_CNS_LNG:
