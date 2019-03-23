@@ -1687,9 +1687,9 @@ public:
 #ifdef FEATURE_HFA
 #ifdef _TARGET_ARM_
         // We counted the number of regs, but if they are DOUBLE hfa regs we have to double the size.
-        if (isHfaRegArg && (hfaType == TYP_DOUBLE))
+        if (getIsHfaRegArg() && (getHfaType() == TYP_DOUBLE))
         {
-            assert(!isSplit);
+            assert(!getIsSplit());
             size <<= 1;
         }
 #elif defined(_TARGET_ARM64_)
@@ -1717,7 +1717,7 @@ public:
 
         regNumber argReg = getRegNum(0);
 #ifdef _TARGET_ARM_
-        unsigned int regSize = (hfaType == TYP_DOUBLE) ? 2 : 1;
+        unsigned int regSize = (getHfaType() == TYP_DOUBLE) ? 2 : 1;
 #else
         unsigned int regSize = 1;
 #endif

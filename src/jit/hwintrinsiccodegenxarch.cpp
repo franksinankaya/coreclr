@@ -543,7 +543,6 @@ void CodeGen::genHWIntrinsic_R_RM_I(GenTreeHWIntrinsic* node, instruction ins, i
     {
         assert(HWIntrinsicInfo::SupportsContainment(node->gtHWIntrinsicId));
         assertIsContainableHWIntrinsicOp(compiler->m_pLowering, node, op1);
-                           !compiler->lvaTable[op1->AsLclVarRef().GetLclNum()].lvIsRegCandidate());
     }
     inst_RV_TT_IV(ins, simdSize, targetReg, op1, ival);
 }
