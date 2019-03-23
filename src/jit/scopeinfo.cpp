@@ -1867,7 +1867,7 @@ void CodeGen::psiMoveToStack(unsigned varNum)
         /* The param must be currently sitting in the register in which it
            was passed in */
         assert(scope->scRegister);
-        assert(scope->u1.scRegNum == compiler->lvaTable[varNum].lvArgReg);
+        assert(scope->u1.scRegNum == compiler->lvaTable[varNum].GetArgReg());
 
         psiScope* newScope     = psiNewPrologScope(scope->scLVnum, scope->scSlotNum);
         newScope->scRegister   = false;
