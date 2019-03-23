@@ -18721,12 +18721,12 @@ void Compiler::fgSetTreeSeqHelper(GenTree* tree, bool isLIR)
 
         case GT_ARR_ELEM:
 
-            fgSetTreeSeqHelper(tree->gtArrElem.gtArrObj, isLIR);
+            fgSetTreeSeqHelper(tree->AsArrElemRef().gtArrObj, isLIR);
 
             unsigned dim;
-            for (dim = 0; dim < tree->gtArrElem.gtArrRank; dim++)
+            for (dim = 0; dim < tree->AsArrElemRef().gtArrRank; dim++)
             {
-                fgSetTreeSeqHelper(tree->gtArrElem.gtArrInds[dim], isLIR);
+                fgSetTreeSeqHelper(tree->AsArrElemRef().gtArrInds[dim], isLIR);
             }
 
             break;
@@ -21292,14 +21292,14 @@ void Compiler::fgDebugCheckFlags(GenTree* tree)
                 GenTree* arrObj;
                 unsigned dim;
 
-                arrObj = tree->gtArrElem.gtArrObj;
+                arrObj = tree->AsArrElemRef().gtArrObj;
                 fgDebugCheckFlags(arrObj);
                 chkFlags |= (arrObj->gtFlags & GTF_ALL_EFFECT);
 
-                for (dim = 0; dim < tree->gtArrElem.gtArrRank; dim++)
+                for (dim = 0; dim < tree->AsArrElemRef().gtArrRank; dim++)
                 {
-                    fgDebugCheckFlags(tree->gtArrElem.gtArrInds[dim]);
-                    chkFlags |= tree->gtArrElem.gtArrInds[dim]->gtFlags & GTF_ALL_EFFECT;
+                    fgDebugCheckFlags(tree->AsArrElemRef().gtArrInds[dim]);
+                    chkFlags |= tree->AsArrElemRef().gtArrInds[dim]->gtFlags & GTF_ALL_EFFECT;
                 }
                 break;
 

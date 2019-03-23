@@ -7076,12 +7076,12 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
             return;
 
         case GT_ARR_ELEM:
-            assert(from->gtArrElem.gtArrRank == to->gtArrElem.gtArrRank);
-            for (unsigned dim = 0; dim < from->gtArrElem.gtArrRank; dim++)
+            assert(from->AsArrElemRef().gtArrRank == to->AsArrElemRef().gtArrRank);
+            for (unsigned dim = 0; dim < from->AsArrElemRef().gtArrRank; dim++)
             {
-                CopyTestDataToCloneTree(from->gtArrElem.gtArrInds[dim], to->gtArrElem.gtArrInds[dim]);
+                CopyTestDataToCloneTree(from->AsArrElemRef().gtArrInds[dim], to->AsArrElemRef().gtArrInds[dim]);
             }
-            CopyTestDataToCloneTree(from->gtArrElem.gtArrObj, to->gtArrElem.gtArrObj);
+            CopyTestDataToCloneTree(from->AsArrElemRef().gtArrObj, to->AsArrElemRef().gtArrObj);
             return;
 
         case GT_CMPXCHG:

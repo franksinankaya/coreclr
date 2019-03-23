@@ -5079,7 +5079,7 @@ GenTree* Lowering::LowerArrElem(GenTree* node)
 
     for (unsigned char dim = 0; dim < rank; dim++)
     {
-        GenTree* indexNode = arrElem->gtArrElem.gtArrInds[dim];
+        GenTree* indexNode = arrElem->AsArrElemRef().gtArrInds[dim];
 
         // Use the original arrObjNode on the 0th ArrIndex node, and clone it for subsequent ones.
         GenTree* idxArrObjNode;
@@ -5095,7 +5095,7 @@ GenTree* Lowering::LowerArrElem(GenTree* node)
 
         // Next comes the GT_ARR_INDEX node.
         GenTreeArrIndex* arrMDIdx = new (comp, GT_ARR_INDEX)
-            GenTreeArrIndex(TYP_INT, idxArrObjNode, indexNode, dim, rank, arrElem->gtArrElem.gtArrElemType);
+            GenTreeArrIndex(TYP_INT, idxArrObjNode, indexNode, dim, rank, arrElem->AsArrElemRef().gtArrElemType);
         arrMDIdx->gtFlags |= ((idxArrObjNode->gtFlags | indexNode->gtFlags) & GTF_ALL_EFFECT);
         BlockRange().InsertBefore(insertionPoint, arrMDIdx);
 
@@ -5104,7 +5104,7 @@ GenTree* Lowering::LowerArrElem(GenTree* node)
 
         GenTreeArrOffs* arrOffs =
             new (comp, GT_ARR_OFFSET) GenTreeArrOffs(TYP_I_IMPL, prevArrOffs, arrMDIdx, offsArrObjNode, dim, rank,
-                                                     arrElem->gtArrElem.gtArrElemType);
+                                                     arrElem->AsArrElemRef().gtArrElemType);
         arrOffs->gtFlags |= ((prevArrOffs->gtFlags | arrMDIdx->gtFlags | offsArrObjNode->gtFlags) & GTF_ALL_EFFECT);
         BlockRange().InsertBefore(insertionPoint, arrOffs);
 
@@ -5113,8 +5113,8 @@ GenTree* Lowering::LowerArrElem(GenTree* node)
 
     // Generate the LEA and make it reverse evaluation, because we want to evaluate the index expression before the
     // base.
-    unsigned scale  = arrElem->gtArrElem.gtArrElemSize;
-    unsigned offset = comp->eeGetMDArrayDataOffset(arrElem->gtArrElem.gtArrElemType, arrElem->gtArrElem.gtArrRank);
+    unsigned scale  = arrElem->AsArrElemRef().gtArrElemSize;
+    unsigned offset = comp->eeGetMDArrayDataOffset(arrElem->AsArrElemRef().gtArrElemType, arrElem->AsArrElemRef().gtArrRank);
 
     GenTree* leaIndexNode = prevArrOffs;
     if (!jitIsScaleIndexMul(scale))
