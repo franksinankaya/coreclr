@@ -1086,7 +1086,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
 
     while (op->gtOper == GT_COMMA)
     {
-        op = op->gtOp.gtOp2;
+        op = op->AsOpRef().gtOp2;
     }
 
     if (op->gtOper == GT_OBJ)
@@ -1114,7 +1114,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
     }
     else if (op->OperIsCopyBlkOp())
     {
-        GenTree* op2 = op->gtOp.gtOp2;
+        GenTree* op2 = op->AsOpRef().gtOp2;
 
         if (op2->OperGet() == GT_CNS_INT)
         {
@@ -1128,12 +1128,12 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
             else
             {
                 opSize       = (unsigned)op2->gtIntCon.gtIconVal;
-                GenTree* op1 = op->gtOp.gtOp1;
+                GenTree* op1 = op->AsOpRef().gtOp1;
                 assert(op1->OperGet() == GT_LIST);
-                GenTree* dstAddr = op1->gtOp.gtOp1;
+                GenTree* dstAddr = op1->AsOpRef().gtOp1;
                 if (dstAddr->OperGet() == GT_ADDR)
                 {
-                    InferStructOpSizeAlign(dstAddr->gtOp.gtOp1, &alignment);
+                    InferStructOpSizeAlign(dstAddr->AsOpRef().gtOp1, &alignment);
                 }
                 else
                 {
@@ -1275,13 +1275,13 @@ bool CodeGen::genCreateAddrMode(GenTree*  addr,
 
     if (addr->gtFlags & GTF_REVERSE_OPS)
     {
-        op1 = addr->gtOp.gtOp2;
-        op2 = addr->gtOp.gtOp1;
+        op1 = addr->AsOpRef().gtOp2;
+        op2 = addr->AsOpRef().gtOp1;
     }
     else
     {
-        op1 = addr->gtOp.gtOp1;
-        op2 = addr->gtOp.gtOp2;
+        op1 = addr->AsOpRef().gtOp1;
+        op2 = addr->AsOpRef().gtOp2;
     }
 
     bool rev = false; // Is op2 first in the evaluation order?
@@ -1349,8 +1349,8 @@ AGAIN:
                         break;
                     }
 
-                    op2 = op1->gtOp.gtOp2;
-                    op1 = op1->gtOp.gtOp1;
+                    op2 = op1->AsOpRef().gtOp2;
+                    op1 = op1->AsOpRef().gtOp1;
 
                     goto AGAIN;
 
@@ -1372,7 +1372,7 @@ AGAIN:
                         /* We can use "[mul*rv2 + icon]" */
 
                         rv1 = nullptr;
-                        rv2 = op1->gtOp.gtOp1;
+                        rv2 = op1->AsOpRef().gtOp1;
 
                         goto FOUND_AM;
                     }
@@ -1407,10 +1407,10 @@ AGAIN:
                 break;
             }
 
-            if (op1->gtOp.gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op1->gtOp.gtOp2->gtIntCon.gtIconVal))
+            if (op1->AsOpRef().gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op1->AsOpRef().gtOp2->gtIntCon.gtIconVal))
             {
-                cns += op1->gtOp.gtOp2->gtIntCon.gtIconVal;
-                op1 = op1->gtOp.gtOp1;
+                cns += op1->AsOpRef().gtOp2->gtIntCon.gtIconVal;
+                op1 = op1->AsOpRef().gtOp1;
 
                 goto AGAIN;
             }
@@ -1436,7 +1436,7 @@ AGAIN:
                 /* 'op1' is a scaled value */
 
                 rv1 = op2;
-                rv2 = op1->gtOp.gtOp1;
+                rv2 = op1->AsOpRef().gtOp1;
 
                 int argScale;
                 while ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (argScale = rv2->GetScaledIndex()) != 0)
@@ -1444,7 +1444,7 @@ AGAIN:
                     if (jitIsScaleIndexMul(argScale * mul))
                     {
                         mul = mul * argScale;
-                        rv2 = rv2->gtOp.gtOp1;
+                        rv2 = rv2->AsOpRef().gtOp1;
                     }
                     else
                     {
@@ -1464,12 +1464,12 @@ AGAIN:
 
         case GT_NOP:
 
-            op1 = op1->gtOp.gtOp1;
+            op1 = op1->AsOpRef().gtOp1;
             goto AGAIN;
 
         case GT_COMMA:
 
-            op1 = op1->gtOp.gtOp2;
+            op1 = op1->AsOpRef().gtOp2;
             goto AGAIN;
 
         default:
@@ -1488,10 +1488,10 @@ AGAIN:
                 break;
             }
 
-            if (op2->gtOp.gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op2->gtOp.gtOp2->gtIntCon.gtIconVal))
+            if (op2->AsOpRef().gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op2->AsOpRef().gtOp2->gtIntCon.gtIconVal))
             {
-                cns += op2->gtOp.gtOp2->gtIntCon.gtIconVal;
-                op2 = op2->gtOp.gtOp1;
+                cns += op2->AsOpRef().gtOp2->gtIntCon.gtIconVal;
+                op2 = op2->AsOpRef().gtOp1;
 
                 goto AGAIN;
             }
@@ -1516,13 +1516,13 @@ AGAIN:
             {
                 // 'op2' is a scaled value...is it's argument also scaled?
                 int argScale;
-                rv2 = op2->gtOp.gtOp1;
+                rv2 = op2->AsOpRef().gtOp1;
                 while ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (argScale = rv2->GetScaledIndex()) != 0)
                 {
                     if (jitIsScaleIndexMul(argScale * mul))
                     {
                         mul = mul * argScale;
-                        rv2 = rv2->gtOp.gtOp1;
+                        rv2 = rv2->AsOpRef().gtOp1;
                     }
                     else
                     {
@@ -1541,12 +1541,12 @@ AGAIN:
 
         case GT_NOP:
 
-            op2 = op2->gtOp.gtOp1;
+            op2 = op2->AsOpRef().gtOp1;
             goto AGAIN;
 
         case GT_COMMA:
 
-            op2 = op2->gtOp.gtOp2;
+            op2 = op2->AsOpRef().gtOp2;
             goto AGAIN;
 
         default:
@@ -1585,7 +1585,7 @@ FOUND_AM:
             ssize_t  tmpMul;
             GenTree* index;
 
-            if ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (rv2->gtOp.gtOp2->IsCnsIntOrI()))
+            if ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (rv2->AsOpRef().gtOp2->IsCnsIntOrI()))
             {
                 /* For valuetype arrays where we can't use the scaled address
                    mode, rv2 will point to the scaled index. So we have to do
@@ -2970,7 +2970,7 @@ CorInfoHelpFunc CodeGenInterface::genWriteBarrierHelperForWriteBarrierForm(GenTr
             {
                 helper = CORINFO_HELP_CHECKED_ASSIGN_REF;
             }
-            else if (tgt->gtOp.gtOp1->TypeGet() == TYP_I_IMPL)
+            else if (tgt->AsOpRef().gtOp1->TypeGet() == TYP_I_IMPL)
             {
                 helper = CORINFO_HELP_CHECKED_ASSIGN_REF;
             }
@@ -3012,10 +3012,10 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
     {
         GenTree* lcl = NULL;
 
-        GenTree* indArg = tgt->gtOp.gtOp1;
-        if (indArg->gtOper == GT_ADDR && indArg->gtOp.gtOp1->gtOper == GT_IND)
+        GenTree* indArg = tgt->AsOpRef().gtOp1;
+        if (indArg->gtOper == GT_ADDR && indArg->AsOpRef().gtOp1->gtOper == GT_IND)
         {
-            indArg = indArg->gtOp.gtOp1->gtOp.gtOp1;
+            indArg = indArg->AsOpRef().gtOp1->AsOpRef().gtOp1;
         }
         if (indArg->gtOper == GT_LCL_VAR)
         {
@@ -3023,13 +3023,13 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
         }
         else if (indArg->gtOper == GT_ADD)
         {
-            if (indArg->gtOp.gtOp1->gtOper == GT_LCL_VAR)
+            if (indArg->AsOpRef().gtOp1->gtOper == GT_LCL_VAR)
             {
-                lcl = indArg->gtOp.gtOp1;
+                lcl = indArg->AsOpRef().gtOp1;
             }
-            else if (indArg->gtOp.gtOp2->gtOper == GT_LCL_VAR)
+            else if (indArg->AsOpRef().gtOp2->gtOper == GT_LCL_VAR)
             {
-                lcl = indArg->gtOp.gtOp2;
+                lcl = indArg->AsOpRef().gtOp2;
             }
         }
         if (lcl != NULL)
@@ -3052,7 +3052,7 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
         else
         {
             // We should have eliminated the barrier for this case.
-            assert(!(indArg->gtOper == GT_ADDR && indArg->gtOp.gtOp1->gtOper == GT_LCL_VAR));
+            assert(!(indArg->gtOper == GT_ADDR && indArg->AsOpRef().gtOp1->gtOper == GT_LCL_VAR));
         }
     }
 
