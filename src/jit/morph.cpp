@@ -2040,11 +2040,11 @@ void fgArgInfo::SortArgs()
     {
         fgArgTabEntry* curArgTabEntry = argTable[curInx];
 
-        if (curArgTabEntry->regNum != REG_STK)
+        if (curArgTabEntry->getRegNum() != REG_STK)
         {
             // Encode the argument register in the register mask
             //
-            callTree->AsCall()->regArgList[regInx] = curArgTabEntry->regNum;
+            callTree->AsCall()->regArgList[regInx] = curArgTabEntry->getRegNum();
             regInx++;
         }
     }
@@ -2216,7 +2216,7 @@ void fgArgInfo::EvalArgsToTemps()
         //   Only the register arguments need to be replaced with placeholder nodes.
         //   Stacked arguments are evaluated and pushed (or stored into the stack) in order.
         //
-        if (curArgTabEntry->regNum == REG_STK)
+        if (curArgTabEntry->getRegNum() == REG_STK)
             continue;
 #endif
 
