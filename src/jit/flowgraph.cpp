@@ -18907,7 +18907,7 @@ void Compiler::fgSetBlockOrder()
                 // DDB 204533:
                 // The GC encoding for fully interruptible methods does not
                 // support more than 1023 pushed arguments, so we can't set
-                // genInterruptible here when we have 1024 or more pushed args
+                // getInterruptible() here when we have 1024 or more pushed args
                 //
                 if (compCanEncodePtrArgCntMax())
                 {
