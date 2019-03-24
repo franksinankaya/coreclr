@@ -480,9 +480,9 @@ void CodeGen::inst_set_SV_var(GenTree* tree)
 {
 #ifdef DEBUG
     assert(tree && (tree->gtOper == GT_LCL_VAR || tree->gtOper == GT_LCL_VAR_ADDR || tree->gtOper == GT_STORE_LCL_VAR));
-    assert(tree->AsLclVarCommonRef().GetLclNum() < compiler->lvaCount);
+    assert(tree->AsLclVarCommon()->GetLclNum() < compiler->lvaCount);
 
-    getEmitter()->emitVarRefOffs = tree->AsLclVarRef().gtLclILoffs;
+    getEmitter()->emitVarRefOffs = tree->AsLclVar()->gtLclILoffs;
 
 #endif // DEBUG
 }
@@ -584,11 +584,11 @@ AGAIN:
 
         case GT_LCL_FLD:
 
-            offs += tree->AsLclFldRef().gtLclOffs;
+            offs += tree->AsLclFld()->gtLclOffs;
             goto LCL;
 
         LCL:
-            varNum = tree->AsLclVarCommonRef().GetLclNum();
+            varNum = tree->AsLclVarCommon()->GetLclNum();
             assert(varNum < compiler->lvaCount);
 
             if (shfv)
@@ -611,11 +611,11 @@ AGAIN:
 
             if (shfv)
             {
-                getEmitter()->emitIns_C_I(ins, size, tree->AsClsVarRef().gtClsVarHnd, offs, shfv);
+                getEmitter()->emitIns_C_I(ins, size, tree->AsClsVar()->gtClsVarHnd, offs, shfv);
             }
             else
             {
-                getEmitter()->emitIns_C(ins, size, tree->AsClsVarRef().gtClsVarHnd, offs);
+                getEmitter()->emitIns_C(ins, size, tree->AsClsVar()->gtClsVarHnd, offs);
             }
             return;
 
@@ -633,15 +633,15 @@ AGAIN:
             assert(offs == 0);
             assert(!shfv);
             if (tree->IsIconHandle())
-                inst_IV_handle(ins, tree->AsIntConRef().gtIconVal);
+                inst_IV_handle(ins, tree->AsIntCon()->gtIconVal);
             else
-                inst_IV(ins, tree->AsIntConRef().gtIconVal);
+                inst_IV(ins, tree->AsIntCon()->gtIconVal);
             break;
 #endif
 
         case GT_COMMA:
-            //     tree->AsOpRef().gtOp1 - already processed by genCreateAddrMode()
-            tree = tree->AsOpRef().gtOp2;
+            //     tree->AsOp()->gtOp1 - already processed by genCreateAddrMode()
+            tree = tree->AsOp()->gtOp2;
             goto AGAIN;
 
         default:
@@ -691,12 +691,12 @@ AGAIN:
 
         case GT_LCL_FLD:
         case GT_STORE_LCL_FLD:
-            offs += tree->AsLclFldRef().gtLclOffs;
+            offs += tree->AsLclFld()->gtLclOffs;
             goto LCL;
 
         LCL:
 
-            varNum = tree->AsLclVarCommonRef().GetLclNum();
+            varNum = tree->AsLclVarCommon()->GetLclNum();
             assert(varNum < compiler->lvaCount);
 
 #if CPU_LOAD_STORE_ARCH
@@ -741,7 +741,7 @@ AGAIN:
             else
 #endif // CPU_LOAD_STORE_ARCH
             {
-                getEmitter()->emitIns_C_R(ins, size, tree->AsClsVarRef().gtClsVarHnd, reg, offs);
+                getEmitter()->emitIns_C_R(ins, size, tree->AsClsVar()->gtClsVarHnd, reg, offs);
             }
             return;
 
@@ -754,8 +754,8 @@ AGAIN:
         break;
 
         case GT_COMMA:
-            //     tree->AsOpRef().gtOp1 - already processed by genCreateAddrMode()
-            tree = tree->AsOpRef().gtOp2;
+            //     tree->AsOp()->gtOp1 - already processed by genCreateAddrMode()
+            tree = tree->AsOp()->gtOp2;
             goto AGAIN;
 
         default:
@@ -840,11 +840,11 @@ AGAIN:
 
         case GT_LCL_FLD_ADDR:
         case GT_LCL_FLD:
-            offs += tree->AsLclFldRef().gtLclOffs;
+            offs += tree->AsLclFld()->gtLclOffs;
             goto LCL;
 
         LCL:
-            varNum = tree->AsLclVarCommonRef().GetLclNum();
+            varNum = tree->AsLclVarCommon()->GetLclNum();
             assert(varNum < compiler->lvaCount);
 
 #ifdef _TARGET_ARM_
@@ -889,8 +889,8 @@ AGAIN:
 
 #if CPU_LOAD_STORE_ARCH
             assert(!"GT_CLS_VAR not supported in ARM backend");
-#else  // CPU_LOAD_STORE_ARCH
-            getEmitter()->emitIns_R_C(ins, size, reg, tree->AsClsVarRef().gtClsVarHnd, offs);
+#else // CPU_LOAD_STORE_ARCH
+            getEmitter()->emitIns_R_C(ins, size, reg, tree->AsClsVar()->gtClsVarHnd, offs);
 #endif // CPU_LOAD_STORE_ARCH
             return;
 
@@ -908,7 +908,7 @@ AGAIN:
             assert(offs == 0);
 
             // TODO-CrossBitness: we wouldn't need the cast below if GenTreeIntCon::gtIconVal had target_ssize_t type.
-            inst_RV_IV(ins, reg, (target_ssize_t)tree->AsIntConRef().gtIconVal, emitActualTypeSize(tree->TypeGet()), flags);
+            inst_RV_IV(ins, reg, (target_ssize_t)tree->AsIntCon()->gtIconVal, emitActualTypeSize(tree->TypeGet()), flags);
             break;
 
         case GT_CNS_LNG:
@@ -923,12 +923,12 @@ AGAIN:
             emitAttr       size;
             if (offs == 0)
             {
-                constVal = (target_ssize_t)(tree->AsLngConRef().gtLconVal);
+                constVal = (target_ssize_t)(tree->AsLngCon()->gtLconVal);
                 size     = EA_PTRSIZE;
             }
             else
             {
-                constVal = (target_ssize_t)(tree->AsLngConRef().gtLconVal >> 32);
+                constVal = (target_ssize_t)(tree->AsLngCon()->gtLconVal >> 32);
                 size     = EA_4BYTE;
             }
 
@@ -936,7 +936,7 @@ AGAIN:
             break;
 
         case GT_COMMA:
-            tree = tree->AsOpRef().gtOp2;
+            tree = tree->AsOp()->gtOp2;
             goto AGAIN;
 
         default:

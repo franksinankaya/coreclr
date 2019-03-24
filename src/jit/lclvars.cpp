@@ -3713,8 +3713,8 @@ void Compiler::lvaMarkLclRefs(GenTree* tree, BasicBlock* block, GenTreeStmt* stm
 
         if (tree->OperIs(GT_ASG))
         {
-            GenTree* op1 = tree->AsOpRef().gtOp1;
-            GenTree* op2 = tree->AsOpRef().gtOp2;
+            GenTree* op1 = tree->AsOp()->gtOp1;
+            GenTree* op2 = tree->AsOp()->gtOp2;
 
 #if OPT_BOOL_OPS
 
@@ -3737,11 +3737,11 @@ void Compiler::lvaMarkLclRefs(GenTree* tree, BasicBlock* block, GenTreeStmt* stm
 
                     case GT_CNS_INT:
 
-                        if (op2->AsIntConRef().gtIconVal == 0)
+                        if (op2->AsIntCon()->gtIconVal == 0)
                         {
                             break;
                         }
-                        if (op2->AsIntConRef().gtIconVal == 1)
+                        if (op2->AsIntCon()->gtIconVal == 1)
                         {
                             break;
                         }
@@ -3758,7 +3758,7 @@ void Compiler::lvaMarkLclRefs(GenTree* tree, BasicBlock* block, GenTreeStmt* stm
 
                     NOT_BOOL:
 
-                        lclNum = op1->AsLclVarCommonRef().GetLclNum();
+                        lclNum = op1->AsLclVarCommon()->GetLclNum();
                         noway_assert(lclNum < lvaCount);
 
                         lvaTable[lclNum].lvIsBoolean = false;
@@ -3777,7 +3777,7 @@ void Compiler::lvaMarkLclRefs(GenTree* tree, BasicBlock* block, GenTreeStmt* stm
     /* This must be a local variable reference */
 
     assert((tree->gtOper == GT_LCL_VAR) || (tree->gtOper == GT_LCL_FLD));
-    unsigned lclNum = tree->AsLclVarCommonRef().GetLclNum();
+    unsigned lclNum = tree->AsLclVarCommon()->GetLclNum();
 
     noway_assert(lclNum < lvaCount);
     LclVarDsc* varDsc = lvaTable + lclNum;
@@ -7443,11 +7443,11 @@ Compiler::fgWalkResult Compiler::lvaStressLclFldCB(GenTree** pTree, fgWalkData* 
             break;
 
         case GT_ADDR:
-            if (tree->AsOpRef().gtOp1->gtOper != GT_LCL_VAR)
+            if (tree->AsOp()->gtOp1->gtOper != GT_LCL_VAR)
             {
                 return WALK_CONTINUE;
             }
-            lcl = tree->AsOpRef().gtOp1;
+            lcl = tree->AsOp()->gtOp1;
             break;
 
         default:
@@ -7457,7 +7457,7 @@ Compiler::fgWalkResult Compiler::lvaStressLclFldCB(GenTree** pTree, fgWalkData* 
     Compiler* pComp      = ((lvaStressLclFldArgs*)data->pCallbackData)->m_pCompiler;
     bool      bFirstPass = ((lvaStressLclFldArgs*)data->pCallbackData)->m_bFirstPass;
     noway_assert(lcl->gtOper == GT_LCL_VAR);
-    unsigned   lclNum = lcl->AsLclVarCommonRef().GetLclNum();
+    unsigned   lclNum = lcl->AsLclVarCommon()->GetLclNum();
     var_types  type   = lcl->TypeGet();
     LclVarDsc* varDsc = &pComp->lvaTable[lclNum];
 
@@ -7541,7 +7541,7 @@ Compiler::fgWalkResult Compiler::lvaStressLclFldCB(GenTree** pTree, fgWalkData* 
             /* Change lclVar(lclNum) to lclFld(lclNum,padding) */
 
             tree->ChangeOper(GT_LCL_FLD);
-            tree->AsLclFldRef().gtLclOffs = padding;
+            tree->AsLclFld()->gtLclOffs = padding;
         }
         else
         {

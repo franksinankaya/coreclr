@@ -142,7 +142,7 @@ int LinearScan::BuildNode(GenTree* tree)
         case GT_CNS_DBL:
         {
             GenTreeDblCon* dblConst   = tree->AsDblCon();
-            double         constValue = dblConst->AsDblConRef().gtDconVal;
+            double         constValue = dblConst->AsDblCon()->gtDconVal;
 
             if (emitter::emitIns_valid_imm_for_fmov(constValue))
             {
@@ -308,11 +308,11 @@ int LinearScan::BuildNode(GenTree* tree)
 
         case GT_INTRINSIC:
         {
-            noway_assert((tree->AsIntrinsicRef().gtIntrinsicId == CORINFO_INTRINSIC_Abs) ||
-                         (tree->AsIntrinsicRef().gtIntrinsicId == CORINFO_INTRINSIC_Ceiling) ||
-                         (tree->AsIntrinsicRef().gtIntrinsicId == CORINFO_INTRINSIC_Floor) ||
-                         (tree->AsIntrinsicRef().gtIntrinsicId == CORINFO_INTRINSIC_Round) ||
-                         (tree->AsIntrinsicRef().gtIntrinsicId == CORINFO_INTRINSIC_Sqrt));
+            noway_assert((tree->AsIntrinsic()->gtIntrinsicId == CORINFO_INTRINSIC_Abs) ||
+                         (tree->AsIntrinsic()->gtIntrinsicId == CORINFO_INTRINSIC_Ceiling) ||
+                         (tree->AsIntrinsic()->gtIntrinsicId == CORINFO_INTRINSIC_Floor) ||
+                         (tree->AsIntrinsic()->gtIntrinsicId == CORINFO_INTRINSIC_Round) ||
+                         (tree->AsIntrinsic()->gtIntrinsicId == CORINFO_INTRINSIC_Sqrt));
 
             // Both operand and its result must be of the same floating point type.
             GenTree* op1 = tree->gtGetOp1();
@@ -390,13 +390,13 @@ int LinearScan::BuildNode(GenTree* tree)
             // For ARMv8.1 atomic cas the lifetime of the addr and data must be extended to prevent
             // them being reused as the target register which must be destroyed early
 
-            RefPosition* locationUse = BuildUse(tree->AsCmpXchgRef().gtOpLocation);
+            RefPosition* locationUse = BuildUse(tree->AsCmpXchg()->gtOpLocation);
             setDelayFree(locationUse);
-            RefPosition* valueUse = BuildUse(tree->AsCmpXchgRef().gtOpValue);
+            RefPosition* valueUse = BuildUse(tree->AsCmpXchg()->gtOpValue);
             setDelayFree(valueUse);
             if (!cmpXchgNode->gtOpComparand->isContained())
             {
-                RefPosition* comparandUse = BuildUse(tree->AsCmpXchgRef().gtOpComparand);
+                RefPosition* comparandUse = BuildUse(tree->AsCmpXchg()->gtOpComparand);
 
                 // For ARMv8 exclusives the lifetime of the comparand must be extended because
                 // it may be used used multiple during retries
@@ -537,7 +537,7 @@ int LinearScan::BuildNode(GenTree* tree)
                 assert(size->isContained());
                 srcCount = 0;
 
-                size_t sizeVal = size->AsIntConRef().gtIconVal;
+                size_t sizeVal = size->AsIntCon()->gtIconVal;
 
                 if (sizeVal != 0)
                 {
@@ -633,7 +633,7 @@ int LinearScan::BuildNode(GenTree* tree)
             // This consumes the offset, if any, the arrObj and the effective index,
             // and produces the flattened offset for this dimension.
             srcCount = 2;
-            if (!tree->AsArrOffsRef().gtOffset->isContained())
+            if (!tree->AsArrOffs()->gtOffset->isContained())
             {
                 BuildUse(tree->AsArrOffs()->gtOffset);
                 srcCount++;

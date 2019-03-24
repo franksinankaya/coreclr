@@ -847,9 +847,9 @@ void CodeGen::genSIMDIntrinsicInit(GenTreeSIMD* simdNode)
             }
             else if (op1->OperIsLocalAddr())
             {
-                unsigned offset = (op1->OperGet() == GT_LCL_FLD_ADDR) ? op1->AsLclFldRef().gtLclOffs : 0;
-                getEmitter()->emitIns_R_S(ins, emitTypeSize(targetType), targetReg, op1->AsLclVarCommonRef().GetLclNum(),
-                                          offset);
+                unsigned offset = (op1->OperGet() == GT_LCL_FLD_ADDR) ? op1->AsLclFld()->gtLclOffs : 0;
+                getEmitter()->emitIns_R_S(ins, emitTypeSize(targetType), targetReg,
+                                          op1->AsLclVarCommon()->GetLclNum(), offset);
             }
             else
             {
@@ -2442,11 +2442,11 @@ void CodeGen::genSIMDIntrinsicGetItem(GenTreeSIMD* simdNode)
             // There are three parts to the total offset here:
             // {offset of local} + {offset of SIMD Vector field (lclFld only)} + {offset of element within SIMD vector}.
             bool     isEBPbased;
-            unsigned varNum = op1->AsLclVarCommonRef().GetLclNum();
+            unsigned varNum = op1->AsLclVarCommon()->GetLclNum();
             offset += compiler->lvaFrameAddress(varNum, &isEBPbased);
             if (op1->OperGet() == GT_LCL_FLD)
             {
-                offset += op1->AsLclFldRef().gtLclOffs;
+                offset += op1->AsLclFld()->gtLclOffs;
             }
             baseReg = (isEBPbased) ? REG_EBP : REG_ESP;
         }
@@ -2514,7 +2514,7 @@ void CodeGen::genSIMDIntrinsicGetItem(GenTreeSIMD* simdNode)
 
     noway_assert(op2->isContained());
     noway_assert(op2->IsCnsIntOrI());
-    unsigned int index        = (unsigned int)op2->AsIntConRef().gtIconVal;
+    unsigned int index        = (unsigned int)op2->AsIntCon()->gtIconVal;
     unsigned int byteShiftCnt = index * genTypeSize(baseType);
 
     // In general we shouldn't have an index greater than or equal to the length of the vector.
@@ -2609,7 +2609,7 @@ void CodeGen::genSIMDIntrinsicGetItem(GenTreeSIMD* simdNode)
             bool ZeroOrSignExtnReqd = true;
             if (baseSize == 1)
             {
-                if ((op2->AsIntConRef().gtIconVal % 2) == 1)
+                if ((op2->AsIntCon()->gtIconVal % 2) == 1)
                 {
                     // Right shift extracted word by 8-bits if index is odd if we are extracting a byte sized element.
                     inst_RV_SH(INS_SHIFT_RIGHT_LOGICAL, EA_4BYTE, targetReg, 8);
@@ -2811,8 +2811,8 @@ void CodeGen::genStoreIndTypeSIMD12(GenTree* treeNode)
 {
     assert(treeNode->OperGet() == GT_STOREIND);
 
-    GenTree* addr = treeNode->AsOpRef().gtOp1;
-    GenTree* data = treeNode->AsOpRef().gtOp2;
+    GenTree* addr = treeNode->AsOp()->gtOp1;
+    GenTree* data = treeNode->AsOp()->gtOp2;
 
     // addr and data should not be contained.
     assert(!data->isContained());
@@ -2856,7 +2856,7 @@ void CodeGen::genLoadIndTypeSIMD12(GenTree* treeNode)
     assert(treeNode->OperGet() == GT_IND);
 
     regNumber targetReg = treeNode->GetRegNum();
-    GenTree*  op1       = treeNode->AsOpRef().gtOp1;
+    GenTree*  op1       = treeNode->AsOp()->gtOp1;
     assert(!op1->isContained());
     regNumber operandReg = genConsumeReg(op1);
 
@@ -2892,15 +2892,15 @@ void CodeGen::genStoreLclTypeSIMD12(GenTree* treeNode)
     assert((treeNode->OperGet() == GT_STORE_LCL_FLD) || (treeNode->OperGet() == GT_STORE_LCL_VAR));
 
     unsigned offs   = 0;
-    unsigned varNum = treeNode->AsLclVarCommonRef().GetLclNum();
+    unsigned varNum = treeNode->AsLclVarCommon()->GetLclNum();
     assert(varNum < compiler->lvaCount);
 
     if (treeNode->OperGet() == GT_STORE_LCL_FLD)
     {
-        offs = treeNode->AsLclFldRef().gtLclOffs;
+        offs = treeNode->AsLclFld()->gtLclOffs;
     }
 
-    GenTree* op1 = treeNode->AsOpRef().gtOp1;
+    GenTree* op1 = treeNode->AsOp()->gtOp1;
     assert(!op1->isContained());
     regNumber operandReg = genConsumeReg(op1);
 
@@ -2934,12 +2934,12 @@ void CodeGen::genLoadLclTypeSIMD12(GenTree* treeNode)
 
     regNumber targetReg = treeNode->GetRegNum();
     unsigned  offs      = 0;
-    unsigned  varNum    = treeNode->AsLclVarCommonRef().GetLclNum();
+    unsigned  varNum    = treeNode->AsLclVarCommon()->GetLclNum();
     assert(varNum < compiler->lvaCount);
 
     if (treeNode->OperGet() == GT_LCL_FLD)
     {
-        offs = treeNode->AsLclFldRef().gtLclOffs;
+        offs = treeNode->AsLclFld()->gtLclOffs;
     }
 
     // Need an additional Xmm register that is different from targetReg to read upper 4 bytes.
@@ -3004,7 +3004,7 @@ void CodeGen::genPutArgStkSIMD12(GenTree* treeNode)
 {
     assert(treeNode->OperGet() == GT_PUTARG_STK);
 
-    GenTree* op1 = treeNode->AsOpRef().gtOp1;
+    GenTree* op1 = treeNode->AsOp()->gtOp1;
     assert(!op1->isContained());
     regNumber operandReg = genConsumeReg(op1);
 
