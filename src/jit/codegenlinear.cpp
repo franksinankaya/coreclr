@@ -465,7 +465,7 @@ void CodeGen::genCodeForBBlist()
         GenTree* blockLastNode = block->lastNode();
         if ((blockLastNode != nullptr) && (blockLastNode->gtOper == GT_RETURN) &&
             (varTypeIsGC(compiler->info.compRetType) ||
-             (blockLastNode->AsOpRef().gtOp1 != nullptr && varTypeIsGC(blockLastNode->AsOpRef().gtOp1->TypeGet()))))
+             (blockLastNode->AsOp()->gtOp1 != nullptr && varTypeIsGC(blockLastNode->AsOp()->gtOp1->TypeGet()))))
         {
             nonVarPtrRegs &= ~RBM_INTRET;
         }
@@ -685,7 +685,7 @@ void CodeGen::genCodeForBBlist()
 
                     if ((call != nullptr) && (call->gtOper == GT_CALL))
                     {
-                        if ((call->AsCallRef().gtCallMoreFlags & GTF_CALL_M_DOES_NOT_RETURN) != 0)
+                        if ((call->AsCall()->gtCallMoreFlags & GTF_CALL_M_DOES_NOT_RETURN) != 0)
                         {
                             instGen(INS_BREAKPOINT); // This should never get executed
                         }
@@ -788,7 +788,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 void CodeGen::genSpillVar(GenTree* tree)
 {
-    unsigned   varNum = tree->AsLclVarCommonRef().GetLclNum();
+    unsigned   varNum = tree->AsLclVarCommon()->GetLclNum();
     LclVarDsc* varDsc = &(compiler->lvaTable[varNum]);
 
     assert(varDsc->lvIsRegCandidate());
@@ -878,8 +878,8 @@ GenTree* sameRegAsDst(GenTree* tree, GenTree*& other /*out*/)
         return nullptr;
     }
 
-    GenTree* op1 = tree->AsOpRef().gtOp1;
-    GenTree* op2 = tree->AsOpRef().gtOp2;
+    GenTree* op1 = tree->AsOp()->gtOp1;
+    GenTree* op2 = tree->AsOp()->gtOp2;
     if (op1->GetRegNum() == tree->GetRegNum())
     {
         other = op2;
@@ -917,7 +917,7 @@ void CodeGen::genUnspillRegIfNeeded(GenTree* tree)
 
     if (tree->gtOper == GT_RELOAD)
     {
-        unspillTree = tree->AsOpRef().gtOp1;
+        unspillTree = tree->AsOp()->gtOp1;
     }
 
     if ((unspillTree->gtFlags & GTF_SPILLED) != 0)
@@ -1635,7 +1635,7 @@ void CodeGen::genPutArgStkFieldList(GenTreePutArgStk* putArgStk, unsigned outArg
     for (GenTreeFieldList* fieldListPtr = putArgStk->gtOp1->AsFieldList(); fieldListPtr != nullptr;
          fieldListPtr                   = fieldListPtr->Rest())
     {
-        GenTree* nextArgNode = fieldListPtr->AsOpRef().gtOp1;
+        GenTree* nextArgNode = fieldListPtr->AsOp()->gtOp1;
         genConsumeReg(nextArgNode);
 
         regNumber reg  = nextArgNode->GetRegNum();
@@ -1697,7 +1697,7 @@ void CodeGen::genConsumeBlockSrc(GenTreeBlk* blkNode)
         // For a CopyBlk we need the address of the source.
         if (src->OperGet() == GT_IND)
         {
-            src = src->AsOpRef().gtOp1;
+            src = src->AsOp()->gtOp1;
         }
         else
         {
@@ -1733,7 +1733,7 @@ void CodeGen::genSetBlockSrc(GenTreeBlk* blkNode, regNumber srcReg)
         // For a CopyBlk we need the address of the source.
         if (src->OperGet() == GT_IND)
         {
-            src = src->AsOpRef().gtOp1;
+            src = src->AsOp()->gtOp1;
         }
         else
         {
@@ -1819,7 +1819,7 @@ void CodeGen::genProduceReg(GenTree* tree)
         {
             // Store local variable to its home location.
             // Ensure that lclVar stores are typed correctly.
-            unsigned varNum = tree->AsLclVarCommonRef().GetLclNum();
+            unsigned varNum = tree->AsLclVarCommon()->GetLclNum();
             assert(!compiler->lvaTable[varNum].lvNormalizeOnStore() ||
                    (tree->TypeGet() == genActualType(compiler->lvaTable[varNum].TypeGet())));
             inst_TT_RV(ins_Store(tree->gtType, compiler->isSIMDTypeLocalAligned(varNum)), tree, tree->GetRegNum());
@@ -2230,7 +2230,7 @@ void CodeGen::genStoreLongLclVar(GenTree* treeNode)
     LclVarDsc*           varDsc  = &(compiler->lvaTable[lclNum]);
     assert(varDsc->TypeGet() == TYP_LONG);
     assert(!varDsc->lvPromoted);
-    GenTree* op1 = treeNode->AsOpRef().gtOp1;
+    GenTree* op1 = treeNode->AsOp()->gtOp1;
 
     // A GT_LONG is always contained, so it cannot have RELOAD or COPY inserted between it and its consumer,
     // but a MUL_LONG may.

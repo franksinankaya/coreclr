@@ -604,9 +604,9 @@ InlineResult::InlineResult(Compiler* compiler, GenTreeCall* call, GenTreeStmt* s
     m_Caller = compiler->info.compMethodHnd;
 
     // Get method handle for callee, if known
-    if (m_Call->AsCallRef().gtCallType == CT_USER_FUNC)
+    if (m_Call->AsCall()->gtCallType == CT_USER_FUNC)
     {
-        m_Callee = m_Call->AsCallRef().gtCallMethHnd;
+        m_Callee = m_Call->AsCall()->gtCallMethHnd;
     }
 }
 

@@ -457,7 +457,7 @@ regMaskTP CodeGenInterface::genGetRegMask(GenTree* tree)
     assert(tree->gtOper == GT_LCL_VAR);
 
     regMaskTP        regMask = RBM_NONE;
-    const LclVarDsc* varDsc  = compiler->lvaTable + tree->AsLclVarCommonRef().GetLclNum();
+    const LclVarDsc* varDsc  = compiler->lvaTable + tree->AsLclVarCommon()->GetLclNum();
     if (varDsc->lvPromoted)
     {
         for (unsigned i = varDsc->lvFieldLclStart; i < varDsc->lvFieldLclStart + varDsc->lvFieldCnt; ++i)
@@ -1086,7 +1086,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
 
     while (op->gtOper == GT_COMMA)
     {
-        op = op->AsOpRef().gtOp2;
+        op = op->AsOp()->gtOp2;
     }
 
     if (op->gtOper == GT_OBJ)
@@ -1097,7 +1097,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
     }
     else if (op->gtOper == GT_LCL_VAR)
     {
-        unsigned   varNum = op->AsLclVarCommonRef().GetLclNum();
+        unsigned   varNum = op->AsLclVarCommon()->GetLclNum();
         LclVarDsc* varDsc = compiler->lvaTable + varNum;
         assert(varDsc->lvType == TYP_STRUCT);
         opSize = varDsc->lvSize();
@@ -1114,26 +1114,26 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
     }
     else if (op->OperIsCopyBlkOp())
     {
-        GenTree* op2 = op->AsOpRef().gtOp2;
+        GenTree* op2 = op->AsOp()->gtOp2;
 
         if (op2->OperGet() == GT_CNS_INT)
         {
             if (op2->IsIconHandle(GTF_ICON_CLASS_HDL))
             {
-                CORINFO_CLASS_HANDLE clsHnd = (CORINFO_CLASS_HANDLE)op2->AsIntConRef().gtIconVal;
+                CORINFO_CLASS_HANDLE clsHnd = (CORINFO_CLASS_HANDLE)op2->AsIntCon()->gtIconVal;
                 opSize = roundUp(compiler->info.compCompHnd->getClassSize(clsHnd), TARGET_POINTER_SIZE);
                 alignment =
                     roundUp(compiler->info.compCompHnd->getClassAlignmentRequirement(clsHnd), TARGET_POINTER_SIZE);
             }
             else
             {
-                opSize       = (unsigned)op2->AsIntConRef().gtIconVal;
-                GenTree* op1 = op->AsOpRef().gtOp1;
+                opSize       = (unsigned)op2->AsIntCon()->gtIconVal;
+                GenTree* op1 = op->AsOp()->gtOp1;
                 assert(op1->OperGet() == GT_LIST);
-                GenTree* dstAddr = op1->AsOpRef().gtOp1;
+                GenTree* dstAddr = op1->AsOp()->gtOp1;
                 if (dstAddr->OperGet() == GT_ADDR)
                 {
-                    InferStructOpSizeAlign(dstAddr->AsOpRef().gtOp1, &alignment);
+                    InferStructOpSizeAlign(dstAddr->AsOp()->gtOp1, &alignment);
                 }
                 else
                 {
@@ -1156,7 +1156,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
     }
     else if (op->IsArgPlaceHolderNode())
     {
-        CORINFO_CLASS_HANDLE clsHnd = op->AsArgPlaceRef().gtArgPlaceClsHnd;
+        CORINFO_CLASS_HANDLE clsHnd = op->AsArgPlace()->gtArgPlaceClsHnd;
         assert(clsHnd != 0);
         opSize    = roundUp(compiler->info.compCompHnd->getClassSize(clsHnd), TARGET_POINTER_SIZE);
         alignment = roundUp(compiler->info.compCompHnd->getClassAlignmentRequirement(clsHnd), TARGET_POINTER_SIZE);
@@ -1275,13 +1275,13 @@ bool CodeGen::genCreateAddrMode(GenTree*  addr,
 
     if (addr->gtFlags & GTF_REVERSE_OPS)
     {
-        op1 = addr->AsOpRef().gtOp2;
-        op2 = addr->AsOpRef().gtOp1;
+        op1 = addr->AsOp()->gtOp2;
+        op2 = addr->AsOp()->gtOp1;
     }
     else
     {
-        op1 = addr->AsOpRef().gtOp1;
-        op2 = addr->AsOpRef().gtOp2;
+        op1 = addr->AsOp()->gtOp1;
+        op2 = addr->AsOp()->gtOp2;
     }
 
     bool rev = false; // Is op2 first in the evaluation order?
@@ -1329,11 +1329,11 @@ AGAIN:
     /* Check for an addition of a constant */
 
     if (op2->IsIntCnsFitsInI32() && (op2->gtType != TYP_REF) &&
-        FitsIn<INT32>(cns + op2->AsIntConCommonRef().IconValue()))
+        FitsIn<INT32>(cns + op2->AsIntConCommon()->IconValue()))
     {
         /* We're adding a constant */
 
-        cns += op2->AsIntConCommonRef().IconValue();
+        cns += op2->AsIntConCommon()->IconValue();
 
 #if defined(_TARGET_ARMARCH_)
         if (cns == 0)
@@ -1350,8 +1350,8 @@ AGAIN:
                         break;
                     }
 
-                    op2 = op1->AsOpRef().gtOp2;
-                    op1 = op1->AsOpRef().gtOp1;
+                    op2 = op1->AsOp()->gtOp2;
+                    op1 = op1->AsOp()->gtOp1;
 
                     goto AGAIN;
 
@@ -1373,7 +1373,7 @@ AGAIN:
                         /* We can use "[mul*rv2 + icon]" */
 
                         rv1 = nullptr;
-                        rv2 = op1->AsOpRef().gtOp1;
+                        rv2 = op1->AsOp()->gtOp1;
 
                         goto FOUND_AM;
                     }
@@ -1408,11 +1408,11 @@ AGAIN:
                 break;
             }
 
-            if (op1->AsOpRef().gtOp2->IsIntCnsFitsInI32() &&
-                FitsIn<INT32>(cns + op1->AsOpRef().gtOp2->AsIntConRef().gtIconVal))
+            if (op1->AsOp()->gtOp2->IsIntCnsFitsInI32() &&
+                FitsIn<INT32>(cns + op1->AsOp()->gtOp2->AsIntCon()->gtIconVal))
             {
-                cns += op1->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
-                op1 = op1->AsOpRef().gtOp1;
+                cns += op1->AsOp()->gtOp2->AsIntCon()->gtIconVal;
+                op1 = op1->AsOp()->gtOp1;
 
                 goto AGAIN;
             }
@@ -1438,7 +1438,7 @@ AGAIN:
                 /* 'op1' is a scaled value */
 
                 rv1 = op2;
-                rv2 = op1->AsOpRef().gtOp1;
+                rv2 = op1->AsOp()->gtOp1;
 
                 int argScale;
                 while ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (argScale = rv2->GetScaledIndex()) != 0)
@@ -1446,7 +1446,7 @@ AGAIN:
                     if (jitIsScaleIndexMul(argScale * mul))
                     {
                         mul = mul * argScale;
-                        rv2 = rv2->AsOpRef().gtOp1;
+                        rv2 = rv2->AsOp()->gtOp1;
                     }
                     else
                     {
@@ -1466,12 +1466,12 @@ AGAIN:
 
         case GT_NOP:
 
-            op1 = op1->AsOpRef().gtOp1;
+            op1 = op1->AsOp()->gtOp1;
             goto AGAIN;
 
         case GT_COMMA:
 
-            op1 = op1->AsOpRef().gtOp2;
+            op1 = op1->AsOp()->gtOp2;
             goto AGAIN;
 
         default:
@@ -1490,11 +1490,11 @@ AGAIN:
                 break;
             }
 
-            if (op2->AsOpRef().gtOp2->IsIntCnsFitsInI32() &&
-                FitsIn<INT32>(cns + op2->AsOpRef().gtOp2->AsIntConRef().gtIconVal))
+            if (op2->AsOp()->gtOp2->IsIntCnsFitsInI32() &&
+                FitsIn<INT32>(cns + op2->AsOp()->gtOp2->AsIntCon()->gtIconVal))
             {
-                cns += op2->AsOpRef().gtOp2->AsIntConRef().gtIconVal;
-                op2 = op2->AsOpRef().gtOp1;
+                cns += op2->AsOp()->gtOp2->AsIntCon()->gtIconVal;
+                op2 = op2->AsOp()->gtOp1;
 
                 goto AGAIN;
             }
@@ -1519,13 +1519,13 @@ AGAIN:
             {
                 // 'op2' is a scaled value...is it's argument also scaled?
                 int argScale;
-                rv2 = op2->AsOpRef().gtOp1;
+                rv2 = op2->AsOp()->gtOp1;
                 while ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (argScale = rv2->GetScaledIndex()) != 0)
                 {
                     if (jitIsScaleIndexMul(argScale * mul))
                     {
                         mul = mul * argScale;
-                        rv2 = rv2->AsOpRef().gtOp1;
+                        rv2 = rv2->AsOp()->gtOp1;
                     }
                     else
                     {
@@ -1544,12 +1544,12 @@ AGAIN:
 
         case GT_NOP:
 
-            op2 = op2->AsOpRef().gtOp1;
+            op2 = op2->AsOp()->gtOp1;
             goto AGAIN;
 
         case GT_COMMA:
 
-            op2 = op2->AsOpRef().gtOp2;
+            op2 = op2->AsOp()->gtOp2;
             goto AGAIN;
 
         default:
@@ -1588,7 +1588,7 @@ FOUND_AM:
             ssize_t  tmpMul;
             GenTree* index;
 
-            if ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (rv2->AsOpRef().gtOp2->IsCnsIntOrI()))
+            if ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (rv2->AsOp()->gtOp2->IsCnsIntOrI()))
             {
                 /* For valuetype arrays where we can't use the scaled address
                    mode, rv2 will point to the scaled index. So we have to do
@@ -1760,7 +1760,7 @@ void CodeGen::genExitCode(BasicBlock* block)
 // genJumpToThrowHlpBlk: Generate code for an out-of-line exception.
 //
 // Notes:
-//   For code that uses throw helper blocks, we share the helper blocks created by fgAddCodeRef().
+//   For code that uses throw helper blocks, we share the helper blocks created by fgAddCode()->
 //   Otherwise, we generate the 'throw' inline.
 //
 // Arguments:
@@ -2255,7 +2255,7 @@ void CodeGen::genGenerateCode(void** codePtr, ULONG* nativeSizeOfCode)
 #endif
 
 #if EMIT_TRACK_STACK_DEPTH
-    // Check our max stack level. Needed for fgAddCodeRef().
+    // Check our max stack level. Needed for fgAddCode()->
     // We need to relax the assert as our estimation won't include code-gen
     // stack changes (which we know don't affect fgAddCodeRef()).
     // NOTE: after emitEndCodeGen (including here), emitMaxStackDepth is a
@@ -2973,7 +2973,7 @@ CorInfoHelpFunc CodeGenInterface::genWriteBarrierHelperForWriteBarrierForm(GenTr
             {
                 helper = CORINFO_HELP_CHECKED_ASSIGN_REF;
             }
-            else if (tgt->AsOpRef().gtOp1->TypeGet() == TYP_I_IMPL)
+            else if (tgt->AsOp()->gtOp1->TypeGet() == TYP_I_IMPL)
             {
                 helper = CORINFO_HELP_CHECKED_ASSIGN_REF;
             }
@@ -3015,10 +3015,10 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
     {
         GenTree* lcl = NULL;
 
-        GenTree* indArg = tgt->AsOpRef().gtOp1;
-        if (indArg->gtOper == GT_ADDR && indArg->AsOpRef().gtOp1->gtOper == GT_IND)
+        GenTree* indArg = tgt->AsOp()->gtOp1;
+        if (indArg->gtOper == GT_ADDR && indArg->AsOp()->gtOp1->gtOper == GT_IND)
         {
-            indArg = indArg->AsOpRef().gtOp1->AsOpRef().gtOp1;
+            indArg = indArg->AsOp()->gtOp1->AsOp()->gtOp1;
         }
         if (indArg->gtOper == GT_LCL_VAR)
         {
@@ -3026,13 +3026,13 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
         }
         else if (indArg->gtOper == GT_ADD)
         {
-            if (indArg->AsOpRef().gtOp1->gtOper == GT_LCL_VAR)
+            if (indArg->AsOp()->gtOp1->gtOper == GT_LCL_VAR)
             {
-                lcl = indArg->AsOpRef().gtOp1;
+                lcl = indArg->AsOp()->gtOp1;
             }
-            else if (indArg->AsOpRef().gtOp2->gtOper == GT_LCL_VAR)
+            else if (indArg->AsOp()->gtOp2->gtOper == GT_LCL_VAR)
             {
-                lcl = indArg->AsOpRef().gtOp2;
+                lcl = indArg->AsOp()->gtOp2;
             }
         }
         if (lcl != NULL)
@@ -3055,7 +3055,7 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
         else
         {
             // We should have eliminated the barrier for this case.
-            assert(!(indArg->gtOper == GT_ADDR && indArg->AsOpRef().gtOp1->gtOper == GT_LCL_VAR));
+            assert(!(indArg->gtOper == GT_ADDR && indArg->AsOp()->gtOp1->gtOper == GT_LCL_VAR));
         }
     }
 
@@ -8447,7 +8447,7 @@ void CodeGen::genFnEpilog(BasicBlock* block)
 
     if (jmpEpilog && lastNode->gtOper == GT_JMP)
     {
-        methHnd = (CORINFO_METHOD_HANDLE)lastNode->AsValRef().gtVal1;
+        methHnd = (CORINFO_METHOD_HANDLE)lastNode->AsVal()->gtVal1;
         compiler->info.compCompHnd->getFunctionEntryPoint(methHnd, &addrInfo);
     }
 
@@ -8927,7 +8927,7 @@ void CodeGen::genFnEpilog(BasicBlock* block)
         {
             // Simply emit a jump to the methodHnd. This is similar to a call so we can use
             // the same descriptor with some minor adjustments.
-            CORINFO_METHOD_HANDLE methHnd = (CORINFO_METHOD_HANDLE)jmpNode->AsValRef().gtVal1;
+            CORINFO_METHOD_HANDLE methHnd = (CORINFO_METHOD_HANDLE)jmpNode->AsVal()->gtVal1;
 
             CORINFO_CONST_LOOKUP addrInfo;
             compiler->info.compCompHnd->getFunctionEntryPoint(methHnd, &addrInfo);

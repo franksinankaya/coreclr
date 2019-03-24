@@ -157,7 +157,7 @@ void CodeGen::genCodeForTreeNode(GenTree* treeNode)
 
         case GT_BITCAST:
         {
-            GenTree* op1 = treeNode->AsOpRef().gtOp1;
+            GenTree* op1 = treeNode->AsOp()->gtOp1;
             if (varTypeIsFloating(treeNode) != varTypeIsFloating(op1))
             {
 #ifdef _TARGET_ARM64_
@@ -436,7 +436,7 @@ void CodeGen::genCodeForTreeNode(GenTree* treeNode)
 #ifdef _TARGET_ARM_
 
         case GT_CLS_VAR_ADDR:
-            emit->emitIns_R_C(INS_lea, EA_PTRSIZE, targetReg, treeNode->AsClsVarRef().gtClsVarHnd, 0);
+            emit->emitIns_R_C(INS_lea, EA_PTRSIZE, targetReg, treeNode->AsClsVar()->gtClsVarHnd, 0);
             genProduceReg(treeNode);
             break;
 
@@ -496,13 +496,13 @@ void CodeGen::genIntrinsic(GenTree* treeNode)
     assert(treeNode->OperIs(GT_INTRINSIC));
 
     // Both operand and its result must be of the same floating point type.
-    GenTree* srcNode = treeNode->AsOpRef().gtOp1;
+    GenTree* srcNode = treeNode->AsOp()->gtOp1;
     assert(varTypeIsFloating(srcNode));
     assert(srcNode->TypeGet() == treeNode->TypeGet());
 
     // Right now only Abs/Ceiling/Floor/Round/Sqrt are treated as math intrinsics.
     //
-    switch (treeNode->AsIntrinsicRef().gtIntrinsicId)
+    switch (treeNode->AsIntrinsic()->gtIntrinsicId)
     {
         case CORINFO_INTRINSIC_Abs:
             genConsumeOperands(treeNode->AsOp());
@@ -688,7 +688,7 @@ void CodeGen::genPutArgStk(GenTreePutArgStk* treeNode)
             {
                 assert(source->OperGet() == GT_OBJ);
 
-                addrNode = source->AsOpRef().gtOp1;
+                addrNode = source->AsOp()->gtOp1;
 
                 // addrNode can either be a GT_LCL_VAR_ADDR or an address expression
                 //
@@ -765,7 +765,7 @@ void CodeGen::genPutArgStk(GenTreePutArgStk* treeNode)
                 }
 #endif // _TARGET_ARM64_
 
-                CORINFO_CLASS_HANDLE objClass = source->AsObjRef().gtClass;
+                CORINFO_CLASS_HANDLE objClass = source->AsObj()->gtClass;
 
                 structSize = compiler->info.compCompHnd->getClassSize(objClass);
                 isHfa      = compiler->IsHfa(objClass);
@@ -1058,7 +1058,7 @@ void CodeGen::genPutArgSplit(GenTreePutArgSplit* treeNode)
         GenTreeLclVarCommon* varNode  = nullptr;
         GenTree*             addrNode = nullptr;
 
-        addrNode = source->AsOpRef().gtOp1;
+        addrNode = source->AsOp()->gtOp1;
 
         // addrNode can either be a GT_LCL_VAR_ADDR or an address expression
         //
@@ -1118,7 +1118,7 @@ void CodeGen::genPutArgSplit(GenTreePutArgSplit* treeNode)
             assert(baseReg != addrReg);
 
             // We don't split HFA struct
-            assert(!compiler->IsHfa(source->AsObjRef().gtClass));
+            assert(!compiler->IsHfa(source->AsObj()->gtClass));
         }
 
         // Put on stack first
@@ -1577,7 +1577,7 @@ void CodeGen::genCodeForShift(GenTree* tree)
     else
     {
         unsigned immWidth   = emitter::getBitWidth(size); // For ARM64, immWidth will be set to 32 or 64
-        unsigned shiftByImm = (unsigned)shiftBy->AsIntConRef().gtIconVal & (immWidth - 1);
+        unsigned shiftByImm = (unsigned)shiftBy->AsIntCon()->gtIconVal & (immWidth - 1);
 
         getEmitter()->emitIns_R_R_I(ins, size, tree->GetRegNum(), operand->GetRegNum(), shiftByImm);
     }
@@ -2037,8 +2037,8 @@ void CodeGen::genCodeForLoadOffset(instruction ins, emitAttr size, regNumber dst
     if (base->OperIsLocalAddr())
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
-            offset += base->AsLclFldRef().gtLclOffs;
-        emit->emitIns_R_S(ins, size, dst, base->AsLclVarCommonRef().GetLclNum(), offset);
+            offset += base->AsLclFld()->gtLclOffs;
+        emit->emitIns_R_S(ins, size, dst, base->AsLclVarCommon()->GetLclNum(), offset);
     }
     else
     {
@@ -2056,8 +2056,8 @@ void CodeGen::genCodeForStoreOffset(instruction ins, emitAttr size, regNumber sr
     if (base->OperIsLocalAddr())
     {
         if (base->gtOper == GT_LCL_FLD_ADDR)
-            offset += base->AsLclFldRef().gtLclOffs;
-        emit->emitIns_S_R(ins, size, src, base->AsLclVarCommonRef().GetLclNum(), offset);
+            offset += base->AsLclFld()->gtLclOffs;
+        emit->emitIns_S_R(ins, size, src, base->AsLclVarCommon()->GetLclNum(), offset);
     }
     else
     {
@@ -2083,7 +2083,7 @@ void CodeGen::genCodeForStoreOffset(instruction ins, emitAttr size, regNumber sr
 void CodeGen::genRegCopy(GenTree* treeNode)
 {
     assert(treeNode->OperGet() == GT_COPY);
-    GenTree* op1 = treeNode->AsOpRef().gtOp1;
+    GenTree* op1 = treeNode->AsOp()->gtOp1;
 
     regNumber sourceReg = genConsumeReg(op1);
 
@@ -2227,7 +2227,7 @@ void CodeGen::genCallInstruction(GenTreeCall* call)
             regNumber       argReg       = curArgTabEntry->getRegNum();
             for (; argListPtr != nullptr; argListPtr = argListPtr->Rest(), iterationNum++)
             {
-                GenTree* putArgRegNode = argListPtr->AsOpRef().gtOp1;
+                GenTree* putArgRegNode = argListPtr->AsOp()->gtOp1;
                 assert(putArgRegNode->gtOper == GT_PUTARG_REG);
 
                 genConsumeReg(putArgRegNode);
@@ -3075,7 +3075,7 @@ void CodeGen::genFloatToFloatCast(GenTree* treeNode)
     regNumber targetReg = treeNode->GetRegNum();
     assert(genIsValidFloatReg(targetReg));
 
-    GenTree* op1 = treeNode->AsOpRef().gtOp1;
+    GenTree* op1 = treeNode->AsOp()->gtOp1;
     assert(!op1->isContained());                  // Cannot be contained
     assert(genIsValidFloatReg(op1->GetRegNum())); // Must be a valid float reg.
 

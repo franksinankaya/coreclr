@@ -491,7 +491,7 @@ void Compiler::getStructGcPtrsFromOp(GenTree* op, BYTE* gcPtrsOut)
 #ifdef _TARGET_ARM64_
     if (op->OperGet() == GT_OBJ)
     {
-        CORINFO_CLASS_HANDLE objClass = op->AsObjRef().gtClass;
+        CORINFO_CLASS_HANDLE objClass = op->AsObj()->gtClass;
 
         int structSize = info.compCompHnd->getClassSize(objClass);
         assert(structSize <= 2 * TARGET_POINTER_SIZE);
@@ -7026,14 +7026,14 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
 
     if (kind & GTK_SMPOP)
     {
-        if (from->AsOpRef().gtOp1 != nullptr)
+        if (from->AsOp()->gtOp1 != nullptr)
         {
-            assert(to->AsOpRef().gtOp1 != nullptr);
-            CopyTestDataToCloneTree(from->AsOpRef().gtOp1, to->AsOpRef().gtOp1);
+            assert(to->AsOp()->gtOp1 != nullptr);
+            CopyTestDataToCloneTree(from->AsOp()->gtOp1, to->AsOp()->gtOp1);
         }
         else
         {
-            assert(to->AsOpRef().gtOp1 == nullptr);
+            assert(to->AsOp()->gtOp1 == nullptr);
         }
 
         if (from->gtGetOp2IfPresent() != nullptr)
@@ -7054,40 +7054,40 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
     switch (oper)
     {
         case GT_STMT:
-            CopyTestDataToCloneTree(from->AsStmtRef().gtStmtExpr, to->AsStmtRef().gtStmtExpr);
+            CopyTestDataToCloneTree(from->AsStmt()->gtStmtExpr, to->AsStmt()->gtStmtExpr);
             return;
 
         case GT_CALL:
-            CopyTestDataToCloneTree(from->AsCallRef().gtCallObjp, to->AsCallRef().gtCallObjp);
-            CopyTestDataToCloneTree(from->AsCallRef().gtCallArgs, to->AsCallRef().gtCallArgs);
-            CopyTestDataToCloneTree(from->AsCallRef().gtCallLateArgs, to->AsCallRef().gtCallLateArgs);
+            CopyTestDataToCloneTree(from->AsCall()->gtCallObjp, to->AsCall()->gtCallObjp);
+            CopyTestDataToCloneTree(from->AsCall()->gtCallArgs, to->AsCall()->gtCallArgs);
+            CopyTestDataToCloneTree(from->AsCall()->gtCallLateArgs, to->AsCall()->gtCallLateArgs);
 
-            if (from->AsCallRef().gtCallType == CT_INDIRECT)
+            if (from->AsCall()->gtCallType == CT_INDIRECT)
             {
-                CopyTestDataToCloneTree(from->AsCallRef().gtCallCookie, to->AsCallRef().gtCallCookie);
-                CopyTestDataToCloneTree(from->AsCallRef().gtCallAddr, to->AsCallRef().gtCallAddr);
+                CopyTestDataToCloneTree(from->AsCall()->gtCallCookie, to->AsCall()->gtCallCookie);
+                CopyTestDataToCloneTree(from->AsCall()->gtCallAddr, to->AsCall()->gtCallAddr);
             }
             // The other call types do not have additional GenTree arguments.
 
             return;
 
         case GT_FIELD:
-            CopyTestDataToCloneTree(from->AsFieldRef().gtFldObj, to->AsFieldRef().gtFldObj);
+            CopyTestDataToCloneTree(from->AsField()->gtFldObj, to->AsField()->gtFldObj);
             return;
 
         case GT_ARR_ELEM:
-            assert(from->AsArrElemRef().gtArrRank == to->AsArrElemRef().gtArrRank);
-            for (unsigned dim = 0; dim < from->AsArrElemRef().gtArrRank; dim++)
+            assert(from->AsArrElem()->gtArrRank == to->AsArrElem()->gtArrRank);
+            for (unsigned dim = 0; dim < from->AsArrElem()->gtArrRank; dim++)
             {
-                CopyTestDataToCloneTree(from->AsArrElemRef().gtArrInds[dim], to->AsArrElemRef().gtArrInds[dim]);
+                CopyTestDataToCloneTree(from->AsArrElem()->gtArrInds[dim], to->AsArrElem()->gtArrInds[dim]);
             }
-            CopyTestDataToCloneTree(from->AsArrElemRef().gtArrObj, to->AsArrElemRef().gtArrObj);
+            CopyTestDataToCloneTree(from->AsArrElem()->gtArrObj, to->AsArrElem()->gtArrObj);
             return;
 
         case GT_CMPXCHG:
-            CopyTestDataToCloneTree(from->AsCmpXchgRef().gtOpLocation, to->AsCmpXchgRef().gtOpLocation);
-            CopyTestDataToCloneTree(from->AsCmpXchgRef().gtOpValue, to->AsCmpXchgRef().gtOpValue);
-            CopyTestDataToCloneTree(from->AsCmpXchgRef().gtOpComparand, to->AsCmpXchgRef().gtOpComparand);
+            CopyTestDataToCloneTree(from->AsCmpXchg()->gtOpLocation, to->AsCmpXchg()->gtOpLocation);
+            CopyTestDataToCloneTree(from->AsCmpXchg()->gtOpValue, to->AsCmpXchg()->gtOpValue);
+            CopyTestDataToCloneTree(from->AsCmpXchg()->gtOpComparand, to->AsCmpXchg()->gtOpComparand);
             return;
 
         case GT_ARR_BOUNDS_CHECK:
@@ -7097,8 +7097,8 @@ void Compiler::CopyTestDataToCloneTree(GenTree* from, GenTree* to)
 #ifdef FEATURE_HW_INTRINSICS
         case GT_HW_INTRINSIC_CHK:
 #endif // FEATURE_HW_INTRINSICS
-            CopyTestDataToCloneTree(from->AsBoundsChkRef().gtIndex, to->AsBoundsChkRef().gtIndex);
-            CopyTestDataToCloneTree(from->AsBoundsChkRef().gtArrLen, to->AsBoundsChkRef().gtArrLen);
+            CopyTestDataToCloneTree(from->AsBoundsChk()->gtIndex, to->AsBoundsChk()->gtIndex);
+            CopyTestDataToCloneTree(from->AsBoundsChk()->gtArrLen, to->AsBoundsChk()->gtArrLen);
             return;
 
         default:
@@ -7198,9 +7198,9 @@ void Compiler::compCallArgStats()
 
                 argTotalCalls++;
 
-                if (!call->AsCallRef().gtCallObjp)
+                if (!call->AsCall()->gtCallObjp)
                 {
-                    if (call->AsCallRef().gtCallType == CT_HELPER)
+                    if (call->AsCall()->gtCallType == CT_HELPER)
                     {
                         argHelperCalls++;
                     }
@@ -9639,17 +9639,17 @@ int cSsaNumIR(Compiler* comp, GenTree* tree)
 {
     int chars = 0;
 
-    if (tree->AsLclVarCommonRef().HasSsaName())
+    if (tree->AsLclVarCommon()->HasSsaName())
     {
         if (tree->gtFlags & GTF_VAR_USEASG)
         {
             assert(tree->gtFlags & GTF_VAR_DEF);
-            chars += printf("<u:%d><d:%d>", tree->AsLclVarCommonRef().GetSsaNum(), comp->GetSsaNumForLocalVarDef(tree));
+            chars += printf("<u:%d><d:%d>", tree->AsLclVarCommon()->GetSsaNum(), comp->GetSsaNumForLocalVarDef(tree));
         }
         else
         {
             chars +=
-                printf("<%s:%d>", (tree->gtFlags & GTF_VAR_DEF) ? "d" : "u", tree->AsLclVarCommonRef().GetSsaNum());
+                printf("<%s:%d>", (tree->gtFlags & GTF_VAR_DEF) ? "d" : "u", tree->AsLclVarCommon()->GetSsaNum());
         }
     }
 
@@ -9750,7 +9750,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
         case GT_LCL_VAR:
         case GT_LCL_VAR_ADDR:
         case GT_STORE_LCL_VAR:
-            lclNum = tree->AsLclVarCommonRef().GetLclNum();
+            lclNum = tree->AsLclVarCommon()->GetLclNum();
             comp->gtGetLclVarNameInfo(lclNum, &ilKind, &ilName, &ilNum);
             if (ilName != nullptr)
             {
@@ -9814,15 +9814,15 @@ int cLeafIR(Compiler* comp, GenTree* tree)
         case GT_LCL_FLD_ADDR:
         case GT_STORE_LCL_FLD:
 
-            lclNum = tree->AsLclVarCommonRef().GetLclNum();
+            lclNum = tree->AsLclVarCommon()->GetLclNum();
             comp->gtGetLclVarNameInfo(lclNum, &ilKind, &ilName, &ilNum);
             if (ilName != nullptr)
             {
-                chars += printf("%s+%u", ilName, tree->AsLclFldRef().gtLclOffs);
+                chars += printf("%s+%u", ilName, tree->AsLclFld()->gtLclOffs);
             }
             else
             {
-                chars += printf("%s%d+%u", ilKind, ilNum, tree->AsLclFldRef().gtLclOffs);
+                chars += printf("%s%d+%u", ilKind, ilNum, tree->AsLclFld()->gtLclOffs);
                 LclVarDsc* varDsc = comp->lvaTable + lclNum;
                 if (comp->dumpIRLocals)
                 {
@@ -9872,7 +9872,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
             }
 
             // TODO: We probably want to expand field sequence.
-            // gtDispFieldSeq(tree->AsLclFldRef().gtFieldSeq);
+            // gtDispFieldSeq(tree->AsLclFld()->gtFieldSeq);
 
             hasSsa = true;
             break;
@@ -9901,34 +9901,34 @@ int cLeafIR(Compiler* comp, GenTree* tree)
 
             case GTF_ICON_CLASS_HDL:
 
-                className = comp->eeGetClassName((CORINFO_CLASS_HANDLE)tree->AsIntConRef().gtIconVal);
+                className = comp->eeGetClassName((CORINFO_CLASS_HANDLE)tree->AsIntCon()->gtIconVal);
                 chars += printf("CLASS(%s)", className);
                 break;
 
             case GTF_ICON_METHOD_HDL:
 
-                methodName = comp->eeGetMethodName((CORINFO_METHOD_HANDLE)tree->AsIntConRef().gtIconVal,
+                methodName = comp->eeGetMethodName((CORINFO_METHOD_HANDLE)tree->AsIntCon()->gtIconVal,
                     &className);
                 chars += printf("METHOD(%s.%s)", className, methodName);
                 break;
 
             case GTF_ICON_FIELD_HDL:
 
-                fieldName = comp->eeGetFieldName((CORINFO_FIELD_HANDLE)tree->AsIntConRef().gtIconVal,
+                fieldName = comp->eeGetFieldName((CORINFO_FIELD_HANDLE)tree->AsIntCon()->gtIconVal,
                     &className);
                 chars += printf("FIELD(%s.%s) ", className, fieldName);
                 break;
 
             case GTF_ICON_STATIC_HDL:
 
-                fieldName = comp->eeGetFieldName((CORINFO_FIELD_HANDLE)tree->AsIntConRef().gtIconVal,
+                fieldName = comp->eeGetFieldName((CORINFO_FIELD_HANDLE)tree->AsIntCon()->gtIconVal,
                     &className);
                 chars += printf("STATIC_FIELD(%s.%s)", className, fieldName);
                 break;
 
             case GTF_ICON_STR_HDL:
 
-                str = comp->eeGetCPString(tree->AsIntConRef().gtIconVal);
+                str = comp->eeGetCPString(tree->AsIntCon()->gtIconVal);
                 chars += printf("\"%S\"", str);
                 break;
 
@@ -9954,7 +9954,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
 
             case GTF_ICON_TOKEN_HDL:
 
-                chars += printf("TOKEN(%08X)", tree->AsIntConRef().gtIconVal);
+                chars += printf("TOKEN(%08X)", tree->AsIntCon()->gtIconVal);
                 break;
 
             case GTF_ICON_TLS_HDL:
@@ -9984,14 +9984,14 @@ int cLeafIR(Compiler* comp, GenTree* tree)
             }
 #else
 #ifdef _TARGET_64BIT_
-                if ((tree->AsIntConRef().gtIconVal & 0xFFFFFFFF00000000LL) != 0)
+                if ((tree->AsIntCon()->gtIconVal & 0xFFFFFFFF00000000LL) != 0)
                 {
-                    chars += printf("HANDLE(0x%llx)", dspPtr(tree->AsIntConRef().gtIconVal));
+                    chars += printf("HANDLE(0x%llx)", dspPtr(tree->AsIntCon()->gtIconVal));
                 }
                 else
 #endif
                 {
-                    chars += printf("HANDLE(0x%0x)", dspPtr(tree->AsIntConRef().gtIconVal));
+                    chars += printf("HANDLE(0x%0x)", dspPtr(tree->AsIntCon()->gtIconVal));
                 }
 #endif
             }
@@ -9999,18 +9999,18 @@ int cLeafIR(Compiler* comp, GenTree* tree)
             {
                 if (tree->TypeGet() == TYP_REF)
                 {
-                    assert(tree->AsIntConRef().gtIconVal == 0);
+                    assert(tree->AsIntCon()->gtIconVal == 0);
                     chars += printf("null");
                 }
 #ifdef _TARGET_64BIT_
-                else if ((tree->AsIntConRef().gtIconVal & 0xFFFFFFFF00000000LL) != 0)
+                else if ((tree->AsIntCon()->gtIconVal & 0xFFFFFFFF00000000LL) != 0)
                 {
-                    chars += printf("0x%llx", tree->AsIntConRef().gtIconVal);
+                    chars += printf("0x%llx", tree->AsIntCon()->gtIconVal);
                 }
                 else
 #endif
                 {
-                    chars += printf("%ld(0x%x)", tree->AsIntConRef().gtIconVal, tree->AsIntConRef().gtIconVal);
+                    chars += printf("%ld(0x%x)", tree->AsIntCon()->gtIconVal, tree->AsIntCon()->gtIconVal);
                 }
             }
             break;
@@ -10036,7 +10036,7 @@ int cLeafIR(Compiler* comp, GenTree* tree)
             const char* methodName;
             const char* className;
 
-            methodName = comp->eeGetMethodName((CORINFO_METHOD_HANDLE)tree->AsValRef().gtVal1, &className);
+            methodName = comp->eeGetMethodName((CORINFO_METHOD_HANDLE)tree->AsVal()->gtVal1, &className);
             chars += printf(" %s.%s", className, methodName);
         }
         break;
@@ -10055,12 +10055,12 @@ int cLeafIR(Compiler* comp, GenTree* tree)
 
         case GT_RET_EXPR:
 
-            chars += printf("t%d", tree->AsRetExprRef().gtInlineCandidate->gtTreeID);
+            chars += printf("t%d", tree->AsRetExpr()->gtInlineCandidate->gtTreeID);
             break;
 
         case GT_PHYSREG:
 
-            chars += printf("%s", getRegName(tree->AsPhysRegRef().gtSrcReg, varTypeIsFloating(tree)));
+            chars += printf("%s", getRegName(tree->AsPhysReg()->gtSrcReg, varTypeIsFloating(tree)));
             break;
 
         case GT_LABEL:
@@ -10068,13 +10068,13 @@ int cLeafIR(Compiler* comp, GenTree* tree)
 
         case GT_IL_OFFSET:
 
-            if (tree->AsStmtRef().gtStmtILoffsx == BAD_IL_OFFSET)
+            if (tree->AsStmt()->gtStmtILoffsx == BAD_IL_OFFSET)
             {
                 chars += printf("?");
             }
             else
             {
-                chars += printf("0x%x", jitGetILoffs(tree->AsStmtRef().gtStmtILoffsx));
+                chars += printf("0x%x", jitGetILoffs(tree->AsStmt()->gtStmtILoffsx));
             }
             break;
 
@@ -10580,7 +10580,7 @@ void cNodeIR(Compiler* comp, GenTree* tree)
     }
     else if (op == GT_INTRINSIC)
     {
-        CorInfoIntrinsics intrin = tree->AsIntrinsicRef().gtIntrinsicId;
+        CorInfoIntrinsics intrin = tree->AsIntrinsic()->gtIntrinsicId;
 
         chars += printf(":");
         switch (intrin)
@@ -10665,7 +10665,7 @@ void cNodeIR(Compiler* comp, GenTree* tree)
 
         {
             const char* className = nullptr;
-            const char* fieldName = comp->eeGetFieldName(tree->AsFieldRef().gtFldHnd, &className);
+            const char* fieldName = comp->eeGetFieldName(tree->AsField()->gtFldHnd, &className);
 
             chars += printf(" %s.%s", className, fieldName);
         }
@@ -10673,12 +10673,12 @@ void cNodeIR(Compiler* comp, GenTree* tree)
 
         case GT_CALL:
 
-            if (tree->AsCallRef().gtCallType != CT_INDIRECT)
+            if (tree->AsCall()->gtCallType != CT_INDIRECT)
             {
                 const char* methodName;
                 const char* className;
 
-                methodName = comp->eeGetMethodName(tree->AsCallRef().gtCallMethHnd, &className);
+                methodName = comp->eeGetMethodName(tree->AsCall()->gtCallMethHnd, &className);
 
                 chars += printf(" %s.%s", className, methodName);
             }
@@ -10744,10 +10744,10 @@ void cNodeIR(Compiler* comp, GenTree* tree)
     }
     else if (op == GT_PHI)
     {
-        if (tree->AsOpRef().gtOp1 != nullptr)
+        if (tree->AsOp()->gtOp1 != nullptr)
         {
             bool first = true;
-            for (GenTreeArgList* args = tree->AsOpRef().gtOp1->AsArgList(); args != nullptr; args = args->Rest())
+            for (GenTreeArgList* args = tree->AsOp()->gtOp1->AsArgList(); args != nullptr; args = args->Rest())
             {
                 child = args->Current();
                 if (!first)

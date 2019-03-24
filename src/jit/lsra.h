@@ -544,11 +544,11 @@ inline bool leafInRange(GenTree* leaf, int lower, int upper)
     {
         return false;
     }
-    if (leaf->AsIntConRef().gtIconVal < lower)
+    if (leaf->AsIntCon()->gtIconVal < lower)
     {
         return false;
     }
-    if (leaf->AsIntConRef().gtIconVal > upper)
+    if (leaf->AsIntCon()->gtIconVal > upper)
     {
         return false;
     }
@@ -562,7 +562,7 @@ inline bool leafInRange(GenTree* leaf, int lower, int upper, int multiple)
     {
         return false;
     }
-    if (leaf->AsIntConRef().gtIconVal % multiple)
+    if (leaf->AsIntCon()->gtIconVal % multiple)
     {
         return false;
     }
@@ -1008,9 +1008,9 @@ private:
     {
         if (tree->IsLocal())
         {
-            unsigned int lclNum = tree->AsLclVarCommonRef().GetLclNum();
+            unsigned int lclNum = tree->AsLclVarCommon()->GetLclNum();
             assert(lclNum < compiler->lvaCount);
-            LclVarDsc* varDsc = compiler->lvaTable + tree->AsLclVarCommonRef().GetLclNum();
+            LclVarDsc* varDsc = compiler->lvaTable + tree->AsLclVarCommon()->GetLclNum();
 
             return isCandidateVar(varDsc);
         }

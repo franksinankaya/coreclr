@@ -201,15 +201,15 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
                 // it to a larger constant whose size is sufficient to support
                 // the largest width store of the desired inline expansion.
 
-                ssize_t fill = initVal->AsIntConRef().gtIconVal & 0xFF;
+                ssize_t fill = initVal->AsIntCon()->gtIconVal & 0xFF;
 #ifdef _TARGET_AMD64_
                 if (size < REGSIZE_BYTES)
                 {
-                    initVal->AsIntConRef().gtIconVal = 0x01010101 * fill;
+                    initVal->AsIntCon()->gtIconVal = 0x01010101 * fill;
                 }
                 else
                 {
-                    initVal->AsIntConRef().gtIconVal = 0x0101010101010101LL * fill;
+                    initVal->AsIntCon()->gtIconVal = 0x0101010101010101LL * fill;
                     initVal->gtType                  = TYP_LONG;
                     if ((fill == 0) && ((size & 0xf) == 0))
                     {
@@ -217,7 +217,7 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
                     }
                 }
 #else  // !_TARGET_AMD64_
-                initVal->AsIntConRef().gtIconVal = 0x01010101 * fill;
+                initVal->AsIntCon()->gtIconVal = 0x01010101 * fill;
 #endif // !_TARGET_AMD64_
 
                 if ((fill == 0) && ((size & 0xf) == 0))
@@ -598,7 +598,7 @@ void Lowering::LowerPutArgStk(GenTreePutArgStk* putArgStk)
     bool haveLocalAddr = false;
     if ((src->OperGet() == GT_OBJ) || (src->OperGet() == GT_IND))
     {
-        srcAddr = src->AsOpRef().gtOp1;
+        srcAddr = src->AsOp()->gtOp1;
         assert(srcAddr != nullptr);
         haveLocalAddr = srcAddr->OperIsLocalAddr();
     }
@@ -700,7 +700,7 @@ void Lowering::LowerCast(GenTree* tree)
 {
     assert(tree->OperGet() == GT_CAST);
 
-    GenTree*  castOp     = tree->AsCastRef().CastOp();
+    GenTree*  castOp     = tree->AsCast()->CastOp();
     var_types castToType = tree->CastToType();
     var_types srcType    = castOp->TypeGet();
     var_types tmpType    = TYP_UNDEF;
@@ -754,7 +754,7 @@ void Lowering::LowerCast(GenTree* tree)
         tmp->gtFlags |= (tree->gtFlags & (GTF_OVERFLOW | GTF_EXCEPT));
 
         tree->gtFlags &= ~GTF_UNSIGNED;
-        tree->AsOpRef().gtOp1 = tmp;
+        tree->AsOp()->gtOp1 = tmp;
         BlockRange().InsertAfter(castOp, tmp);
         ContainCheckCast(tmp->AsCast());
     }
@@ -1464,22 +1464,22 @@ void Lowering::ContainCheckCallOperands(GenTreeCall* call)
     GenTree* args = call->gtCallArgs;
     while (args)
     {
-        GenTree* arg = args->AsOpRef().gtOp1;
+        GenTree* arg = args->AsOp()->gtOp1;
         if (arg->gtOper == GT_PUTARG_STK)
         {
             LowerPutArgStk(arg->AsPutArgStk());
         }
-        args = args->AsOpRef().gtOp2;
+        args = args->AsOp()->gtOp2;
     }
     args = call->gtCallLateArgs;
     while (args)
     {
-        GenTree* arg = args->AsOpRef().gtOp1;
+        GenTree* arg = args->AsOp()->gtOp1;
         if (arg->gtOper == GT_PUTARG_STK)
         {
             LowerPutArgStk(arg->AsPutArgStk());
         }
-        args = args->AsOpRef().gtOp2;
+        args = args->AsOp()->gtOp2;
     }
 }
 
@@ -1571,7 +1571,7 @@ void Lowering::ContainCheckStoreIndir(GenTreeIndir* node)
     // If the source is a containable immediate, make it contained, unless it is
     // an int-size or larger store of zero to memory, because we can generate smaller code
     // by zeroing a register and then storing it.
-    GenTree* src = node->AsOpRef().gtOp2;
+    GenTree* src = node->AsOp()->gtOp2;
     if (IsContainableImmed(node, src) &&
         (!src->IsIntegralConst(0) || varTypeIsSmall(node) || node->gtGetOp1()->OperGet() == GT_CLS_VAR_ADDR))
     {
@@ -1601,8 +1601,8 @@ void Lowering::ContainCheckMul(GenTreeOp* node)
         return;
     }
 
-    GenTree* op1 = node->AsOpRef().gtOp1;
-    GenTree* op2 = node->AsOpRef().gtOp2;
+    GenTree* op1 = node->AsOp()->gtOp1;
+    GenTree* op2 = node->AsOp()->gtOp2;
 
     bool isSafeToContainOp1 = true;
     bool isSafeToContainOp2 = true;
@@ -1808,8 +1808,8 @@ void Lowering::ContainCheckShiftRotate(GenTreeOp* node)
 #endif // !_TARGET_X86_
 
     GenTree* shiftBy = node->gtOp2;
-    if (IsContainableImmed(node, shiftBy) && (shiftBy->AsIntConCommonRef().IconValue() <= 255) &&
-        (shiftBy->AsIntConCommonRef().IconValue() >= 0))
+    if (IsContainableImmed(node, shiftBy) && (shiftBy->AsIntConCommon()->IconValue() <= 255) &&
+        (shiftBy->AsIntConCommon()->IconValue() >= 0))
     {
         MakeSrcContained(node, shiftBy);
     }
@@ -1917,8 +1917,8 @@ void Lowering::ContainCheckCompare(GenTreeOp* cmp)
 {
     assert(cmp->OperIsCompare() || cmp->OperIs(GT_CMP));
 
-    GenTree*  op1     = cmp->AsOpRef().gtOp1;
-    GenTree*  op2     = cmp->AsOpRef().gtOp2;
+    GenTree*  op1     = cmp->AsOp()->gtOp1;
+    GenTree*  op2     = cmp->AsOp()->gtOp2;
     var_types op1Type = op1->TypeGet();
     var_types op2Type = op2->TypeGet();
 
@@ -2306,7 +2306,7 @@ void Lowering::ContainCheckIntrinsic(GenTreeOp* node)
 {
     assert(node->OperIs(GT_INTRINSIC));
 
-    CorInfoIntrinsics intrinsicId = node->AsIntrinsicRef().gtIntrinsicId;
+    CorInfoIntrinsics intrinsicId = node->AsIntrinsic()->gtIntrinsicId;
 
     if (intrinsicId == CORINFO_INTRINSIC_Sqrt || intrinsicId == CORINFO_INTRINSIC_Round ||
         intrinsicId == CORINFO_INTRINSIC_Ceiling || intrinsicId == CORINFO_INTRINSIC_Floor)
@@ -2341,7 +2341,7 @@ void Lowering::ContainCheckSIMD(GenTreeSIMD* simdNode)
 
         case SIMDIntrinsicInit:
         {
-            op1 = simdNode->AsOpRef().gtOp1;
+            op1 = simdNode->AsOp()->gtOp1;
 #ifndef _TARGET_64BIT_
             if (op1->OperGet() == GT_LONG)
             {
@@ -2399,8 +2399,8 @@ void Lowering::ContainCheckSIMD(GenTreeSIMD* simdNode)
             //  - the source SIMD struct
             //  - index (which element to get)
             // The result is baseType of SIMD struct.
-            op1 = simdNode->AsOpRef().gtOp1;
-            op2 = simdNode->AsOpRef().gtOp2;
+            op1 = simdNode->AsOp()->gtOp1;
+            op2 = simdNode->AsOp()->gtOp2;
 
             if (op1->OperGet() == GT_IND)
             {
@@ -2423,8 +2423,8 @@ void Lowering::ContainCheckSIMD(GenTreeSIMD* simdNode)
 
         case SIMDIntrinsicShuffleSSE2:
             // Second operand is an integer constant and marked as contained.
-            assert(simdNode->AsOpRef().gtOp2->IsCnsIntOrI());
-            MakeSrcContained(simdNode, simdNode->AsOpRef().gtOp2);
+            assert(simdNode->AsOp()->gtOp2->IsCnsIntOrI());
+            MakeSrcContained(simdNode, simdNode->AsOp()->gtOp2);
             break;
 
         default:
