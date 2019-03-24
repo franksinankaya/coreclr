@@ -16217,7 +16217,7 @@ void Compiler::fgSetOptions()
     {
         assert(!codeGen->isGCTypeFixed());
         // Enforce fully interruptible codegen for funclet unwinding
-        genInterruptible = true;
+        setInterruptible(true);
     }
 #endif // UNIX_X86_ABI
 
@@ -16263,7 +16263,7 @@ void Compiler::fgSetOptions()
         codeGen->setFramePointerRequiredGCInfo(true);
     }
 
-    // printf("method will %s be fully interruptible\n", genInterruptible ? "   " : "not");
+    // printf("method will %s be fully interruptible\n", getInterruptible() ? "   " : "not");
 }
 
 /*****************************************************************************/

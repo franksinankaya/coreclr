@@ -276,7 +276,7 @@ public:
 #endif // !DOUBLE_ALIGN
 
 #ifdef DEBUG
-    // The following is used to make sure the value of 'genInterruptible' isn't
+    // The following is used to make sure the value of 'getInterruptible()' isn't
     // changed after it's been used by any logic that depends on its value.
 public:
     bool isGCTypeFixed()
@@ -376,7 +376,7 @@ private:
 
     //  The following will be set to true if we've determined that we need to
     //  generate a full-blown pointer register map for the current method.
-    //  Currently it is equal to (genInterruptible || !isFramePointerUsed())
+    //  Currently it is equal to (getInterruptible() || !isFramePointerUsed())
     //  (i.e. We generate the full-blown map for EBP-less methods and
     //        for fully interruptible methods)
     //
