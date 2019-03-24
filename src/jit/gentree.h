@@ -335,10 +335,6 @@ struct GenTree
     {                                                                                                                  \
         assert(OperIsSimple());                                                                                        \
         return reinterpret_cast<const GenTree##fn*>(this);                                                             \
-    }                                                                                                                  \
-    GenTree##fn& As##fn##Ref()                                                                                         \
-    {                                                                                                                  \
-        return *As##fn();                                                                                              \
     }
 
 #define GTSTRUCT_N(fn, ...)                                                                                            \
@@ -351,10 +347,6 @@ struct GenTree
     {                                                                                                                  \
         assert(OperIs(__VA_ARGS__));                                                                                   \
         return reinterpret_cast<const GenTree##fn*>(this);                                                             \
-    }                                                                                                                  \
-    GenTree##fn& As##fn##Ref()                                                                                         \
-    {                                                                                                                  \
-        return *As##fn();                                                                                              \
     }
 
 #define GTSTRUCT_1(fn, en) GTSTRUCT_N(fn, en)
@@ -2337,7 +2329,7 @@ public:
 // used as a base class.  For unary operators, we instantiate GenTreeOp, with a NULL second
 // argument.  We check that this is true dynamically.  We could tighten this and get static
 // checking, but that would entail accessing the first child of a unary operator via something
-// like gtUnOp.gtOp1 instead of AsOpRef().gtOp1.
+// like gtUnOp.gtOp1 instead of AsOp()->gtOp1.
 struct GenTreeUnOp : public GenTree
 {
     GenTree* gtOp1;
@@ -4278,7 +4270,7 @@ struct GenTreeBoundsChk : public GenTree
     {
         if (gtArrLen->OperGet() == GT_ARR_LENGTH)
         {
-            return gtArrLen->AsArrLenRef().ArrRef();
+            return gtArrLen->AsArrLen()->ArrRef();
         }
         else
         {
@@ -5853,7 +5845,7 @@ struct GenTreeCC final : public GenTree
 
 inline bool GenTree::OperIsBlkOp()
 {
-    return ((gtOper == GT_ASG) && varTypeIsStruct(AsOpRef().gtOp1)) || (OperIsBlk() && (AsBlk()->Data() != nullptr));
+    return ((gtOper == GT_ASG) && varTypeIsStruct(AsOp()->gtOp1)) || (OperIsBlk() && (AsBlk()->Data() != nullptr));
 }
 
 inline bool GenTree::OperIsDynBlkOp()
@@ -5900,7 +5892,7 @@ inline bool GenTree::OperIsCopyBlkOp()
 
 inline bool GenTree::IsFPZero()
 {
-    if ((gtOper == GT_CNS_DBL) && (AsDblConRef().gtDconVal == 0.0))
+    if ((gtOper == GT_CNS_DBL) && (AsDblCon()->gtDconVal == 0.0))
     {
         return true;
     }
@@ -5924,12 +5916,12 @@ inline bool GenTree::IsFPZero()
 inline bool GenTree::IsIntegralConst(ssize_t constVal)
 
 {
-    if ((gtOper == GT_CNS_INT) && (AsIntConCommonRef().IconValue() == constVal))
+    if ((gtOper == GT_CNS_INT) && (AsIntConCommon()->IconValue() == constVal))
     {
         return true;
     }
 
-    if ((gtOper == GT_CNS_LNG) && (AsIntConCommonRef().LngValue() == constVal))
+    if ((gtOper == GT_CNS_LNG) && (AsIntConCommon()->LngValue() == constVal))
     {
         return true;
     }
@@ -5952,9 +5944,9 @@ inline bool GenTree::IsIntegralConstVector(ssize_t constVal)
 #ifdef FEATURE_SIMD
     // SIMDIntrinsicInit intrinsic with a const value as initializer
     // represents a const vector.
-    if ((gtOper == GT_SIMD) && (AsSIMDRef().gtSIMDIntrinsicID == SIMDIntrinsicInit) && gtGetOp1()->IsIntegralConst(constVal))
+    if ((gtOper == GT_SIMD) && (AsSIMD()->gtSIMDIntrinsicID == SIMDIntrinsicInit) && gtGetOp1()->IsIntegralConst(constVal))
     {
-        assert(varTypeIsIntegral(AsSIMDRef().gtSIMDBaseType));
+        assert(varTypeIsIntegral(AsSIMD()->gtSIMDBaseType));
         assert(gtGetOp2IfPresent() == nullptr);
         return true;
     }
@@ -5965,7 +5957,7 @@ inline bool GenTree::IsIntegralConstVector(ssize_t constVal)
 
 inline bool GenTree::IsBoxedValue()
 {
-    assert(gtOper != GT_BOX || AsBoxRef().BoxOp() != nullptr);
+    assert(gtOper != GT_BOX || AsBox()->BoxOp() != nullptr);
     return (gtOper == GT_BOX) && (gtFlags & GTF_BOX_VALUE);
 }
 
@@ -5985,7 +5977,7 @@ inline bool GenTree::IsSIMDEqualityOrInequality() const
 inline GenTree* GenTree::MoveNext()
 {
     assert(OperIsAnyList());
-    return AsOpRef().gtOp2;
+    return AsOp()->gtOp2;
 }
 
 #ifdef DEBUG
@@ -6040,13 +6032,13 @@ inline bool GenTree::IsValidCallArgument()
 inline GenTree* GenTree::Current()
 {
     assert(OperIsAnyList());
-    return AsOpRef().gtOp1;
+    return AsOp()->gtOp1;
 }
 
 inline GenTree** GenTree::pCurrent()
 {
     assert(OperIsAnyList());
-    return &(AsOpRef().gtOp1);
+    return &(AsOp()->gtOp1);
 }
 
 inline GenTree* GenTree::gtGetOp1() const
@@ -6108,11 +6100,11 @@ inline GenTree* GenTree::gtGetOp2() const
 
 inline GenTree* GenTree::gtGetOp2IfPresent() const
 {
-    /* AsOpRef().gtOp2 is only valid for GTK_BINOP nodes. */
+    /* AsOp()->gtOp2 is only valid for GTK_BINOP nodes. */
 
     GenTree* op2 = OperIsBinary() ? AsOp()->gtOp2 : nullptr;
 
-    // This documents the genTreeOps for which AsOpRef().gtOp2 cannot be nullptr.
+    // This documents the genTreeOps for which AsOp()->gtOp2 cannot be nullptr.
     // This helps prefix in its analysis of code which calls gtGetOp2()
 
     assert((op2 != nullptr) || !RequiresNonNullOp2(gtOper));
@@ -6127,11 +6119,11 @@ inline GenTree* GenTree::gtEffectiveVal(bool commaOnly)
     {
         if (effectiveVal->gtOper == GT_COMMA)
         {
-            effectiveVal = effectiveVal->AsOpRef().gtOp2;
+            effectiveVal = effectiveVal->AsOp()->gtOp2;
         }
-        else if (!commaOnly && (effectiveVal->gtOper == GT_NOP) && (effectiveVal->AsOpRef().gtOp1 != nullptr))
+        else if (!commaOnly && (effectiveVal->gtOper == GT_NOP) && (effectiveVal->AsOp()->gtOp1 != nullptr))
         {
-            effectiveVal = effectiveVal->AsOpRef().gtOp1;
+            effectiveVal = effectiveVal->AsOp()->gtOp1;
         }
         else
         {
@@ -6158,7 +6150,7 @@ inline GenTree* GenTree::gtRetExprVal()
     {
         if (retExprVal->gtOper == GT_RET_EXPR)
         {
-            retExprVal = retExprVal->AsRetExprRef().gtInlineCandidate;
+            retExprVal = retExprVal->AsRetExpr()->gtInlineCandidate;
         }
         else
         {
@@ -6447,7 +6439,7 @@ inline bool GenTree::IsCnsNonZeroFltOrDbl()
 {
     if (OperGet() == GT_CNS_DBL)
     {
-        double constValue = AsDblConRef().gtDconVal;
+        double constValue = AsDblCon()->gtDconVal;
         return *(__int64*)&constValue != 0;
     }
 
@@ -6456,16 +6448,16 @@ inline bool GenTree::IsCnsNonZeroFltOrDbl()
 
 inline bool GenTree::IsHelperCall()
 {
-    return OperGet() == GT_CALL && AsCallRef().gtCallType == CT_HELPER;
+    return OperGet() == GT_CALL && AsCall()->gtCallType == CT_HELPER;
 }
 
 inline var_types GenTree::CastFromType()
 {
-    return this->AsCastRef().CastOp()->TypeGet();
+    return this->AsCast()->CastOp()->TypeGet();
 }
 inline var_types& GenTree::CastToType()
 {
-    return this->AsCastRef().gtCastType;
+    return this->AsCast()->gtCastType;
 }
 
 //-----------------------------------------------------------------------------------

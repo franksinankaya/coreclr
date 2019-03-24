@@ -37,7 +37,7 @@ void TreeLifeUpdater<ForCodeGen>::UpdateLifeVar(GenTree* tree)
     {
         lclVarTree = tree;
     }
-    unsigned int lclNum = lclVarTree->AsLclVarCommonRef().GetLclNum();
+    unsigned int lclNum = lclVarTree->AsLclVarCommon()->GetLclNum();
     LclVarDsc*   varDsc = compiler->lvaTable + lclNum;
 
 #ifdef DEBUG

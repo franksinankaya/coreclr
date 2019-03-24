@@ -454,9 +454,9 @@ int LinearScan::BuildNode(GenTree* tree)
 
             // Comparand is preferenced to RAX.
             // The remaining two operands can be in any reg other than RAX.
-            BuildUse(tree->AsCmpXchgRef().gtOpLocation, allRegs(TYP_INT) & ~RBM_RAX);
-            BuildUse(tree->AsCmpXchgRef().gtOpValue, allRegs(TYP_INT) & ~RBM_RAX);
-            BuildUse(tree->AsCmpXchgRef().gtOpComparand, RBM_RAX);
+            BuildUse(tree->AsCmpXchg()->gtOpLocation, allRegs(TYP_INT) & ~RBM_RAX);
+            BuildUse(tree->AsCmpXchg()->gtOpValue, allRegs(TYP_INT) & ~RBM_RAX);
+            BuildUse(tree->AsCmpXchg()->gtOpComparand, RBM_RAX);
             BuildDef(tree, RBM_RAX);
         }
         break;
@@ -580,7 +580,7 @@ int LinearScan::BuildNode(GenTree* tree)
             assert(dstCount == 1);
             srcCount                 = 0;
             RefPosition* internalDef = nullptr;
-            if (tree->AsArrOffsRef().gtOffset->isContained())
+            if (tree->AsArrOffs()->gtOffset->isContained())
             {
                 srcCount = 2;
             }
@@ -1675,7 +1675,7 @@ int LinearScan::BuildLclHeap(GenTree* tree)
     {
         assert(size->isContained());
         srcCount       = 0;
-        size_t sizeVal = size->AsIntConRef().gtIconVal;
+        size_t sizeVal = size->AsIntCon()->gtIconVal;
 
         if (sizeVal == 0)
         {
@@ -1822,7 +1822,7 @@ int LinearScan::BuildIntrinsic(GenTree* tree)
     assert(op1->TypeGet() == tree->TypeGet());
     RefPosition* internalFloatDef = nullptr;
 
-    switch (tree->AsIntrinsicRef().gtIntrinsicId)
+    switch (tree->AsIntrinsic()->gtIntrinsicId)
     {
         case CORINFO_INTRINSIC_Abs:
             // Abs(float x) = x & 0x7fffffff
@@ -1837,7 +1837,7 @@ int LinearScan::BuildIntrinsic(GenTree* tree)
             // xmm register. When we add support in emitter to emit 128-bit
             // data constants and instructions that operate on 128-bit
             // memory operands we can avoid the need for an internal register.
-            if (tree->AsIntrinsicRef().gtIntrinsicId == CORINFO_INTRINSIC_Abs)
+            if (tree->AsIntrinsic()->gtIntrinsicId == CORINFO_INTRINSIC_Abs)
             {
                 internalFloatDef = buildInternalFloatRegisterDefForNode(tree, internalFloatRegCandidates());
             }
@@ -2154,7 +2154,7 @@ int LinearScan::BuildSIMD(GenTreeSIMD* simdTree)
                     unsigned baseSize           = genTypeSize(baseType);
                     if (baseSize == 1)
                     {
-                        if ((op2->AsIntConRef().gtIconVal % 2) == 1)
+                        if ((op2->AsIntCon()->gtIconVal % 2) == 1)
                         {
                             ZeroOrSignExtnReqd = (baseType == TYP_BYTE);
                         }
