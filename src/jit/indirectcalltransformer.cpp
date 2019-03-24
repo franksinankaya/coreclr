@@ -612,7 +612,7 @@ private:
             // Sanity check the ret expr if non-null: it should refer to the original call.
             if (retExpr != nullptr)
             {
-                assert(retExpr->AsRetExprRef().gtInlineCandidate == origCall);
+                assert(retExpr->AsRetExpr()->gtInlineCandidate == origCall);
             }
 
             if (origCall->TypeGet() != TYP_VOID)
@@ -629,7 +629,7 @@ private:
 
                 JITDUMP("Updating GT_RET_EXPR [%06u] to refer to temp V%02u\n", compiler->dspTreeID(retExpr),
                         returnTemp);
-                retExpr->AsRetExprRef().gtInlineCandidate = tempTree;
+                retExpr->AsRetExpr()->gtInlineCandidate = tempTree;
             }
             else if (retExpr != nullptr)
             {
@@ -643,7 +643,7 @@ private:
                 JITDUMP("Updating GT_RET_EXPR [%06u] for VOID return to refer to a NOP\n",
                         compiler->dspTreeID(retExpr));
                 GenTree* nopTree                          = compiler->gtNewNothingNode();
-                retExpr->AsRetExprRef().gtInlineCandidate = nopTree;
+                retExpr->AsRetExpr()->gtInlineCandidate = nopTree;
             }
             else
             {
@@ -683,7 +683,7 @@ private:
             unsigned               methodFlags            = inlineInfo->methAttr;
             CORINFO_CONTEXT_HANDLE context                = inlineInfo->exactContextHnd;
             const bool             isLateDevirtualization = true;
-            bool explicitTailCall = (call->AsCallRef().gtCallMoreFlags & GTF_CALL_M_EXPLICIT_TAILCALL) != 0;
+            bool explicitTailCall = (call->AsCall()->gtCallMoreFlags & GTF_CALL_M_EXPLICIT_TAILCALL) != 0;
             compiler->impDevirtualizeCall(call, &methodHnd, &methodFlags, &context, nullptr, isLateDevirtualization,
                                           explicitTailCall);
 

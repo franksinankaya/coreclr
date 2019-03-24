@@ -4723,7 +4723,7 @@ void LinearScan::processBlockStartLocations(BasicBlock* currentBlock)
             // 2. This variable had not been spilled prior to the end of predBB, but was later spilled, so
             //    predVarToRegMap[varIndex] will be REG_STK, but targetReg is its former allocated value.
             //    In this case, we will normally change it to REG_STK.  We will update its "spilled" status when we
-            //    encounter it in resolveLocalRef().
+            //    encounter it in resolveLocal()->
             // 2a. If the next RefPosition is marked as a copyReg, we need to retain the allocated register.  This is
             //     because the copyReg RefPosition will not have recorded the "home" register, yet downstream
             //     RefPositions rely on the correct "home" register.
@@ -9112,7 +9112,7 @@ void LinearScan::lsraDispNode(GenTree* tree, LsraTupleDumpMode mode, bool hasDes
     unsigned   varNum = UINT_MAX;
     if (tree->IsLocal())
     {
-        varNum = tree->AsLclVarCommonRef().GetLclNum();
+        varNum = tree->AsLclVarCommon()->GetLclNum();
         varDsc = &(compiler->lvaTable[varNum]);
         if (varDsc->lvLRACandidate)
         {

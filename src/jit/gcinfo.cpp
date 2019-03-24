@@ -247,7 +247,7 @@ GCInfo::WriteBarrierForm GCInfo::gcIsWriteBarrierCandidate(GenTree* tgt, GenTree
         return WBF_NoBarrier;
     }
 
-    if (assignVal->gtOper == GT_CNS_INT && assignVal->AsIntConRef().gtIconVal == 0)
+    if (assignVal->gtOper == GT_CNS_INT && assignVal->AsIntCon()->gtIconVal == 0)
     {
         return WBF_NoBarrier;
     }
@@ -273,7 +273,7 @@ GCInfo::WriteBarrierForm GCInfo::gcIsWriteBarrierCandidate(GenTree* tgt, GenTree
                 // This case occurs for stack-allocated objects.
                 return WBF_NoBarrier;
             }
-            return gcWriteBarrierFormFromTargetAddress(tgt->AsOpRef().gtOp1);
+            return gcWriteBarrierFormFromTargetAddress(tgt->AsOp()->gtOp1);
 
         case GT_LEA:
             return gcWriteBarrierFormFromTargetAddress(tgt->AsAddrMode()->Base());
@@ -301,7 +301,7 @@ bool GCInfo::gcIsWriteBarrierStoreIndNode(GenTree* op)
 {
     assert(op->OperIs(GT_STOREIND));
 
-    return gcIsWriteBarrierCandidate(op, op->AsOpRef().gtOp2) != WBF_NoBarrier;
+    return gcIsWriteBarrierCandidate(op, op->AsOp()->gtOp2) != WBF_NoBarrier;
 }
 
 /*****************************************************************************/
@@ -653,9 +653,9 @@ GCInfo::WriteBarrierForm GCInfo::gcWriteBarrierFormFromTargetAddress(GenTree* tg
 
         tgtAddr = tgtAddr->gtSkipReloadOrCopy();
 
-        while (tgtAddr->OperGet() == GT_ADDR && tgtAddr->AsOpRef().gtOp1->OperGet() == GT_IND)
+        while (tgtAddr->OperGet() == GT_ADDR && tgtAddr->AsOp()->gtOp1->OperGet() == GT_IND)
         {
-            tgtAddr        = tgtAddr->AsOpRef().gtOp1->AsOpRef().gtOp1;
+            tgtAddr        = tgtAddr->AsOp()->gtOp1->AsOp()->gtOp1;
             simplifiedExpr = true;
             assert(tgtAddr->TypeGet() == TYP_BYREF);
         }
@@ -665,17 +665,17 @@ GCInfo::WriteBarrierForm GCInfo::gcWriteBarrierFormFromTargetAddress(GenTree* tg
         {
             if (tgtAddr->OperGet() == GT_ADD)
             {
-                if (tgtAddr->AsOpRef().gtOp1->TypeGet() == TYP_BYREF || tgtAddr->AsOpRef().gtOp1->TypeGet() == TYP_REF)
+                if (tgtAddr->AsOp()->gtOp1->TypeGet() == TYP_BYREF || tgtAddr->AsOp()->gtOp1->TypeGet() == TYP_REF)
                 {
-                    assert(!(tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_BYREF ||
-                             tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_REF));
-                    tgtAddr        = tgtAddr->AsOpRef().gtOp1;
+                    assert(!(tgtAddr->AsOp()->gtOp2->TypeGet() == TYP_BYREF ||
+                             tgtAddr->AsOp()->gtOp2->TypeGet() == TYP_REF));
+                    tgtAddr        = tgtAddr->AsOp()->gtOp1;
                     simplifiedExpr = true;
                 }
-                else if (tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_BYREF ||
-                         tgtAddr->AsOpRef().gtOp2->TypeGet() == TYP_REF)
+                else if (tgtAddr->AsOp()->gtOp2->TypeGet() == TYP_BYREF ||
+                         tgtAddr->AsOp()->gtOp2->TypeGet() == TYP_REF)
                 {
-                    tgtAddr        = tgtAddr->AsOpRef().gtOp2;
+                    tgtAddr        = tgtAddr->AsOp()->gtOp2;
                     simplifiedExpr = true;
                 }
                 else
