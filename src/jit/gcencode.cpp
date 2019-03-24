@@ -2890,7 +2890,7 @@ DONE_VLT:
         dest -= mask;
         totalSize++;
     }
-    else if (compiler->isFramePointerUsed()) // genInterruptible is false
+    else if (compiler->isFramePointerUsed()) // getInterruptible() is false
     {
 #ifdef _TARGET_X86_
         /*
@@ -3177,7 +3177,7 @@ DONE_VLT:
         dest -= mask;
         totalSize++;
     }
-    else // genInterruptible is false and we have an EBP-less frame
+    else // getInterruptible() is false and we have an EBP-less frame
     {
         assert(compiler->genFullPtrRegMap);
 
@@ -4486,7 +4486,7 @@ void GCInfo::gcMakeRegPtrTable(
             }
         }
     }
-    else if (compiler->isFramePointerUsed()) // genInterruptible is false, and we're using EBP as a frame pointer.
+    else if (compiler->isFramePointerUsed()) // getInterruptible() is false, and we're using EBP as a frame pointer.
     {
         assert(compiler->getFullPtrRegMap() == false);
 
@@ -4592,7 +4592,7 @@ void GCInfo::gcMakeRegPtrTable(
             gcInfoEncoderWithLog->DefineCallSites(pCallSites, pCallSiteSizes, numCallSites);
         }
     }
-    else // genInterruptible is false and we have an EBP-less frame
+    else // getInterruptible() is false and we have an EBP-less frame
     {
         assert(compiler->getFullPtrRegMap());
 
