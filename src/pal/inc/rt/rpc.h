@@ -19,8 +19,13 @@
 #define __RPC_USER
 #define __RPC_FAR
 
+#if defined(_MSC_VER) || defined(__llvm__)
 #define DECLSPEC_UUID(x) __declspec(uuid(x))
 #define MIDL_INTERFACE(x)   struct DECLSPEC_UUID(x) DECLSPEC_NOVTABLE
+#else
+#define DECLSPEC_UUID(x)
+#define MIDL_INTERFACE(x)   struct
+#endif
 
 #define EXTERN_GUID(itf,l1,s1,s2,c1,c2,c3,c4,c5,c6,c7,c8) \
     EXTERN_C const IID DECLSPEC_SELECTANY itf = {l1,s1,s2,{c1,c2,c3,c4,c5,c6,c7,c8}}
