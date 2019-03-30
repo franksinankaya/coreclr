@@ -611,7 +611,7 @@ void* BasicBlock::MemoryPhiArg::operator new(size_t sz, Compiler* comp)
 bool BasicBlock::CloneBlockState(
     Compiler* compiler, BasicBlock* to, const BasicBlock* from, unsigned varNum, int varVal)
 {
-    assert(to->bbTreeList == nullptr);
+    assert(to->getBBTreeList() == nullptr);
 
     to->bbFlags  = from->bbFlags;
     to->bbWeight = from->bbWeight;
@@ -661,7 +661,7 @@ void BasicBlock::MakeLIR(GenTree* firstNode, GenTree* lastNode)
 bool BasicBlock::IsLIR()
 {
     const bool isLIR = (bbFlags & BBF_IS_LIR) != 0;
-    assert((bbTreeList == nullptr) || ((isLIR) == !bbTreeList->IsStatement()));
+    assert((getBBTreeList() == nullptr) || ((isLIR) == !getBBTreeList()->IsStatement()));
     return isLIR;
 }
 
@@ -672,16 +672,16 @@ bool BasicBlock::IsLIR()
 //    None.
 //
 // Return Value:
-//    The first statement in the block's bbTreeList.
+//    The first statement in the block's getBBTreeList().
 //
 GenTreeStmt* BasicBlock::firstStmt() const
 {
-    if (bbTreeList == nullptr)
+    if (getBBTreeList() == nullptr)
     {
         return nullptr;
     }
 
-    return bbTreeList->AsStmt();
+    return getBBTreeList()->AsStmt();
 }
 
 //------------------------------------------------------------------------
@@ -691,16 +691,16 @@ GenTreeStmt* BasicBlock::firstStmt() const
 //    None.
 //
 // Return Value:
-//    The last statement in the block's bbTreeList.
+//    The last statement in the block's getBBTreeList().
 //
 GenTreeStmt* BasicBlock::lastStmt() const
 {
-    if (bbTreeList == nullptr)
+    if (getBBTreeList() == nullptr)
     {
         return nullptr;
     }
 
-    GenTree* result = bbTreeList->gtPrev;
+    GenTree* result = getBBTreeList()->gtPrev;
     assert(result && result->gtNext == nullptr);
     return result->AsStmt();
 }
@@ -710,7 +710,7 @@ GenTreeStmt* BasicBlock::lastStmt() const
 //
 GenTree* BasicBlock::firstNode()
 {
-    return IsLIR() ? bbTreeList : Compiler::fgGetFirstNode(firstStmt()->gtStmtExpr);
+    return IsLIR() ? getBBTreeList() : Compiler::fgGetFirstNode(firstStmt()->gtStmtExpr);
 }
 
 //------------------------------------------------------------------------
