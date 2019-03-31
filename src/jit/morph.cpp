@@ -10559,7 +10559,7 @@ GenTree* Compiler::fgMorphCopyBlock(GenTree* tree)
         if (requiresCopyBlock)
         {
             dest            = fgMorphBlockOperand(dest, asgType, blockWidth, true /*isDest*/);
-            asg->gtOp.gtOp1 = dest;
+            asg->AsOp()->gtOp1 = dest;
             asg->gtFlags |= (dest->gtFlags & GTF_ALL_EFFECT);
 
             // Note that the unrolling of CopyBlk is only implemented on some platforms.
@@ -15321,9 +15321,9 @@ bool Compiler::fgFoldConditional(BasicBlock* block)
 
         /* Did we fold the conditional */
 
-        noway_assert(lastStmt->gtStmtExpr->gtOp.gtOp1);
+        noway_assert(lastStmt->gtStmtExpr->AsOp()->gtOp1);
         GenTree* cond;
-        cond = lastStmt->gtStmtExpr->gtOp.gtOp1;
+        cond = lastStmt->gtStmtExpr->AsOp()->gtOp1;
 
         if (cond->OperKind() & GTK_CONST)
         {
@@ -15536,9 +15536,9 @@ bool Compiler::fgFoldConditional(BasicBlock* block)
 
         /* Did we fold the conditional */
 
-        noway_assert(lastStmt->gtStmtExpr->gtOp.gtOp1);
+        noway_assert(lastStmt->gtStmtExpr->AsOp()->gtOp1);
         GenTree* cond;
-        cond = lastStmt->gtStmtExpr->gtOp.gtOp1;
+        cond = lastStmt->gtStmtExpr->AsOp()->gtOp1;
 
         if (cond->OperKind() & GTK_CONST)
         {
@@ -15947,7 +15947,7 @@ void Compiler::fgMorphStmts(BasicBlock* block, bool* lnot, bool* loadw)
             if (((block->bbJumpKind == BBJ_COND) && (last->gtOper == GT_JTRUE)) ||
                 ((block->bbJumpKind == BBJ_SWITCH) && (last->gtOper == GT_SWITCH)))
             {
-                GenTree* op1 = last->gtOp.gtOp1;
+                GenTree* op1 = last->AsOp()->gtOp1;
 
                 if (op1->OperKind() & GTK_RELOP)
                 {
