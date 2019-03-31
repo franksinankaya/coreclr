@@ -1131,7 +1131,7 @@ void CodeGen::inst_RV_TT_IV(instruction ins, emitAttr attr, regNumber reg1, GenT
 
                 case GT_LCL_VAR:
                 {
-                    assert(rmOp->IsRegOptional() || !compiler->lvaGetDesc(rmOp->gtLclVar.gtLclNum)->lvIsRegCandidate());
+                    assert(rmOp->IsRegOptional() || !compiler->lvaGetDesc(rmOp->gtLclVar.GetLclNum())->lvIsRegCandidate());
                     varNum = rmOp->AsLclVar()->GetLclNum();
                     offset = 0;
                     break;

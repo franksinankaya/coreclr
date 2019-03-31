@@ -9033,7 +9033,7 @@ GenTree* Compiler::fgMorphOneAsgBlockOp(GenTree* tree)
         }
         if (destLclVarTree != nullptr)
         {
-            destVarNum = destLclVarTree->AsLclVarCommon()->gtLclNum;
+            destVarNum = destLclVarTree->AsLclVarCommon()->GetLclNum();
             destVarDsc = &(lvaTable[destVarNum]);
             if (asgType == TYP_STRUCT)
             {
@@ -9249,7 +9249,7 @@ GenTree* Compiler::fgMorphOneAsgBlockOp(GenTree* tree)
                 {
                     // The source argument of the copyblk can potentially be accessed only through indir(addr(lclVar))
                     // or indir(lclVarAddr) so it must be on the stack.
-                    unsigned lclVarNum = srcLclVarTree->AsLclVarCommon()->gtLclNum;
+                    unsigned lclVarNum = srcLclVarTree->AsLclVarCommon()->GetLclNum();
                     lvaSetVarDoNotEnregister(lclVarNum DEBUGARG(DNER_BlockOp));
                     GenTree* srcAddr;
                     if (src == srcLclVarTree)
