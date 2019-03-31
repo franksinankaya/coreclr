@@ -2949,11 +2949,11 @@ void Lowering::ContainCheckHWIntrinsic(GenTreeHWIntrinsic* node)
                     GenTree** pAddr = nullptr;
                     if ((intrinsicId == NI_AVX_MaskLoad) || (intrinsicId == NI_AVX2_MaskLoad))
                     {
-                        pAddr = &node->gtOp.gtOp1;
+                        pAddr = &node->AsOp()->gtOp1;
                     }
                     else
                     {
-                        pAddr = &node->gtOp.gtOp2;
+                        pAddr = &node->AsOp()->gtOp2;
                     }
                     ContainCheckHWIntrinsicAddr(node, pAddr);
                     break;
@@ -3174,7 +3174,7 @@ void Lowering::ContainCheckHWIntrinsic(GenTreeHWIntrinsic* node)
             {
                 case HW_Category_MemoryStore:
                 {
-                    GenTree** pAddr = &node->gtOp.gtOp1->gtOp.gtOp1;
+                    GenTree** pAddr = &node->AsOp()->gtOp1->AsOp()->gtOp1;
                     ContainCheckHWIntrinsicAddr(node, pAddr);
                     break;
                 }

@@ -868,8 +868,8 @@ void Lowering::ContainCheckSIMD(GenTreeSIMD* simdNode)
 void Lowering::ContainCheckHWIntrinsic(GenTreeHWIntrinsic* node)
 {
     GenTreeArgList* argList = nullptr;
-    GenTree*        op1     = node->gtOp.gtOp1;
-    GenTree*        op2     = node->gtOp.gtOp2;
+    GenTree*        op1     = node->AsOp()->gtOp1;
+    GenTree*        op2     = node->AsOp()->gtOp2;
 
     if (op1->OperIs(GT_LIST))
     {
