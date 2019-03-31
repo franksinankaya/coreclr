@@ -679,7 +679,7 @@ GenTreeStmt* Compiler::impExtractLastStmt()
     assert(impLastStmt != nullptr);
 
     GenTreeStmt* stmt = impLastStmt;
-    impLastStmt       = impLastStmt->gtPrevStmt;
+    impLastStmt       = impLastStmt->getPrevStmt();
     if (impLastStmt == nullptr)
     {
         impStmtList = nullptr;
