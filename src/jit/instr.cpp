@@ -1080,7 +1080,7 @@ void CodeGen::inst_RV_TT_IV(instruction ins, emitAttr attr, regNumber reg1, GenT
         }
         else if (rmOp->OperIsHWIntrinsic())
         {
-            getEmitter()->emitIns_R_AR_I(ins, attr, reg1, rmOp->gtGetOp1()->gtRegNum, 0, ival);
+            getEmitter()->emitIns_R_AR_I(ins, attr, reg1, rmOp->gtGetOp1()->GetRegNum(), 0, ival);
             return;
         }
         else if (rmOp->isIndir())
@@ -1153,7 +1153,7 @@ void CodeGen::inst_RV_TT_IV(instruction ins, emitAttr attr, regNumber reg1, GenT
     }
     else
     {
-        regNumber rmOpReg = rmOp->gtRegNum;
+        regNumber rmOpReg = rmOp->GetRegNum();
         getEmitter()->emitIns_SIMD_R_R_I(ins, attr, reg1, rmOpReg, ival);
     }
 }
