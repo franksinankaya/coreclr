@@ -1009,7 +1009,7 @@ void CodeGen::genUnspillRegIfNeeded(GenTree* tree)
                 if ((unspillTree->gtFlags & GTF_VAR_DEATH) == 0)
                 {
                     // Report the home change for this variable
-                    compiler->getVariableLiveKeeper()->siUpdateVariableLiveRange(varDsc, lcl->gtLclNum);
+                    compiler->getVariableLiveKeeper()->siUpdateVariableLiveRange(varDsc, lcl->GetLclNum());
                 }
 #endif // USING_VARIABLE_LIVE_RANGE
 
