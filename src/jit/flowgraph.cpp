@@ -19066,7 +19066,7 @@ void Compiler::fgSetBlockOrder(BasicBlock* block)
         }
 
 #ifdef DEBUG
-        if (block->bbTreeList == stmt)
+        if (block->getBBTreeList() == stmt)
         {
             /* first statement in the list */
             assert(stmt->gtPrev->gtNext == nullptr);
