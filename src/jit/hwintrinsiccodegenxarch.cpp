@@ -115,12 +115,12 @@ void CodeGen::genHWIntrinsic(GenTreeHWIntrinsic* node)
                     // Until we improve the handling of addressing modes in the emitter, we'll create a
                     // temporary GT_IND to generate code with.
                     GenTreeIndir load = indirForm(node->TypeGet(), op1);
-                    emit->emitInsLoadInd(ins, simdSize, node->gtRegNum, &load);
+                    emit->emitInsLoadInd(ins, simdSize, node->GetRegNum(), &load);
                 }
                 else
                 {
                     genConsumeRegs(op1);
-                    op1Reg = op1->gtRegNum;
+                    op1Reg = op1->GetRegNum();
 
                     if ((category == HW_Category_SIMDScalar) && HWIntrinsicInfo::CopiesUpperBits(intrinsicId))
                     {
@@ -1262,7 +1262,7 @@ void CodeGen::genBaseIntrinsic(GenTreeHWIntrinsic* node)
     GenTree* op1 = node->gtGetOp1();
 
     genConsumeHWIntrinsicOperands(node);
-    regNumber op1Reg = (op1 == nullptr) ? REG_NA : op1->gtRegNum;
+    regNumber op1Reg = (op1 == nullptr) ? REG_NA : op1->GetRegNum();
 
     assert(node->gtGetOp2() == nullptr);
 
@@ -1513,7 +1513,7 @@ void CodeGen::genSSEIntrinsic(GenTreeHWIntrinsic* node)
             // These do not support containment.
             assert(!op1->isContained());
             instruction ins = HWIntrinsicInfo::lookupIns(intrinsicId, node->gtSIMDBaseType);
-            op1Reg          = op1->gtRegNum;
+            op1Reg          = op1->GetRegNum();
             emit->emitIns_AR(ins, emitTypeSize(baseType), op1Reg, 0);
             break;
         }
@@ -1694,7 +1694,7 @@ void CodeGen::genSSE2Intrinsic(GenTreeHWIntrinsic* node)
             if (varTypeIsIntegral(baseType))
             {
                 assert(baseType == TYP_INT || baseType == TYP_UINT || baseType == TYP_LONG || baseType == TYP_ULONG);
-                op1Reg = op1->gtRegNum;
+                op1Reg = op1->GetRegNum();
                 emit->emitIns_R_R(ins, emitActualTypeSize(baseType), op1Reg, targetReg);
             }
             else
@@ -1773,7 +1773,7 @@ void CodeGen::genSSE41Intrinsic(GenTreeHWIntrinsic* node)
     {
         case NI_SSE41_TestAllOnes:
         {
-            op1Reg           = op1->gtRegNum;
+            op1Reg           = op1->GetRegNum();
             regNumber tmpReg = node->GetSingleTempReg();
             assert(HWIntrinsicInfo::lookupIns(intrinsicId, node->gtSIMDBaseType) == INS_ptest);
             emit->emitIns_SIMD_R_R_R(INS_pcmpeqd, emitTypeSize(TYP_SIMD16), tmpReg, tmpReg, tmpReg);
@@ -1954,7 +1954,7 @@ void CodeGen::genAvxOrAvx2Intrinsic(GenTreeHWIntrinsic* node)
         case NI_AVX2_ConvertToInt32:
         case NI_AVX2_ConvertToUInt32:
         {
-            op1Reg = op1->gtRegNum;
+            op1Reg = op1->GetRegNum();
             assert(numArgs == 1);
             assert((baseType == TYP_INT) || (baseType == TYP_UINT));
             instruction ins = HWIntrinsicInfo::lookupIns(intrinsicId, baseType);
@@ -1995,8 +1995,8 @@ void CodeGen::genAvxOrAvx2Intrinsic(GenTreeHWIntrinsic* node)
                 op4          = list->Current();
                 list         = list->Rest();
                 lastOp       = list->Current();
-                op3Reg       = op3->gtRegNum;
-                op4Reg       = op4->gtRegNum;
+                op3Reg       = op3->GetRegNum();
+                op4Reg       = op4->GetRegNum();
                 addrBaseReg  = op2Reg;
                 addrIndexReg = op3Reg;
                 indexOp      = op3;
@@ -2195,13 +2195,13 @@ void CodeGen::genBMI1OrBMI2Intrinsic(GenTreeHWIntrinsic* node)
             {
                 GenTreeArgList* argList = op1->AsArgList();
                 op1                     = argList->Current();
-                op1Reg                  = op1->gtRegNum;
+                op1Reg                  = op1->GetRegNum();
                 argList                 = argList->Rest();
                 op2                     = argList->Current();
-                op2Reg                  = op2->gtRegNum;
+                op2Reg                  = op2->GetRegNum();
                 argList                 = argList->Rest();
                 GenTree* op3            = argList->Current();
-                op3Reg                  = op3->gtRegNum;
+                op3Reg                  = op3->GetRegNum();
                 assert(!op3->isContained());
                 assert(op3Reg != op1Reg);
                 assert(op3Reg != targetReg);

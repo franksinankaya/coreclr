@@ -1168,7 +1168,7 @@ void CodeGen::inst_RV_TT_IV(instruction ins, emitAttr attr, regNumber reg1, GenT
     }
     else
     {
-        regNumber rmOpReg = rmOp->gtRegNum;
+        regNumber rmOpReg = rmOp->GetRegNum();
         getEmitter()->emitIns_SIMD_R_R_I(ins, attr, reg1, rmOpReg, ival);
     }
 }
