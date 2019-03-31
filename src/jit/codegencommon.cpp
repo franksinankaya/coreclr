@@ -11436,7 +11436,7 @@ GenTreeIndir CodeGen::indirForm(var_types type, GenTree* base)
 GenTreeStoreInd CodeGen::storeIndirForm(var_types type, GenTree* base, GenTree* data)
 {
     GenTreeStoreInd i(type, base, data);
-    i.gtRegNum = REG_NA;
+    i.SetRegNum(REG_NA);
     return i;
 }
 
