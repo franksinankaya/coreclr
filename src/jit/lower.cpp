@@ -506,7 +506,7 @@ GenTree* Lowering::LowerSwitch(GenTree* node)
     assert(node->gtOper == GT_SWITCH);
     GenTree* temp = node->AsOp()->gtOp1;
     assert(temp->gtOper == GT_LCL_VAR);
-    unsigned  tempLclNum  = temp->gtLclVarCommon.gtLclNum;
+    unsigned  tempLclNum  = temp->AsLclVarCommon()->gtLclNum;
     var_types tempLclType = temp->TypeGet();
 
     BasicBlock* defaultBB   = jumpTab[jumpCnt - 1];
