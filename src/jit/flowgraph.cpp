@@ -14724,7 +14724,7 @@ bool Compiler::fgOptimizeBranch(BasicBlock* bJump)
     assert(!bDest->IsLIR());
 
     unsigned estDupCostSz = 0;
-    for (GenTreeStmt* stmt = bDest->firstStmt(); stmt != nullptr; stmt = stmt->gtNextStmt)
+    for (GenTreeStmt* stmt = bDest->firstStmt(); stmt != nullptr; stmt = stmt->getNextStmt())
     {
         GenTree* expr = stmt->gtStmtExpr;
 

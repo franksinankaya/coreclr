@@ -6099,7 +6099,7 @@ int Compiler::optIsSetAssgLoop(unsigned lnum, ALLVARSET_VALARG_TP vars, varRefKi
         {
             noway_assert(beg);
 
-            for (GenTreeStmt* stmt = beg->FirstNonPhiDef(); stmt != nullptr; stmt = stmt->gtNextStmt)
+            for (GenTreeStmt* stmt = beg->FirstNonPhiDef(); stmt != nullptr; stmt = stmt->getNextStmt())
             {
                 fgWalkTreePre(&stmt->gtStmtExpr, optIsVarAssgCB, &desc);
 
