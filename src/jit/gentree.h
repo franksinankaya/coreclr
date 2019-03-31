@@ -4894,8 +4894,6 @@ struct GenTreeStmt : public GenTree
     IL_OFFSET gtStmtLastILoffs; // instr offset at end of stmt
 #endif
 
-    __declspec(property(get = getNextStmt)) GenTreeStmt* gtNextStmt;
-
     __declspec(property(get = getPrevStmt)) GenTreeStmt* gtPrevStmt;
 
     GenTreeStmt* getNextStmt()

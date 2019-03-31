@@ -188,7 +188,7 @@ void Compiler::optEarlyProp()
         for (GenTreeStmt* stmt = block->firstStmt(); stmt != nullptr;)
         {
             // Preserve the next link before the propagation and morph.
-            GenTreeStmt* next = stmt->gtNextStmt;
+            GenTreeStmt* next = stmt->getNextStmt();
 
             compCurStmt = stmt;
 
