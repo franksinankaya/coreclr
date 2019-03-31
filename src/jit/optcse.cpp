@@ -2335,7 +2335,7 @@ public:
                 }
                 else
                 {
-                    noway_assert(asg->gtOp.gtOp2 == val);
+                    noway_assert(asg->AsOp()->gtOp2 == val);
                 }
 
                 // assign the proper Value Numbers

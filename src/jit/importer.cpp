@@ -1467,7 +1467,7 @@ GenTree* Compiler::impGetStructAddr(GenTree*             structVal,
         assert(structVal->AsOp()->gtOp2->gtType == type); // Second thing is the struct
 
         GenTreeStmt* oldLastStmt = impLastStmt;
-        structVal->gtOp.gtOp2    = impGetStructAddr(structVal->gtOp.gtOp2, structHnd, curLevel, willDeref);
+        structVal->AsOp()->gtOp2    = impGetStructAddr(structVal->AsOp()->gtOp2, structHnd, curLevel, willDeref);
         structVal->gtType        = TYP_BYREF;
 
         if (oldLastStmt != impLastStmt)
@@ -1476,7 +1476,7 @@ GenTree* Compiler::impGetStructAddr(GenTree*             structVal,
             // for Op2, but that would be out of order with op1, so we need to
             // spill op1 onto the statement list after whatever was last
             // before we recursed on Op2 (i.e. before whatever Op2 appended).
-            impInsertTreeBefore(structVal->gtOp.gtOp1, impCurStmtOffs, oldLastStmt->getNextStmt());
+            impInsertTreeBefore(structVal->AsOp()->gtOp1, impCurStmtOffs, oldLastStmt->getNextStmt());
             structVal->AsOp()->gtOp1 = gtNewNothingNode();
         }
 
