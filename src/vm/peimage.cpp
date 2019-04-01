@@ -23,6 +23,8 @@
 #include "compile.h"
 #endif
 
+BIND_UUID_OF(ICLRPrivResourcePath)
+
 #ifndef DACCESS_COMPILE
 
 
