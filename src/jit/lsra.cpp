@@ -6445,7 +6445,7 @@ void LinearScan::insertUpperVectorRestore(GenTree* tree, Interval* upperVectorIn
 
     GenTree* restoreLcl  = nullptr;
     restoreLcl           = compiler->gtNewLclvNode(lclVarInterval->varNum, varDsc->lvType);
-    restoreLcl->gtRegNum = lclVarReg;
+    restoreLcl->SetRegNum(lclVarReg);
     SetLsraAdded(restoreLcl);
 
     GenTreeSIMD* simdNode =
@@ -6466,7 +6466,7 @@ void LinearScan::insertUpperVectorRestore(GenTree* tree, Interval* upperVectorIn
         assert(!"We require a register for Arm64 UpperVectorRestore");
 #endif
     }
-    simdNode->gtRegNum = restoreReg;
+    simdNode->SetRegNum(restoreReg);
 
     LIR::Range& blockRange = LIR::AsRange(block);
     JITDUMP("Adding UpperVectorRestore ");
