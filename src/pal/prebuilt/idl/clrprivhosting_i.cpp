@@ -75,5 +75,7 @@ MIDL_DEFINE_GUID(IID, IID_ICLRPrivRuntime,0xBC1B53A8,0xDCBC,0x43B2,0xBB,0x17,0x1
 }
 #endif
 
+#if !(defined(_MSC_VER) || defined(__llvm__))
 BIND_UUID_OF(ICLRPrivRuntime)
+#endif
 
