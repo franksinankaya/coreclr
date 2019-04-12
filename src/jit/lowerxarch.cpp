@@ -52,7 +52,7 @@ void Lowering::LowerStoreLoc(GenTreeLclVarCommon* storeLoc)
         GenTreeIntCon* con  = storeLoc->gtOp1->AsIntCon();
         ssize_t        ival = con->gtIconVal;
 
-        unsigned   varNum = storeLoc->gtLclNum;
+        unsigned   varNum = storeLoc->GetLclNum();
         LclVarDsc* varDsc = comp->lvaTable + varNum;
 
         if (varDsc->lvIsSIMDType())
@@ -97,7 +97,7 @@ void Lowering::LowerStoreLoc(GenTreeLclVarCommon* storeLoc)
     if (storeLoc->OperIs(GT_STORE_LCL_FLD))
     {
         // We should only encounter this for lclVars that are lvDoNotEnregister.
-        verifyLclFldDoNotEnregister(storeLoc->gtLclNum);
+        verifyLclFldDoNotEnregister(storeLoc->GetLclNum());
     }
     ContainCheckStoreLoc(storeLoc);
 }
@@ -154,7 +154,8 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
     if (!isInitBlk)
     {
         // CopyObj or CopyBlk
-        if ((blkNode->OperGet() == GT_STORE_OBJ) && ((blkNode->AsObj()->gtGcPtrCount == 0) || blkNode->gtBlkOpGcUnsafe))
+        if ((blkNode->OperGet() == GT_STORE_OBJ) &&
+            ((blkNode->AsObj()->GetGcPtrCount() == 0) || blkNode->gtBlkOpGcUnsafe))
         {
             blkNode->SetOper(GT_STORE_BLK);
         }
@@ -200,23 +201,23 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
                 // it to a larger constant whose size is sufficient to support
                 // the largest width store of the desired inline expansion.
 
-                ssize_t fill = initVal->gtIntCon.gtIconVal & 0xFF;
+                ssize_t fill = initVal->AsIntCon()->gtIconVal & 0xFF;
 #ifdef _TARGET_AMD64_
                 if (size < REGSIZE_BYTES)
                 {
-                    initVal->gtIntCon.gtIconVal = 0x01010101 * fill;
+                    initVal->AsIntCon()->gtIconVal = 0x01010101 * fill;
                 }
                 else
                 {
-                    initVal->gtIntCon.gtIconVal = 0x0101010101010101LL * fill;
-                    initVal->gtType             = TYP_LONG;
+                    initVal->AsIntCon()->gtIconVal = 0x0101010101010101LL * fill;
+                    initVal->gtType                  = TYP_LONG;
                     if ((fill == 0) && ((size & 0xf) == 0))
                     {
                         MakeSrcContained(blkNode, source);
                     }
                 }
 #else  // !_TARGET_AMD64_
-                initVal->gtIntCon.gtIconVal = 0x01010101 * fill;
+                initVal->AsIntCon()->gtIconVal = 0x01010101 * fill;
 #endif // !_TARGET_AMD64_
 
                 if ((fill == 0) && ((size & 0xf) == 0))
@@ -235,7 +236,7 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
 #ifdef _TARGET_AMD64_
             blkNode->gtBlkOpKind = GenTreeBlk::BlkOpKindHelper;
 #else  // !_TARGET_AMD64_
-            blkNode->gtBlkOpKind            = GenTreeBlk::BlkOpKindRepInstr;
+            blkNode->gtBlkOpKind                 = GenTreeBlk::BlkOpKindRepInstr;
 #endif // !_TARGET_AMD64_
         }
     }
@@ -251,7 +252,7 @@ void Lowering::LowerBlockStore(GenTreeBlk* blkNode)
 
 #ifdef DEBUG
             // CpObj must always have at least one GC-Pointer as a member.
-            assert(cpObjNode->gtGcPtrCount > 0);
+            assert(cpObjNode->GetGcPtrCount() > 0);
 
             assert(dstAddr->gtType == TYP_BYREF || dstAddr->gtType == TYP_I_IMPL);
 
@@ -512,7 +513,7 @@ void Lowering::LowerPutArgStk(GenTreePutArgStk* putArgStk)
             {
                 if (fieldNode->OperGet() == GT_LCL_VAR)
                 {
-                    LclVarDsc* varDsc = &(comp->lvaTable[fieldNode->AsLclVarCommon()->gtLclNum]);
+                    LclVarDsc* varDsc = &(comp->lvaTable[fieldNode->AsLclVarCommon()->GetLclNum()]);
                     if (!varDsc->lvDoNotEnregister)
                     {
                         fieldNode->SetRegOptional();
@@ -597,7 +598,7 @@ void Lowering::LowerPutArgStk(GenTreePutArgStk* putArgStk)
     bool haveLocalAddr = false;
     if ((src->OperGet() == GT_OBJ) || (src->OperGet() == GT_IND))
     {
-        srcAddr = src->gtOp.gtOp1;
+        srcAddr = src->AsOp()->gtOp1;
         assert(srcAddr != nullptr);
         haveLocalAddr = srcAddr->OperIsLocalAddr();
     }
@@ -699,7 +700,7 @@ void Lowering::LowerCast(GenTree* tree)
 {
     assert(tree->OperGet() == GT_CAST);
 
-    GenTree*  castOp     = tree->gtCast.CastOp();
+    GenTree*  castOp     = tree->AsCast()->CastOp();
     var_types castToType = tree->CastToType();
     var_types srcType    = castOp->TypeGet();
     var_types tmpType    = TYP_UNDEF;
@@ -753,7 +754,7 @@ void Lowering::LowerCast(GenTree* tree)
         tmp->gtFlags |= (tree->gtFlags & (GTF_OVERFLOW | GTF_EXCEPT));
 
         tree->gtFlags &= ~GTF_UNSIGNED;
-        tree->gtOp.gtOp1 = tmp;
+        tree->AsOp()->gtOp1 = tmp;
         BlockRange().InsertAfter(castOp, tmp);
         ContainCheckCast(tmp->AsCast());
     }
@@ -1454,7 +1455,7 @@ void Lowering::ContainCheckCallOperands(GenTreeCall* call)
             {
                 // We may have cases where we have set a register target on the ctrlExpr, but if it
                 // contained we must clear it.
-                ctrlExpr->gtRegNum = REG_NA;
+                ctrlExpr->SetRegNum(REG_NA);
                 MakeSrcContained(call, ctrlExpr);
             }
         }
@@ -1463,22 +1464,22 @@ void Lowering::ContainCheckCallOperands(GenTreeCall* call)
     GenTree* args = call->gtCallArgs;
     while (args)
     {
-        GenTree* arg = args->gtOp.gtOp1;
+        GenTree* arg = args->AsOp()->gtOp1;
         if (arg->gtOper == GT_PUTARG_STK)
         {
             LowerPutArgStk(arg->AsPutArgStk());
         }
-        args = args->gtOp.gtOp2;
+        args = args->AsOp()->gtOp2;
     }
     args = call->gtCallLateArgs;
     while (args)
     {
-        GenTree* arg = args->gtOp.gtOp1;
+        GenTree* arg = args->AsOp()->gtOp1;
         if (arg->gtOper == GT_PUTARG_STK)
         {
             LowerPutArgStk(arg->AsPutArgStk());
         }
-        args = args->gtOp.gtOp2;
+        args = args->AsOp()->gtOp2;
     }
 }
 
@@ -1544,8 +1545,8 @@ void Lowering::ContainCheckIndir(GenTreeIndir* node)
         // argument.
         //
         // Workaround:
-        // Note that LowerVirtualStubCall() sets addr->gtRegNum to VirtualStubParam.reg and Lowering::doPhase()
-        // sets destination candidates on such nodes and resets addr->gtRegNum to REG_NA.
+        // Note that LowerVirtualStubCall() sets addr->GetRegNum() to VirtualStubParam.reg and Lowering::doPhase()
+        // sets destination candidates on such nodes and resets addr->GetRegNum() to REG_NA.
         // Ideally we should set a flag on addr nodes that shouldn't be marked as contained
         // (in LowerVirtualStubCall()), but we don't have any GTF_* flags left for that purpose.  As a workaround
         // an explicit check is made here.
@@ -1570,7 +1571,7 @@ void Lowering::ContainCheckStoreIndir(GenTreeIndir* node)
     // If the source is a containable immediate, make it contained, unless it is
     // an int-size or larger store of zero to memory, because we can generate smaller code
     // by zeroing a register and then storing it.
-    GenTree* src = node->gtOp.gtOp2;
+    GenTree* src = node->AsOp()->gtOp2;
     if (IsContainableImmed(node, src) &&
         (!src->IsIntegralConst(0) || varTypeIsSmall(node) || node->gtGetOp1()->OperGet() == GT_CLS_VAR_ADDR))
     {
@@ -1600,8 +1601,8 @@ void Lowering::ContainCheckMul(GenTreeOp* node)
         return;
     }
 
-    GenTree* op1 = node->gtOp.gtOp1;
-    GenTree* op2 = node->gtOp.gtOp2;
+    GenTree* op1 = node->AsOp()->gtOp1;
+    GenTree* op2 = node->AsOp()->gtOp2;
 
     bool isSafeToContainOp1 = true;
     bool isSafeToContainOp2 = true;
@@ -1807,8 +1808,8 @@ void Lowering::ContainCheckShiftRotate(GenTreeOp* node)
 #endif // !_TARGET_X86_
 
     GenTree* shiftBy = node->gtOp2;
-    if (IsContainableImmed(node, shiftBy) && (shiftBy->gtIntConCommon.IconValue() <= 255) &&
-        (shiftBy->gtIntConCommon.IconValue() >= 0))
+    if (IsContainableImmed(node, shiftBy) && (shiftBy->AsIntConCommon()->IconValue() <= 255) &&
+        (shiftBy->AsIntConCommon()->IconValue() >= 0))
     {
         MakeSrcContained(node, shiftBy);
     }
@@ -1916,8 +1917,8 @@ void Lowering::ContainCheckCompare(GenTreeOp* cmp)
 {
     assert(cmp->OperIsCompare() || cmp->OperIs(GT_CMP));
 
-    GenTree*  op1     = cmp->gtOp.gtOp1;
-    GenTree*  op2     = cmp->gtOp.gtOp2;
+    GenTree*  op1     = cmp->AsOp()->gtOp1;
+    GenTree*  op2     = cmp->AsOp()->gtOp2;
     var_types op1Type = op1->TypeGet();
     var_types op2Type = op2->TypeGet();
 
@@ -2305,7 +2306,7 @@ void Lowering::ContainCheckIntrinsic(GenTreeOp* node)
 {
     assert(node->OperIs(GT_INTRINSIC));
 
-    CorInfoIntrinsics intrinsicId = node->gtIntrinsic.gtIntrinsicId;
+    CorInfoIntrinsics intrinsicId = node->AsIntrinsic()->gtIntrinsicId;
 
     if (intrinsicId == CORINFO_INTRINSIC_Sqrt || intrinsicId == CORINFO_INTRINSIC_Round ||
         intrinsicId == CORINFO_INTRINSIC_Ceiling || intrinsicId == CORINFO_INTRINSIC_Floor)
@@ -2340,7 +2341,7 @@ void Lowering::ContainCheckSIMD(GenTreeSIMD* simdNode)
 
         case SIMDIntrinsicInit:
         {
-            op1 = simdNode->gtOp.gtOp1;
+            op1 = simdNode->AsOp()->gtOp1;
 #ifndef _TARGET_64BIT_
             if (op1->OperGet() == GT_LONG)
             {
@@ -2398,8 +2399,8 @@ void Lowering::ContainCheckSIMD(GenTreeSIMD* simdNode)
             //  - the source SIMD struct
             //  - index (which element to get)
             // The result is baseType of SIMD struct.
-            op1 = simdNode->gtOp.gtOp1;
-            op2 = simdNode->gtOp.gtOp2;
+            op1 = simdNode->AsOp()->gtOp1;
+            op2 = simdNode->AsOp()->gtOp2;
 
             if (op1->OperGet() == GT_IND)
             {
@@ -2422,8 +2423,8 @@ void Lowering::ContainCheckSIMD(GenTreeSIMD* simdNode)
 
         case SIMDIntrinsicShuffleSSE2:
             // Second operand is an integer constant and marked as contained.
-            assert(simdNode->gtOp.gtOp2->IsCnsIntOrI());
-            MakeSrcContained(simdNode, simdNode->gtOp.gtOp2);
+            assert(simdNode->AsOp()->gtOp2->IsCnsIntOrI());
+            MakeSrcContained(simdNode, simdNode->AsOp()->gtOp2);
             break;
 
         default:
@@ -2949,11 +2950,11 @@ void Lowering::ContainCheckHWIntrinsic(GenTreeHWIntrinsic* node)
                     GenTree** pAddr = nullptr;
                     if ((intrinsicId == NI_AVX_MaskLoad) || (intrinsicId == NI_AVX2_MaskLoad))
                     {
-                        pAddr = &node->gtOp.gtOp1;
+                        pAddr = &node->AsOp()->gtOp1;
                     }
                     else
                     {
-                        pAddr = &node->gtOp.gtOp2;
+                        pAddr = &node->AsOp()->gtOp2;
                     }
                     ContainCheckHWIntrinsicAddr(node, pAddr);
                     break;
@@ -3174,7 +3175,7 @@ void Lowering::ContainCheckHWIntrinsic(GenTreeHWIntrinsic* node)
             {
                 case HW_Category_MemoryStore:
                 {
-                    GenTree** pAddr = &node->gtOp.gtOp1->gtOp.gtOp1;
+                    GenTree** pAddr = &node->AsOp()->gtOp1->AsOp()->gtOp1;
                     ContainCheckHWIntrinsicAddr(node, pAddr);
                     break;
                 }

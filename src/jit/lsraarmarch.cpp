@@ -235,14 +235,14 @@ int LinearScan::BuildCall(GenTreeCall* call)
         // During Build, we only use the ArgTabEntry for validation,
         // as getting it is rather expensive.
         fgArgTabEntry* curArgTabEntry = compiler->gtArgEntryByNode(call, argNode);
-        regNumber      argReg         = curArgTabEntry->regNum;
+        regNumber      argReg         = curArgTabEntry->getRegNum();
         assert(curArgTabEntry);
 #endif
 
         if (argNode->gtOper == GT_PUTARG_STK)
         {
             // late arg that is not passed in a register
-            assert(curArgTabEntry->regNum == REG_STK);
+            assert(curArgTabEntry->getRegNum() == REG_STK);
             // These should never be contained.
             assert(!argNode->isContained());
             continue;
@@ -258,7 +258,7 @@ int LinearScan::BuildCall(GenTreeCall* call)
             {
 #ifdef DEBUG
                 assert(entry->Current()->OperIs(GT_PUTARG_REG));
-                assert(entry->Current()->gtRegNum == argReg);
+                assert(entry->Current()->GetRegNum() == argReg);
                 // Update argReg for the next putarg_reg (if any)
                 argReg = genRegArgNext(argReg);
 
@@ -270,7 +270,7 @@ int LinearScan::BuildCall(GenTreeCall* call)
                 }
 #endif // _TARGET_ARM_
 #endif
-                BuildUse(entry->Current(), genRegMask(entry->Current()->gtRegNum));
+                BuildUse(entry->Current(), genRegMask(entry->Current()->GetRegNum()));
                 srcCount++;
             }
         }
@@ -289,7 +289,7 @@ int LinearScan::BuildCall(GenTreeCall* call)
         else
         {
             assert(argNode->OperIs(GT_PUTARG_REG));
-            assert(argNode->gtRegNum == argReg);
+            assert(argNode->GetRegNum() == argReg);
             HandleFloatVarArgs(call, argNode, &callHasFloatRegArgs);
 #ifdef _TARGET_ARM_
             // The `double` types have been transformed to `long` on armel,
@@ -298,14 +298,14 @@ int LinearScan::BuildCall(GenTreeCall* call)
             if (argNode->TypeGet() == TYP_LONG)
             {
                 assert(argNode->IsMultiRegNode());
-                BuildUse(argNode, genRegMask(argNode->gtRegNum), 0);
-                BuildUse(argNode, genRegMask(genRegArgNext(argNode->gtRegNum)), 1);
+                BuildUse(argNode, genRegMask(argNode->GetRegNum()), 0);
+                BuildUse(argNode, genRegMask(genRegArgNext(argNode->GetRegNum())), 1);
                 srcCount += 2;
             }
             else
 #endif // _TARGET_ARM_
             {
-                BuildUse(argNode, genRegMask(argNode->gtRegNum));
+                BuildUse(argNode, genRegMask(argNode->GetRegNum()));
                 srcCount++;
             }
         }
@@ -337,7 +337,7 @@ int LinearScan::BuildCall(GenTreeCall* call)
 #endif // FEATURE_ARG_SPLIT
             if (arg->gtOper == GT_PUTARG_STK)
             {
-                assert(curArgTabEntry->regNum == REG_STK);
+                assert(curArgTabEntry->getRegNum() == REG_STK);
             }
             else
             {
@@ -474,7 +474,7 @@ int LinearScan::BuildPutArgSplit(GenTreePutArgSplit* argNode)
     // Registers for split argument corresponds to source
     int dstCount = argNode->gtNumRegs;
 
-    regNumber argReg  = argNode->gtRegNum;
+    regNumber argReg  = argNode->GetRegNum();
     regMaskTP argMask = RBM_NONE;
     for (unsigned i = 0; i < argNode->gtNumRegs; i++)
     {

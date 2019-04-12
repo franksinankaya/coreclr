@@ -211,7 +211,7 @@ void ObjectAllocator::MarkEscapingVarsAndBuildConnGraph()
 
     foreach_block(comp, block)
     {
-        for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->gtNextStmt)
+        for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->getNextStmt())
         {
             BuildConnGraphVisitor buildConnGraphVisitor(this);
             buildConnGraphVisitor.WalkTree(&stmt->gtStmtExpr, nullptr);
@@ -347,7 +347,7 @@ bool ObjectAllocator::MorphAllocObjNodes()
         }
 #endif // DEBUG
 
-        for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->gtNextStmt)
+        for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->getNextStmt())
         {
             GenTree* stmtExpr = stmt->gtStmtExpr;
             GenTree* op2      = nullptr;
@@ -414,7 +414,7 @@ bool ObjectAllocator::MorphAllocObjNodes()
                 }
 
                 // Propagate flags of op2 to its parent.
-                stmtExpr->gtOp.gtOp2 = op2;
+                stmtExpr->AsOp()->gtOp2 = op2;
                 stmtExpr->gtFlags |= op2->gtFlags & GTF_ALL_EFFECT;
             }
 
@@ -470,14 +470,14 @@ GenTree* ObjectAllocator::MorphAllocObjNodeIntoHelperCall(GenTreeAllocObj* alloc
     GenTree*   helperCall = comp->fgMorphIntoHelperCall(allocObj, allocObj->gtNewHelper, args, morphArgs);
     if (helperHasSideEffects)
     {
-        helperCall->gtCall.gtCallMoreFlags |= GTF_CALL_M_ALLOC_SIDE_EFFECTS;
+        helperCall->AsCall()->gtCallMoreFlags |= GTF_CALL_M_ALLOC_SIDE_EFFECTS;
     }
 
 #ifdef FEATURE_READYTORUN_COMPILER
     if (entryPoint.addr != nullptr)
     {
         assert(comp->opts.IsReadyToRun());
-        helperCall->gtCall.setEntryPoint(entryPoint);
+        helperCall->AsCall()->setEntryPoint(entryPoint);
     }
 #endif
 
@@ -867,7 +867,7 @@ void ObjectAllocator::RewriteUses()
             assert(tree != nullptr);
             assert(tree->IsLocal());
 
-            const unsigned int lclNum    = tree->AsLclVarCommon()->gtLclNum;
+            const unsigned int lclNum    = tree->AsLclVarCommon()->GetLclNum();
             unsigned int       newLclNum = BAD_VAR_NUM;
             LclVarDsc*         lclVarDsc = m_compiler->lvaTable + lclNum;
 
@@ -908,7 +908,7 @@ void ObjectAllocator::RewriteUses()
 
     foreach_block(comp, block)
     {
-        for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->gtNextStmt)
+        for (GenTreeStmt* stmt = block->firstStmt(); stmt; stmt = stmt->getNextStmt())
         {
             RewriteUsesVisitor rewriteUsesVisitor(this);
             rewriteUsesVisitor.WalkTree(&stmt->gtStmtExpr, nullptr);

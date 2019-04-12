@@ -157,9 +157,9 @@ CodeGen::CodeGen(Compiler* theCompiler) : CodeGenInterface(theCompiler)
 
     /* Assume that we not fully interruptible */
 
-    genInterruptible = false;
+    setInterruptible(false);
 #ifdef _TARGET_ARMARCH_
-    hasTailCalls = false;
+    setHasTailCalls(false);
 #endif // _TARGET_ARMARCH_
 #ifdef DEBUG
     genInterruptibleUsed = false;
@@ -173,7 +173,7 @@ CodeGen::CodeGen(Compiler* theCompiler) : CodeGenInterface(theCompiler)
 
 void CodeGenInterface::genMarkTreeInReg(GenTree* tree, regNumber reg)
 {
-    tree->gtRegNum = reg;
+    tree->SetRegNum(reg);
 }
 
 #if defined(_TARGET_X86_) || defined(_TARGET_ARM_)
@@ -441,11 +441,11 @@ regMaskTP CodeGenInterface::genGetRegMask(const LclVarDsc* varDsc)
 
     if (varTypeIsFloating(varDsc->TypeGet()))
     {
-        regMask = genRegMaskFloat(varDsc->lvRegNum, varDsc->TypeGet());
+        regMask = genRegMaskFloat(varDsc->GetRegNum(), varDsc->TypeGet());
     }
     else
     {
-        regMask = genRegMask(varDsc->lvRegNum);
+        regMask = genRegMask(varDsc->GetRegNum());
     }
     return regMask;
 }
@@ -457,7 +457,7 @@ regMaskTP CodeGenInterface::genGetRegMask(GenTree* tree)
     assert(tree->gtOper == GT_LCL_VAR);
 
     regMaskTP        regMask = RBM_NONE;
-    const LclVarDsc* varDsc  = compiler->lvaTable + tree->gtLclVarCommon.gtLclNum;
+    const LclVarDsc* varDsc  = compiler->lvaTable + tree->AsLclVarCommon()->GetLclNum();
     if (varDsc->lvPromoted)
     {
         for (unsigned i = varDsc->lvFieldLclStart; i < varDsc->lvFieldLclStart + varDsc->lvFieldCnt; ++i)
@@ -478,7 +478,7 @@ regMaskTP CodeGenInterface::genGetRegMask(GenTree* tree)
 
 // The given lclVar is either going live (being born) or dying.
 // It might be both going live and dying (that is, it is a dead store) under MinOpts.
-// Update regSet.rsMaskVars accordingly.
+// Update regSet.GetMaskVars() accordingly.
 // inline
 void CodeGenInterface::genUpdateRegLife(const LclVarDsc* varDsc, bool isBorn, bool isDying DEBUGARG(GenTree* tree))
 {
@@ -499,12 +499,12 @@ void CodeGenInterface::genUpdateRegLife(const LclVarDsc* varDsc, bool isBorn, bo
     {
         // We'd like to be able to assert the following, however if we are walking
         // through a qmark/colon tree, we may encounter multiple last-use nodes.
-        // assert((regSet.rsMaskVars & regMask) == regMask);
+        // assert((regSet.GetMaskVars() & regMask) == regMask);
         regSet.RemoveMaskVars(regMask);
     }
     else
     {
-        assert((regSet.rsMaskVars & regMask) == 0);
+        assert((regSet.GetMaskVars() & regMask) == 0);
         regSet.AddMaskVars(regMask);
     }
 }
@@ -790,11 +790,11 @@ TempDsc* CodeGenInterface::getSpillTempDsc(GenTree* tree)
 
     // Get the tree's SpillDsc.
     RegSet::SpillDsc* prevDsc;
-    RegSet::SpillDsc* spillDsc = regSet.rsGetSpillInfo(tree, tree->gtRegNum, &prevDsc);
+    RegSet::SpillDsc* spillDsc = regSet.rsGetSpillInfo(tree, tree->GetRegNum(), &prevDsc);
     assert(spillDsc != nullptr);
 
     // Get the temp desc.
-    TempDsc* temp = regSet.rsGetSpillTempWord(tree->gtRegNum, spillDsc, prevDsc);
+    TempDsc* temp = regSet.rsGetSpillTempWord(tree->GetRegNum(), spillDsc, prevDsc);
     return temp;
 }
 
@@ -1086,7 +1086,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
 
     while (op->gtOper == GT_COMMA)
     {
-        op = op->gtOp.gtOp2;
+        op = op->AsOp()->gtOp2;
     }
 
     if (op->gtOper == GT_OBJ)
@@ -1097,7 +1097,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
     }
     else if (op->gtOper == GT_LCL_VAR)
     {
-        unsigned   varNum = op->gtLclVarCommon.gtLclNum;
+        unsigned   varNum = op->AsLclVarCommon()->GetLclNum();
         LclVarDsc* varDsc = compiler->lvaTable + varNum;
         assert(varDsc->lvType == TYP_STRUCT);
         opSize = varDsc->lvSize();
@@ -1114,26 +1114,26 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
     }
     else if (op->OperIsCopyBlkOp())
     {
-        GenTree* op2 = op->gtOp.gtOp2;
+        GenTree* op2 = op->AsOp()->gtOp2;
 
         if (op2->OperGet() == GT_CNS_INT)
         {
             if (op2->IsIconHandle(GTF_ICON_CLASS_HDL))
             {
-                CORINFO_CLASS_HANDLE clsHnd = (CORINFO_CLASS_HANDLE)op2->gtIntCon.gtIconVal;
+                CORINFO_CLASS_HANDLE clsHnd = (CORINFO_CLASS_HANDLE)op2->AsIntCon()->gtIconVal;
                 opSize = roundUp(compiler->info.compCompHnd->getClassSize(clsHnd), TARGET_POINTER_SIZE);
                 alignment =
                     roundUp(compiler->info.compCompHnd->getClassAlignmentRequirement(clsHnd), TARGET_POINTER_SIZE);
             }
             else
             {
-                opSize       = (unsigned)op2->gtIntCon.gtIconVal;
-                GenTree* op1 = op->gtOp.gtOp1;
+                opSize       = (unsigned)op2->AsIntCon()->gtIconVal;
+                GenTree* op1 = op->AsOp()->gtOp1;
                 assert(op1->OperGet() == GT_LIST);
-                GenTree* dstAddr = op1->gtOp.gtOp1;
+                GenTree* dstAddr = op1->AsOp()->gtOp1;
                 if (dstAddr->OperGet() == GT_ADDR)
                 {
-                    InferStructOpSizeAlign(dstAddr->gtOp.gtOp1, &alignment);
+                    InferStructOpSizeAlign(dstAddr->AsOp()->gtOp1, &alignment);
                 }
                 else
                 {
@@ -1156,7 +1156,7 @@ unsigned CodeGenInterface::InferStructOpSizeAlign(GenTree* op, unsigned* alignme
     }
     else if (op->IsArgPlaceHolderNode())
     {
-        CORINFO_CLASS_HANDLE clsHnd = op->gtArgPlace.gtArgPlaceClsHnd;
+        CORINFO_CLASS_HANDLE clsHnd = op->AsArgPlace()->gtArgPlaceClsHnd;
         assert(clsHnd != 0);
         opSize    = roundUp(compiler->info.compCompHnd->getClassSize(clsHnd), TARGET_POINTER_SIZE);
         alignment = roundUp(compiler->info.compCompHnd->getClassAlignmentRequirement(clsHnd), TARGET_POINTER_SIZE);
@@ -1275,13 +1275,13 @@ bool CodeGen::genCreateAddrMode(GenTree*  addr,
 
     if (addr->gtFlags & GTF_REVERSE_OPS)
     {
-        op1 = addr->gtOp.gtOp2;
-        op2 = addr->gtOp.gtOp1;
+        op1 = addr->AsOp()->gtOp2;
+        op2 = addr->AsOp()->gtOp1;
     }
     else
     {
-        op1 = addr->gtOp.gtOp1;
-        op2 = addr->gtOp.gtOp2;
+        op1 = addr->AsOp()->gtOp1;
+        op2 = addr->AsOp()->gtOp2;
     }
 
     bool rev = false; // Is op2 first in the evaluation order?
@@ -1328,11 +1328,12 @@ AGAIN:
 
     /* Check for an addition of a constant */
 
-    if (op2->IsIntCnsFitsInI32() && (op2->gtType != TYP_REF) && FitsIn<INT32>(cns + op2->gtIntConCommon.IconValue()))
+    if (op2->IsIntCnsFitsInI32() && (op2->gtType != TYP_REF) &&
+        FitsIn<INT32>(cns + op2->AsIntConCommon()->IconValue()))
     {
         /* We're adding a constant */
 
-        cns += op2->gtIntConCommon.IconValue();
+        cns += op2->AsIntConCommon()->IconValue();
 
 #if defined(_TARGET_ARMARCH_)
         if (cns == 0)
@@ -1349,8 +1350,8 @@ AGAIN:
                         break;
                     }
 
-                    op2 = op1->gtOp.gtOp2;
-                    op1 = op1->gtOp.gtOp1;
+                    op2 = op1->AsOp()->gtOp2;
+                    op1 = op1->AsOp()->gtOp1;
 
                     goto AGAIN;
 
@@ -1372,7 +1373,7 @@ AGAIN:
                         /* We can use "[mul*rv2 + icon]" */
 
                         rv1 = nullptr;
-                        rv2 = op1->gtOp.gtOp1;
+                        rv2 = op1->AsOp()->gtOp1;
 
                         goto FOUND_AM;
                     }
@@ -1407,10 +1408,11 @@ AGAIN:
                 break;
             }
 
-            if (op1->gtOp.gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op1->gtOp.gtOp2->gtIntCon.gtIconVal))
+            if (op1->AsOp()->gtOp2->IsIntCnsFitsInI32() &&
+                FitsIn<INT32>(cns + op1->AsOp()->gtOp2->AsIntCon()->gtIconVal))
             {
-                cns += op1->gtOp.gtOp2->gtIntCon.gtIconVal;
-                op1 = op1->gtOp.gtOp1;
+                cns += op1->AsOp()->gtOp2->AsIntCon()->gtIconVal;
+                op1 = op1->AsOp()->gtOp1;
 
                 goto AGAIN;
             }
@@ -1436,7 +1438,7 @@ AGAIN:
                 /* 'op1' is a scaled value */
 
                 rv1 = op2;
-                rv2 = op1->gtOp.gtOp1;
+                rv2 = op1->AsOp()->gtOp1;
 
                 int argScale;
                 while ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (argScale = rv2->GetScaledIndex()) != 0)
@@ -1444,7 +1446,7 @@ AGAIN:
                     if (jitIsScaleIndexMul(argScale * mul))
                     {
                         mul = mul * argScale;
-                        rv2 = rv2->gtOp.gtOp1;
+                        rv2 = rv2->AsOp()->gtOp1;
                     }
                     else
                     {
@@ -1464,12 +1466,12 @@ AGAIN:
 
         case GT_NOP:
 
-            op1 = op1->gtOp.gtOp1;
+            op1 = op1->AsOp()->gtOp1;
             goto AGAIN;
 
         case GT_COMMA:
 
-            op1 = op1->gtOp.gtOp2;
+            op1 = op1->AsOp()->gtOp2;
             goto AGAIN;
 
         default:
@@ -1488,10 +1490,11 @@ AGAIN:
                 break;
             }
 
-            if (op2->gtOp.gtOp2->IsIntCnsFitsInI32() && FitsIn<INT32>(cns + op2->gtOp.gtOp2->gtIntCon.gtIconVal))
+            if (op2->AsOp()->gtOp2->IsIntCnsFitsInI32() &&
+                FitsIn<INT32>(cns + op2->AsOp()->gtOp2->AsIntCon()->gtIconVal))
             {
-                cns += op2->gtOp.gtOp2->gtIntCon.gtIconVal;
-                op2 = op2->gtOp.gtOp1;
+                cns += op2->AsOp()->gtOp2->AsIntCon()->gtIconVal;
+                op2 = op2->AsOp()->gtOp1;
 
                 goto AGAIN;
             }
@@ -1516,13 +1519,13 @@ AGAIN:
             {
                 // 'op2' is a scaled value...is it's argument also scaled?
                 int argScale;
-                rv2 = op2->gtOp.gtOp1;
+                rv2 = op2->AsOp()->gtOp1;
                 while ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (argScale = rv2->GetScaledIndex()) != 0)
                 {
                     if (jitIsScaleIndexMul(argScale * mul))
                     {
                         mul = mul * argScale;
-                        rv2 = rv2->gtOp.gtOp1;
+                        rv2 = rv2->AsOp()->gtOp1;
                     }
                     else
                     {
@@ -1541,12 +1544,12 @@ AGAIN:
 
         case GT_NOP:
 
-            op2 = op2->gtOp.gtOp1;
+            op2 = op2->AsOp()->gtOp1;
             goto AGAIN;
 
         case GT_COMMA:
 
-            op2 = op2->gtOp.gtOp2;
+            op2 = op2->AsOp()->gtOp2;
             goto AGAIN;
 
         default:
@@ -1585,7 +1588,7 @@ FOUND_AM:
             ssize_t  tmpMul;
             GenTree* index;
 
-            if ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (rv2->gtOp.gtOp2->IsCnsIntOrI()))
+            if ((rv2->gtOper == GT_MUL || rv2->gtOper == GT_LSH) && (rv2->AsOp()->gtOp2->IsCnsIntOrI()))
             {
                 /* For valuetype arrays where we can't use the scaled address
                    mode, rv2 will point to the scaled index. So we have to do
@@ -1742,7 +1745,7 @@ void CodeGen::genExitCode(BasicBlock* block)
             {
                 noway_assert(varDsc->lvIsParam);
 
-                gcInfo.gcMarkRegPtrVal(varDsc->lvArgReg, varDsc->TypeGet());
+                gcInfo.gcMarkRegPtrVal(varDsc->GetArgReg(), varDsc->TypeGet());
             }
 
             getEmitter()->emitThisGCrefRegs = getEmitter()->emitInitGCrefRegs = gcInfo.gcRegGCrefSetCur;
@@ -1757,7 +1760,7 @@ void CodeGen::genExitCode(BasicBlock* block)
 // genJumpToThrowHlpBlk: Generate code for an out-of-line exception.
 //
 // Notes:
-//   For code that uses throw helper blocks, we share the helper blocks created by fgAddCodeRef().
+//   For code that uses throw helper blocks, we share the helper blocks created by fgAddCode()->
 //   Otherwise, we generate the 'throw' inline.
 //
 // Arguments:
@@ -2102,7 +2105,7 @@ void CodeGen::genGenerateCode(void** codePtr, ULONG* nativeSizeOfCode)
 #endif
             printf("; %s based frame\n", isFramePointerUsed() ? STR_FPBASE : STR_SPBASE);
 
-        if (genInterruptible)
+        if (getInterruptible())
         {
             printf("; fully interruptible\n");
         }
@@ -2229,7 +2232,7 @@ void CodeGen::genGenerateCode(void** codePtr, ULONG* nativeSizeOfCode)
 
     compiler->EndPhase(PHASE_GENERATE_CODE);
 
-    codeSize = getEmitter()->emitEndCodeGen(compiler, trackedStackPtrsContig, genInterruptible, genFullPtrRegMap,
+    codeSize = getEmitter()->emitEndCodeGen(compiler, trackedStackPtrsContig, getInterruptible(), doFullPtrRegMap(),
                                             (compiler->info.compRetType == TYP_REF), compiler->compHndBBtabCount,
                                             &prologSize, &epilogSize, codePtr, &coldCodePtr, &consPtr);
 
@@ -2252,7 +2255,7 @@ void CodeGen::genGenerateCode(void** codePtr, ULONG* nativeSizeOfCode)
 #endif
 
 #if EMIT_TRACK_STACK_DEPTH
-    // Check our max stack level. Needed for fgAddCodeRef().
+    // Check our max stack level. Needed for fgAddCode()->
     // We need to relax the assert as our estimation won't include code-gen
     // stack changes (which we know don't affect fgAddCodeRef()).
     // NOTE: after emitEndCodeGen (including here), emitMaxStackDepth is a
@@ -2970,7 +2973,7 @@ CorInfoHelpFunc CodeGenInterface::genWriteBarrierHelperForWriteBarrierForm(GenTr
             {
                 helper = CORINFO_HELP_CHECKED_ASSIGN_REF;
             }
-            else if (tgt->gtOp.gtOp1->TypeGet() == TYP_I_IMPL)
+            else if (tgt->AsOp()->gtOp1->TypeGet() == TYP_I_IMPL)
             {
                 helper = CORINFO_HELP_CHECKED_ASSIGN_REF;
             }
@@ -3012,10 +3015,10 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
     {
         GenTree* lcl = NULL;
 
-        GenTree* indArg = tgt->gtOp.gtOp1;
-        if (indArg->gtOper == GT_ADDR && indArg->gtOp.gtOp1->gtOper == GT_IND)
+        GenTree* indArg = tgt->AsOp()->gtOp1;
+        if (indArg->gtOper == GT_ADDR && indArg->AsOp()->gtOp1->gtOper == GT_IND)
         {
-            indArg = indArg->gtOp.gtOp1->gtOp.gtOp1;
+            indArg = indArg->AsOp()->gtOp1->AsOp()->gtOp1;
         }
         if (indArg->gtOper == GT_LCL_VAR)
         {
@@ -3023,13 +3026,13 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
         }
         else if (indArg->gtOper == GT_ADD)
         {
-            if (indArg->gtOp.gtOp1->gtOper == GT_LCL_VAR)
+            if (indArg->AsOp()->gtOp1->gtOper == GT_LCL_VAR)
             {
-                lcl = indArg->gtOp.gtOp1;
+                lcl = indArg->AsOp()->gtOp1;
             }
-            else if (indArg->gtOp.gtOp2->gtOper == GT_LCL_VAR)
+            else if (indArg->AsOp()->gtOp2->gtOper == GT_LCL_VAR)
             {
-                lcl = indArg->gtOp.gtOp2;
+                lcl = indArg->AsOp()->gtOp2;
             }
         }
         if (lcl != NULL)
@@ -3052,7 +3055,7 @@ void CodeGen::genGCWriteBarrier(GenTree* tgt, GCInfo::WriteBarrierForm wbf)
         else
         {
             // We should have eliminated the barrier for this case.
-            assert(!(indArg->gtOper == GT_ADDR && indArg->gtOp.gtOp1->gtOper == GT_LCL_VAR));
+            assert(!(indArg->gtOper == GT_ADDR && indArg->AsOp()->gtOp1->gtOper == GT_LCL_VAR));
         }
     }
 
@@ -3401,7 +3404,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
 #endif // defined(UNIX_AMD64_ABI)
         {
             // Bingo - add it to our table
-            regArgNum = genMapRegNumToRegArgNum(varDsc->lvArgReg, regType);
+            regArgNum = genMapRegNumToRegArgNum(varDsc->GetArgReg(), regType);
 
             noway_assert(regArgNum < argMax);
             // We better not have added it already (there better not be multiple vars representing this argument
@@ -3481,7 +3484,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
             regNumber regNum = genMapRegArgNumToRegNum(regArgNum + i, regType);
 
 #if !defined(UNIX_AMD64_ABI)
-            assert((i > 0) || (regNum == varDsc->lvArgReg));
+            assert((i > 0) || (regNum == varDsc->GetArgReg()));
 #endif // defined(UNIX_AMD64_ABI)
 
             // Is the arg dead on entry to the method ?
@@ -3524,7 +3527,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
 #endif // _TARGET_ARM_
             {
 #if !defined(UNIX_AMD64_ABI)
-                noway_assert(xtraReg != (varDsc->lvArgReg + i));
+                noway_assert(xtraReg != (varDsc->GetArgReg() + i));
 #endif
                 noway_assert(regArgMaskLive & genRegMask(regNum));
             }
@@ -3545,23 +3548,23 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
 
                 /* Maybe the argument stays in the register (IDEAL) */
 
-                if ((i == 0) && (varDsc->lvRegNum == regNum))
+                if ((i == 0) && (varDsc->GetRegNum() == regNum))
                 {
                     goto NON_DEP;
                 }
 
 #if !defined(_TARGET_64BIT_)
-                if ((i == 1) && varTypeIsStruct(varDsc) && (varDsc->lvOtherReg == regNum))
+                if ((i == 1) && varTypeIsStruct(varDsc) && (varDsc->GetOtherReg() == regNum))
                 {
                     goto NON_DEP;
                 }
-                if ((i == 1) && (genActualType(varDsc->TypeGet()) == TYP_LONG) && (varDsc->lvOtherReg == regNum))
+                if ((i == 1) && (genActualType(varDsc->TypeGet()) == TYP_LONG) && (varDsc->GetOtherReg() == regNum))
                 {
                     goto NON_DEP;
                 }
 
                 if ((i == 1) && (genActualType(varDsc->TypeGet()) == TYP_DOUBLE) &&
-                    (REG_NEXT(varDsc->lvRegNum) == regNum))
+                    (REG_NEXT(varDsc->GetRegNum()) == regNum))
                 {
                     goto NON_DEP;
                 }
@@ -3622,7 +3625,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
                 regNumber destRegNum = REG_NA;
                 if (regArgTab[argNum].slot == 1)
                 {
-                    destRegNum = varDsc->lvRegNum;
+                    destRegNum = varDsc->GetRegNum();
                 }
 #if FEATURE_MULTIREG_ARGS && defined(FEATURE_SIMD) && defined(_TARGET_64BIT_)
                 else
@@ -3640,13 +3643,13 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
 #elif !defined(_TARGET_64BIT_)
                 else if (regArgTab[argNum].slot == 2 && genActualType(varDsc->TypeGet()) == TYP_LONG)
                 {
-                    destRegNum = varDsc->lvOtherReg;
+                    destRegNum = varDsc->GetOtherReg();
                 }
                 else
                 {
                     assert(regArgTab[argNum].slot == 2);
                     assert(varDsc->TypeGet() == TYP_DOUBLE);
-                    destRegNum = REG_NEXT(varDsc->lvRegNum);
+                    destRegNum = REG_NEXT(varDsc->GetRegNum());
                 }
 #endif // !defined(_TARGET_64BIT_)
                 noway_assert(destRegNum != REG_NA);
@@ -3734,7 +3737,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
             {
                 continue;
             }
-            else if (varDsc->lvOtherReg != REG_STK)
+            else if (varDsc->GetOtherReg() != REG_STK)
             {
                 continue;
             }
@@ -3765,7 +3768,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
         noway_assert(varDsc->lvIsParam);
         noway_assert(varDsc->lvIsRegArg);
         noway_assert(varDsc->lvIsInReg() == false ||
-                     (varDsc->lvType == TYP_LONG && varDsc->lvOtherReg == REG_STK && regArgTab[argNum].slot == 2));
+                     (varDsc->lvType == TYP_LONG && varDsc->GetOtherReg() == REG_STK && regArgTab[argNum].slot == 2));
 
         var_types storeType = TYP_UNDEF;
         unsigned  slotSize  = TARGET_POINTER_SIZE;
@@ -3960,18 +3963,18 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
                     size = EA_GCREF;
                 }
 
-                noway_assert(varDscDest->lvArgReg == varDscSrc->lvRegNum);
+                noway_assert(varDscDest->GetArgReg() == varDscSrc->GetRegNum());
 
-                getEmitter()->emitIns_R_R(INS_xchg, size, varDscSrc->lvRegNum, varDscSrc->lvArgReg);
-                regSet.verifyRegUsed(varDscSrc->lvRegNum);
-                regSet.verifyRegUsed(varDscSrc->lvArgReg);
+                getEmitter()->emitIns_R_R(INS_xchg, size, varDscSrc->GetRegNum(), varDscSrc->GetArgReg());
+                regSet.verifyRegUsed(varDscSrc->GetRegNum());
+                regSet.verifyRegUsed(varDscSrc->GetArgReg());
 
                 /* mark both arguments as processed */
                 regArgTab[destReg].processed = true;
                 regArgTab[srcReg].processed  = true;
 
-                regArgMaskLive &= ~genRegMask(varDscSrc->lvArgReg);
-                regArgMaskLive &= ~genRegMask(varDscDest->lvArgReg);
+                regArgMaskLive &= ~genRegMask(varDscSrc->GetArgReg());
+                regArgMaskLive &= ~genRegMask(varDscDest->GetArgReg());
 #ifdef USING_SCOPE_INFO
                 psiMoveToReg(varNumSrc);
                 psiMoveToReg(varNumDest);
@@ -4174,7 +4177,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
 
             if (regArgTab[argNum].slot == 1)
             {
-                destRegNum = varDsc->lvRegNum;
+                destRegNum = varDsc->GetRegNum();
 
 #ifdef _TARGET_ARM_
                 if (genActualType(destMemType) == TYP_DOUBLE && regArgTab[argNum + 1].processed)
@@ -4194,7 +4197,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
                 }
                 else
                 {
-                    destRegNum = varDsc->lvOtherReg;
+                    destRegNum = varDsc->GetOtherReg();
                 }
 
                 assert(destRegNum != REG_STK);
@@ -4237,7 +4240,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
                 // it as a single to finish the shuffling.
 
                 destMemType = TYP_FLOAT;
-                destRegNum  = REG_NEXT(varDsc->lvRegNum);
+                destRegNum  = REG_NEXT(varDsc->GetRegNum());
             }
 #endif // !_TARGET_64BIT_
 #if (defined(UNIX_AMD64_ABI) || defined(_TARGET_ARM64_)) && defined(FEATURE_SIMD)
@@ -4247,7 +4250,7 @@ void CodeGen::genFnPrologCalleeRegArgs(regNumber xtraReg, bool* pXtraRegClobbere
                 assert(argNum > 0);
                 assert(regArgTab[argNum - 1].slot == 1);
                 assert((varDsc->lvType == TYP_SIMD12) || (varDsc->lvType == TYP_SIMD16));
-                destRegNum = varDsc->lvRegNum;
+                destRegNum = varDsc->GetRegNum();
                 noway_assert(regNum != destRegNum);
                 continue;
             }
@@ -4421,7 +4424,7 @@ void CodeGen::genEnregisterIncomingStackArgs()
 
         /* Figure out the home offset of the incoming argument */
 
-        regNumber regNum = varDsc->lvArgInitReg;
+        regNumber regNum = varDsc->GetArgInitReg();
         assert(regNum != REG_STK);
 
         getEmitter()->emitIns_R_S(ins_Load(type), emitTypeSize(type), regNum, varNum, 0);
@@ -4545,7 +4548,8 @@ void CodeGen::genCheckUseBlockInit()
                         else
                         {
                             // Var is partially enregistered
-                            noway_assert(genTypeSize(varDsc->TypeGet()) > sizeof(int) && varDsc->lvOtherReg == REG_STK);
+                            noway_assert(genTypeSize(varDsc->TypeGet()) > sizeof(int) &&
+                                         varDsc->GetOtherReg() == REG_STK);
                             initStkLclCnt += genTypeStSz(TYP_INT);
                             counted = true;
                         }
@@ -5361,7 +5365,7 @@ regMaskTP CodeGen::genJmpCallArgMask()
         const LclVarDsc& desc = compiler->lvaTable[varNum];
         if (desc.lvIsRegArg)
         {
-            argMask |= genRegMask(desc.lvArgReg);
+            argMask |= genRegMask(desc.GetArgReg());
         }
     }
     return argMask;
@@ -6438,7 +6442,7 @@ void CodeGen::genReportGenericContextArg(regNumber initReg, bool* pInitRegZeroed
     // Load from the argument register only if it is not prespilled.
     if (compiler->lvaIsRegArgument(contextArg) && !isPrespilledForProfiling)
     {
-        reg = varDsc->lvArgReg;
+        reg = varDsc->GetArgReg();
     }
     else
     {
@@ -6603,7 +6607,7 @@ void CodeGen::genProfilingEnterCallback(regNumber initReg, bool* pInitRegZeroed)
             }
 
             var_types storeType = varDsc->lvaArgType();
-            regNumber argReg    = varDsc->lvArgReg;
+            regNumber argReg    = varDsc->GetArgReg();
 
             instruction store_ins = ins_Store(storeType);
 
@@ -6676,7 +6680,7 @@ void CodeGen::genProfilingEnterCallback(regNumber initReg, bool* pInitRegZeroed)
         }
 
         var_types loadType = varDsc->lvaArgType();
-        regNumber argReg   = varDsc->lvArgReg;
+        regNumber argReg   = varDsc->GetArgReg();
 
         instruction load_ins = ins_Load(loadType);
 
@@ -6890,7 +6894,7 @@ void CodeGen::genProfilingLeaveCallback(unsigned helper /*= CORINFO_HELP_PROF_FC
     // registers that profiler callback kills.
     if (compiler->lvaKeepAliveAndReportThis() && compiler->lvaTable[compiler->info.compThisArg].lvIsInReg())
     {
-        regMaskTP thisPtrMask = genRegMask(compiler->lvaTable[compiler->info.compThisArg].lvRegNum);
+        regMaskTP thisPtrMask = genRegMask(compiler->lvaTable[compiler->info.compThisArg].GetRegNum());
         noway_assert((RBM_PROFILER_LEAVE_TRASH & thisPtrMask) == 0);
     }
 
@@ -7271,7 +7275,7 @@ void CodeGen::genReserveEpilog(BasicBlock* block)
 
     bool jmpEpilog = ((block->bbFlags & BBF_HAS_JMP) != 0);
 
-    if (genFullPtrRegMap && !jmpEpilog)
+    if (doFullPtrRegMap() && !jmpEpilog)
     {
         if (varTypeIsGC(compiler->info.compRetNativeType))
         {
@@ -7789,16 +7793,16 @@ void CodeGen::genFnProlog()
 
         if (varDsc->lvIsInReg())
         {
-            regMaskTP regMask = genRegMask(varDsc->lvRegNum);
+            regMaskTP regMask = genRegMask(varDsc->GetRegNum());
             if (!varDsc->IsFloatRegType())
             {
                 initRegs |= regMask;
 
                 if (varTypeIsMultiReg(varDsc))
                 {
-                    if (varDsc->lvOtherReg != REG_STK)
+                    if (varDsc->GetOtherReg() != REG_STK)
                     {
-                        initRegs |= genRegMask(varDsc->lvOtherReg);
+                        initRegs |= genRegMask(varDsc->GetOtherReg());
                     }
                     else
                     {
@@ -7922,7 +7926,7 @@ void CodeGen::genFnProlog()
             LclVarDsc* varDsc = &compiler->lvaTable[compiler->info.compLvFrameListRoot];
             if (varDsc->lvRegister)
             {
-                excludeMask |= genRegMask(varDsc->lvRegNum);
+                excludeMask |= genRegMask(varDsc->GetRegNum());
             }
         }
     }
@@ -8199,7 +8203,7 @@ void CodeGen::genFnProlog()
 
 #endif // PROFILING_SUPPORTED
 
-    if (!genInterruptible)
+    if (!getInterruptible())
     {
         /*-------------------------------------------------------------------------
          *
@@ -8323,7 +8327,7 @@ void CodeGen::genFnProlog()
     // And again make sure it's big enough for ReJIT
     //
 
-    if (genInterruptible)
+    if (getInterruptible())
     {
         genPrologPadForReJit();
         getEmitter()->emitMarkPrologEnd();
@@ -8385,10 +8389,10 @@ void CodeGen::genFnProlog()
 
         if (varDsc->lvIsInReg())
         {
-            if (varDsc->lvRegNum != REG_EAX)
+            if (varDsc->GetRegNum() != REG_EAX)
             {
-                getEmitter()->emitIns_R_R(INS_mov, EA_PTRSIZE, varDsc->lvRegNum, REG_EAX);
-                regSet.verifyRegUsed(varDsc->lvRegNum);
+                getEmitter()->emitIns_R_R(INS_mov, EA_PTRSIZE, varDsc->GetRegNum(), REG_EAX);
+                regSet.verifyRegUsed(varDsc->GetRegNum());
             }
         }
         else
@@ -8470,7 +8474,7 @@ void CodeGen::genFnEpilog(BasicBlock* block)
 
     if (jmpEpilog && lastNode->gtOper == GT_JMP)
     {
-        methHnd = (CORINFO_METHOD_HANDLE)lastNode->gtVal.gtVal1;
+        methHnd = (CORINFO_METHOD_HANDLE)lastNode->AsVal()->gtVal1;
         compiler->info.compCompHnd->getFunctionEntryPoint(methHnd, &addrInfo);
     }
 
@@ -8568,10 +8572,10 @@ void CodeGen::genFnEpilog(BasicBlock* block)
 
     if (jmpEpilog)
     {
-        hasTailCalls = true;
+        setHasTailCalls(true);
 
         noway_assert(block->bbJumpKind == BBJ_RETURN);
-        noway_assert(block->bbTreeList != nullptr);
+        noway_assert(block->getBBTreeList() != nullptr);
 
         /* figure out what jump we have */
         GenTree* jmpNode = lastNode;
@@ -8927,7 +8931,7 @@ void CodeGen::genFnEpilog(BasicBlock* block)
     if (jmpEpilog)
     {
         noway_assert(block->bbJumpKind == BBJ_RETURN);
-        noway_assert(block->bbTreeList);
+        noway_assert(block->getBBTreeList());
 
         // figure out what jump we have
         GenTree* jmpNode = block->lastNode();
@@ -8950,7 +8954,7 @@ void CodeGen::genFnEpilog(BasicBlock* block)
         {
             // Simply emit a jump to the methodHnd. This is similar to a call so we can use
             // the same descriptor with some minor adjustments.
-            CORINFO_METHOD_HANDLE methHnd = (CORINFO_METHOD_HANDLE)jmpNode->gtVal.gtVal1;
+            CORINFO_METHOD_HANDLE methHnd = (CORINFO_METHOD_HANDLE)jmpNode->AsVal()->gtVal1;
 
             CORINFO_CONST_LOOKUP addrInfo;
             compiler->info.compCompHnd->getFunctionEntryPoint(methHnd, &addrInfo);
@@ -10325,7 +10329,7 @@ unsigned CodeGen::getFirstArgWithStackSlot()
         // we find any non-parameters.
         assert(varDsc->lvIsParam);
 
-        if (varDsc->lvArgReg == REG_STK)
+        if (varDsc->GetArgReg() == REG_STK)
         {
             baseVarNum = i;
             break;
@@ -11412,7 +11416,7 @@ const char* CodeGen::siStackVarName(size_t offs, size_t size, unsigned reg, unsi
 GenTreeIndir CodeGen::indirForm(var_types type, GenTree* base)
 {
     GenTreeIndir i(GT_IND, type, base, nullptr);
-    i.gtRegNum = REG_NA;
+    i.SetRegNum(REG_NA);
     i.SetContained();
     return i;
 }
@@ -11424,7 +11428,7 @@ GenTreeIndir CodeGen::indirForm(var_types type, GenTree* base)
 GenTreeStoreInd CodeGen::storeIndirForm(var_types type, GenTree* base, GenTree* data)
 {
     GenTreeStoreInd i(type, base, data);
-    i.gtRegNum = REG_NA;
+    i.SetRegNum(REG_NA);
     return i;
 }
 
@@ -11435,7 +11439,7 @@ GenTreeStoreInd CodeGen::storeIndirForm(var_types type, GenTree* base, GenTree* 
 GenTreeIntCon CodeGen::intForm(var_types type, ssize_t value)
 {
     GenTreeIntCon i(type, value);
-    i.gtRegNum = REG_NA;
+    i.SetRegNum(REG_NA);
     return i;
 }
 
@@ -11462,17 +11466,17 @@ void CodeGen::genLongReturn(GenTree* treeNode)
     assert(op1->OperGet() == GT_LONG);
     GenTree* loRetVal = op1->gtGetOp1();
     GenTree* hiRetVal = op1->gtGetOp2();
-    assert((loRetVal->gtRegNum != REG_NA) && (hiRetVal->gtRegNum != REG_NA));
+    assert((loRetVal->GetRegNum() != REG_NA) && (hiRetVal->GetRegNum() != REG_NA));
 
     genConsumeReg(loRetVal);
     genConsumeReg(hiRetVal);
-    if (loRetVal->gtRegNum != REG_LNGRET_LO)
+    if (loRetVal->GetRegNum() != REG_LNGRET_LO)
     {
-        inst_RV_RV(ins_Copy(targetType), REG_LNGRET_LO, loRetVal->gtRegNum, TYP_INT);
+        inst_RV_RV(ins_Copy(targetType), REG_LNGRET_LO, loRetVal->GetRegNum(), TYP_INT);
     }
-    if (hiRetVal->gtRegNum != REG_LNGRET_HI)
+    if (hiRetVal->GetRegNum() != REG_LNGRET_HI)
     {
-        inst_RV_RV(ins_Copy(targetType), REG_LNGRET_HI, hiRetVal->gtRegNum, TYP_INT);
+        inst_RV_RV(ins_Copy(targetType), REG_LNGRET_HI, hiRetVal->GetRegNum(), TYP_INT);
     }
 }
 #endif // _TARGET_X86_ || _TARGET_ARM_
@@ -11520,7 +11524,7 @@ void CodeGen::genReturn(GenTree* treeNode)
         else if (targetType != TYP_VOID)
         {
             assert(op1 != nullptr);
-            noway_assert(op1->gtRegNum != REG_NA);
+            noway_assert(op1->GetRegNum() != REG_NA);
 
             // !! NOTE !! genConsumeReg will clear op1 as GC ref after it has
             // consumed a reg for the operand. This is because the variable
@@ -11545,22 +11549,22 @@ void CodeGen::genReturn(GenTree* treeNode)
             {
                 if (targetType == TYP_FLOAT)
                 {
-                    getEmitter()->emitIns_R_R(INS_vmov_f2i, EA_4BYTE, REG_INTRET, op1->gtRegNum);
+                    getEmitter()->emitIns_R_R(INS_vmov_f2i, EA_4BYTE, REG_INTRET, op1->GetRegNum());
                 }
                 else
                 {
                     assert(targetType == TYP_DOUBLE);
                     getEmitter()->emitIns_R_R_R(INS_vmov_d2i, EA_8BYTE, REG_INTRET, REG_NEXT(REG_INTRET),
-                                                op1->gtRegNum);
+                                                op1->GetRegNum());
                 }
             }
             else
 #endif // _TARGET_ARM_
             {
                 regNumber retReg = varTypeIsFloating(treeNode) ? REG_FLOATRET : REG_INTRET;
-                if (op1->gtRegNum != retReg)
+                if (op1->GetRegNum() != retReg)
                 {
-                    inst_RV_RV(ins_Move_Extend(targetType, true), retReg, op1->gtRegNum, targetType);
+                    inst_RV_RV(ins_Move_Extend(targetType, true), retReg, op1->GetRegNum(), targetType);
                 }
             }
 #endif // !_TARGET_ARM64_
