@@ -20,7 +20,7 @@ include_directories(BEFORE ${VM_DIR})
 
 add_definitions(-DPAL_STDCPP_COMPAT)
 
-add_compile_options(-fPIE)
+add_compile_options(-fPIC)
 
 set(CREATEDUMP_SOURCES 
     createdump.cpp 
