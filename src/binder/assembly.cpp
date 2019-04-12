@@ -16,9 +16,6 @@
 #include "assembly.hpp"
 #include "utils.hpp"
 
-BIND_UUID_OF(ICLRPrivResourceAssembly)
-BIND_UUID_OF(ICLRPrivResource)
-
 
 namespace BINDER_SPACE
 {
