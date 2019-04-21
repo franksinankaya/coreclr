@@ -1667,7 +1667,7 @@ public:
             }
 #endif // _TARGET_ARM_
 
-            if (!isHfaArg)
+            if (!getIsHfaArg())
             {
                 // We haven't previously set this; do so now.
                 _hfaElemKind = HfaElemKindFromType(type);
@@ -1756,7 +1756,7 @@ public:
     {
         unsigned size = getSlotCount();
 #ifdef FEATURE_HFA
-        if (isHfaRegArg)
+        if (getIsHfaRegArg())
         {
 #ifdef _TARGET_ARM_
             // We counted the number of regs, but if they are DOUBLE hfa regs we have to double the size.
