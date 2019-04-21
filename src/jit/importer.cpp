@@ -17186,9 +17186,9 @@ SPILLSTACK:
                     if (gtHasRef(relOp->AsOp()->gtOp2, tempNum, false))
                     {
                         unsigned temp = lvaGrabTemp(true DEBUGARG("spill addStmt JTRUE ref Op2"));
-                        impAssignTempGen(temp, relOp->AsOpRef().gtOp2, level);
+                        impAssignTempGen(temp, relOp->AsOp()->gtOp2, level);
                         type                   = genActualType(lvaTable[temp].TypeGet());
-                        relOp->AsOpRef().gtOp2 = gtNewLclvNode(temp, type);
+                        relOp->AsOp()->gtOp2 = gtNewLclvNode(temp, type);
                     }
                 }
                 else
