@@ -12912,7 +12912,7 @@ DONE_MORPHING_CHILDREN:
                     /* Negate the constant and change the node to be "+" */
 
                     op2->AsIntConCommon()->SetIconValue(-op2->AsIntConCommon()->IconValue());
-                    op2->AsIntCon().gtFieldSeq = FieldSeqStore::NotAField();
+                    op2->AsIntCon()->gtFieldSeq = FieldSeqStore::NotAField();
                     oper                     = GT_ADD;
                     tree->ChangeOper(oper);
                     goto CM_ADD_OP;
@@ -18777,8 +18777,8 @@ void Compiler::fgAddFieldSeqForZeroOffset(GenTree* addr, FieldSeqNode* fieldSeqZ
     switch (addr->OperGet())
     {
         case GT_CNS_INT:
-            fieldSeqUpdate            = GetFieldSeqStore()->Append(addr->gtIntCon.gtFieldSeq, fieldSeqZero);
-            addr->gtIntCon.gtFieldSeq = fieldSeqUpdate;
+            fieldSeqUpdate            = GetFieldSeqStore()->Append(addr->AsIntCon()->gtFieldSeq, fieldSeqZero);
+            addr->AsIntCon()->gtFieldSeq = fieldSeqUpdate;
             fieldSeqRecorded          = true;
             break;
 
