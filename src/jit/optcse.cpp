@@ -252,7 +252,7 @@ bool Compiler::optCSE_canSwap(GenTree* tree)
     // We must have a binary treenode with non-null op1 and op2
     assert((tree->OperKind() & GTK_SMPOP) != 0);
 
-    GenTree* op1 = tree->gtOp.gtOp1;
+    GenTree* op1 = tree->AsOp()->gtOp1;
     GenTree* op2 = tree->gtGetOp2();
 
     return optCSE_canSwap(op1, op2);
@@ -275,7 +275,7 @@ int __cdecl Compiler::optCSEcostCmpEx(const void* op1, const void* op2)
 
     int diff;
 
-    diff = (int)(exp2->gtCostEx - exp1->gtCostEx);
+    diff = (int)(exp2->GetCostEx() - exp1->GetCostEx());
 
     if (diff != 0)
     {
@@ -319,7 +319,7 @@ int __cdecl Compiler::optCSEcostCmpSz(const void* op1, const void* op2)
 
     int diff;
 
-    diff = (int)(exp2->gtCostSz - exp1->gtCostSz);
+    diff = (int)(exp2->GetCostSz() - exp1->GetCostSz());
 
     if (diff != 0)
     {
@@ -431,7 +431,7 @@ unsigned Compiler::optValnumCSE_Index(GenTree* tree, GenTreeStmt* stmt)
     if (tree->OperGet() == GT_COMMA)
     {
         // op2 is the value produced by a GT_COMMA
-        GenTree* op2      = tree->gtOp.gtOp2;
+        GenTree* op2      = tree->AsOp()->gtOp2;
         ValueNum vnOp2Lib = op2->GetVN(VNK_Liberal);
 
         // If the value number for op2 and tree are different, then some new
@@ -591,7 +591,7 @@ unsigned Compiler::optValnumCSE_Index(GenTree* tree, GenTreeStmt* stmt)
             printf("\nCSE candidate #%02u, vn=", CSEindex);
             vnPrint(key, 0);
             printf(" cseMask=%s in " FMT_BB ", [cost=%2u, size=%2u]: \n", genES2str(cseTraits, tempMask),
-                   compCurBB->bbNum, tree->gtCostEx, tree->gtCostSz);
+                   compCurBB->bbNum, tree->GetCostEx(), tree->GetCostSz());
             gtDispTree(tree);
         }
 #endif // DEBUG
@@ -1577,15 +1577,15 @@ public:
         {
             if (m_context->CodeOptKind() == Compiler::SMALL_CODE)
             {
-                m_Cost     = Expr()->gtCostSz;      // the estimated code size
-                m_Size     = Expr()->gtCostSz;      // always the gtCostSz
+                m_Cost     = Expr()->GetCostSz();      // the estimated code size
+                m_Size     = Expr()->GetCostSz();      // always the gtCostSz
                 m_defCount = m_CseDsc->csdDefCount; // def count
                 m_useCount = m_CseDsc->csdUseCount; // use count (excluding the implicit uses at defs)
             }
             else
             {
-                m_Cost     = Expr()->gtCostEx;      // the estimated execution cost
-                m_Size     = Expr()->gtCostSz;      // always the gtCostSz
+                m_Cost     = Expr()->GetCostEx();      // the estimated execution cost
+                m_Size     = Expr()->GetCostSz();      // always the gtCostSz
                 m_defCount = m_CseDsc->csdDefWtCnt; // weighted def count
                 m_useCount = m_CseDsc->csdUseWtCnt; // weighted use count (excluding the implicit uses at defs)
             }
@@ -2275,8 +2275,8 @@ public:
 
                     while ((curSideEff->OperGet() == GT_COMMA) || (curSideEff->OperGet() == GT_ASG))
                     {
-                        GenTree* op1 = curSideEff->gtOp.gtOp1;
-                        GenTree* op2 = curSideEff->gtOp.gtOp2;
+                        GenTree* op1 = curSideEff->AsOp()->gtOp1;
+                        GenTree* op2 = curSideEff->AsOp()->gtOp2;
 
                         ValueNumPair op1vnp;
                         ValueNumPair op1Xvnp = ValueNumStore::VNPForEmptyExcSet();
@@ -2293,7 +2293,7 @@ public:
                         // The inserted cast will have no exceptional effects
                         assert(curSideEff->gtOverflow() == false);
                         // Process the exception effects from the cast's operand.
-                        curSideEff = curSideEff->gtOp.gtOp1;
+                        curSideEff = curSideEff->AsOp()->gtOp1;
                     }
 
                     ValueNumPair op2vnp;
@@ -2340,14 +2340,14 @@ public:
                 }
                 else
                 {
-                    noway_assert(asg->gtOp.gtOp2 == val);
+                    noway_assert(asg->AsOp()->gtOp2 == val);
                 }
 
                 // assign the proper Value Numbers
                 asg->gtVNPair.SetBoth(ValueNumStore::VNForVoid()); // The GT_ASG node itself is $VN.Void
-                asg->gtOp.gtOp1->gtVNPair = val->gtVNPair;         // The dest op is the same as 'val'
+                asg->AsOp()->gtOp1->gtVNPair = val->gtVNPair;         // The dest op is the same as 'val'
 
-                noway_assert(asg->gtOp.gtOp1->gtOper == GT_LCL_VAR);
+                noway_assert(asg->AsOp()->gtOp1->gtOper == GT_LCL_VAR);
 
                 /* Create a reference to the CSE temp */
                 GenTree* ref  = m_pCompiler->gtNewLclvNode(cseLclVarNum, cseLclVarTyp);
@@ -2606,11 +2606,11 @@ bool Compiler::optIsCSEcandidate(GenTree* tree)
     unsigned cost;
     if (compCodeOpt() == SMALL_CODE)
     {
-        cost = tree->gtCostSz;
+        cost = tree->GetCostSz();
     }
     else
     {
-        cost = tree->gtCostEx;
+        cost = tree->GetCostEx();
     }
 
     /* Don't bother if the potential savings are very low */
@@ -2673,7 +2673,7 @@ bool Compiler::optIsCSEcandidate(GenTree* tree)
                 "GT_IND(GT_ARR_ELEM) = GT_IND(GT_ARR_ELEM) + xyz", whereas doing
                 the second would not allow it */
 
-            return (tree->gtOp.gtOp1->gtOper != GT_ARR_ELEM);
+            return (tree->AsOp()->gtOp1->gtOper != GT_ARR_ELEM);
 
         case GT_CNS_INT:
         case GT_CNS_LNG:

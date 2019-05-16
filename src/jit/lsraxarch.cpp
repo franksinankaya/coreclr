@@ -92,8 +92,8 @@ int LinearScan::BuildNode(GenTree* tree)
             // use lvLRACandidate here instead.
             if (tree->IsRegOptional())
             {
-                if (!compiler->lvaTable[tree->AsLclVarCommon()->gtLclNum].lvTracked ||
-                    compiler->lvaTable[tree->AsLclVarCommon()->gtLclNum].lvDoNotEnregister)
+                if (!compiler->lvaTable[tree->AsLclVarCommon()->GetLclNum()].lvTracked ||
+                    compiler->lvaTable[tree->AsLclVarCommon()->GetLclNum()].lvDoNotEnregister)
                 {
                     tree->ClearRegOptional();
                     tree->SetContained();
@@ -114,7 +114,7 @@ int LinearScan::BuildNode(GenTree* tree)
             // is processed, unless this is marked "isLocalDefUse" because it is a stack-based argument
             // to a call or an orphaned dead node.
             //
-            LclVarDsc* const varDsc = &compiler->lvaTable[tree->AsLclVarCommon()->gtLclNum];
+            LclVarDsc* const varDsc = &compiler->lvaTable[tree->AsLclVarCommon()->GetLclNum()];
             if (isCandidateVar(varDsc))
             {
                 INDEBUG(dumpNodeInfo(tree, dstCandidates, 0, 1));
@@ -454,9 +454,9 @@ int LinearScan::BuildNode(GenTree* tree)
 
             // Comparand is preferenced to RAX.
             // The remaining two operands can be in any reg other than RAX.
-            BuildUse(tree->gtCmpXchg.gtOpLocation, allRegs(TYP_INT) & ~RBM_RAX);
-            BuildUse(tree->gtCmpXchg.gtOpValue, allRegs(TYP_INT) & ~RBM_RAX);
-            BuildUse(tree->gtCmpXchg.gtOpComparand, RBM_RAX);
+            BuildUse(tree->AsCmpXchg()->gtOpLocation, allRegs(TYP_INT) & ~RBM_RAX);
+            BuildUse(tree->AsCmpXchg()->gtOpValue, allRegs(TYP_INT) & ~RBM_RAX);
+            BuildUse(tree->AsCmpXchg()->gtOpComparand, RBM_RAX);
             BuildDef(tree, RBM_RAX);
         }
         break;
@@ -580,7 +580,7 @@ int LinearScan::BuildNode(GenTree* tree)
             assert(dstCount == 1);
             srcCount                 = 0;
             RefPosition* internalDef = nullptr;
-            if (tree->gtArrOffs.gtOffset->isContained())
+            if (tree->AsArrOffs()->gtOffset->isContained())
             {
                 srcCount = 2;
             }
@@ -1133,7 +1133,7 @@ int LinearScan::BuildCall(GenTreeCall* call)
         if (argNode->OperIsPutArgReg())
         {
             srcCount++;
-            BuildUse(argNode, genRegMask(argNode->gtRegNum));
+            BuildUse(argNode, genRegMask(argNode->GetRegNum()));
         }
 #ifdef UNIX_AMD64_ABI
         else if (argNode->OperGet() == GT_FIELD_LIST)
@@ -1142,7 +1142,7 @@ int LinearScan::BuildCall(GenTreeCall* call)
             {
                 assert(entry->Current()->OperIsPutArgReg());
                 srcCount++;
-                BuildUse(entry->Current(), genRegMask(entry->Current()->gtRegNum));
+                BuildUse(entry->Current(), genRegMask(entry->Current()->GetRegNum()));
             }
         }
 #endif // UNIX_AMD64_ABI
@@ -1153,7 +1153,7 @@ int LinearScan::BuildCall(GenTreeCall* call)
         fgArgTabEntry* curArgTabEntry = compiler->gtArgEntryByNode(call, argNode);
         assert(curArgTabEntry);
 
-        if (curArgTabEntry->regNum == REG_STK)
+        if (curArgTabEntry->getRegNum() == REG_STK)
         {
             // late arg that is not passed in a register
             assert(argNode->gtOper == GT_PUTARG_STK);
@@ -1181,8 +1181,8 @@ int LinearScan::BuildCall(GenTreeCall* call)
             int i = 0;
             for (GenTreeFieldList* entry = argNode->AsFieldList(); entry != nullptr; entry = entry->Rest())
             {
-                const regNumber argReg = (i == 0) ? curArgTabEntry->regNum : curArgTabEntry->otherRegNum;
-                assert(entry->Current()->gtRegNum == argReg);
+                const regNumber argReg = (i == 0) ? curArgTabEntry->getRegNum() : curArgTabEntry->getOtherRegNum();
+                assert(entry->Current()->GetRegNum() == argReg);
                 assert(i < 2);
                 i++;
             }
@@ -1190,8 +1190,8 @@ int LinearScan::BuildCall(GenTreeCall* call)
         else
 #endif // UNIX_AMD64_ABI
         {
-            const regNumber argReg = curArgTabEntry->regNum;
-            assert(argNode->gtRegNum == argReg);
+            const regNumber argReg = curArgTabEntry->getRegNum();
+            assert(argNode->GetRegNum() == argReg);
         }
 #endif // DEBUG
     }
@@ -1675,7 +1675,7 @@ int LinearScan::BuildLclHeap(GenTree* tree)
     {
         assert(size->isContained());
         srcCount       = 0;
-        size_t sizeVal = size->gtIntCon.gtIconVal;
+        size_t sizeVal = size->AsIntCon()->gtIconVal;
 
         if (sizeVal == 0)
         {
@@ -1822,7 +1822,7 @@ int LinearScan::BuildIntrinsic(GenTree* tree)
     assert(op1->TypeGet() == tree->TypeGet());
     RefPosition* internalFloatDef = nullptr;
 
-    switch (tree->gtIntrinsic.gtIntrinsicId)
+    switch (tree->AsIntrinsic()->gtIntrinsicId)
     {
         case CORINFO_INTRINSIC_Abs:
             // Abs(float x) = x & 0x7fffffff
@@ -1837,7 +1837,7 @@ int LinearScan::BuildIntrinsic(GenTree* tree)
             // xmm register. When we add support in emitter to emit 128-bit
             // data constants and instructions that operate on 128-bit
             // memory operands we can avoid the need for an internal register.
-            if (tree->gtIntrinsic.gtIntrinsicId == CORINFO_INTRINSIC_Abs)
+            if (tree->AsIntrinsic()->gtIntrinsicId == CORINFO_INTRINSIC_Abs)
             {
                 internalFloatDef = buildInternalFloatRegisterDefForNode(tree, internalFloatRegCandidates());
             }
@@ -2154,7 +2154,7 @@ int LinearScan::BuildSIMD(GenTreeSIMD* simdTree)
                     unsigned baseSize           = genTypeSize(baseType);
                     if (baseSize == 1)
                     {
-                        if ((op2->gtIntCon.gtIconVal % 2) == 1)
+                        if ((op2->AsIntCon()->gtIconVal % 2) == 1)
                         {
                             ZeroOrSignExtnReqd = (baseType == TYP_BYTE);
                         }

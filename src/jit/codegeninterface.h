@@ -75,7 +75,7 @@ public:
     //-------------------------------------------------------------------------
     //  The following property indicates whether to align loops.
     //  (Used to avoid effects of loop alignment when diagnosing perf issues.)
-    __declspec(property(get = doAlignLoops, put = setAlignLoops)) bool genAlignLoops;
+
     bool doAlignLoops()
     {
         return m_genAlignLoops;
@@ -277,7 +277,7 @@ public:
 #endif // !DOUBLE_ALIGN
 
 #ifdef DEBUG
-    // The following is used to make sure the value of 'genInterruptible' isn't
+    // The following is used to make sure the value of 'getInterruptible()' isn't
     // changed after it's been used by any logic that depends on its value.
 public:
     bool isGCTypeFixed()
@@ -348,7 +348,7 @@ public:
     // is to be fully interruptible.
     //
 public:
-    __declspec(property(get = getInterruptible, put = setInterruptible)) bool genInterruptible;
+
     bool getInterruptible()
     {
         return m_cgInterruptible;
@@ -359,7 +359,7 @@ public:
     }
 
 #ifdef _TARGET_ARMARCH_
-    __declspec(property(get = getHasTailCalls, put = setHasTailCalls)) bool hasTailCalls;
+
     bool getHasTailCalls()
     {
         return m_cgHasTailCalls;
@@ -378,12 +378,11 @@ private:
 
     //  The following will be set to true if we've determined that we need to
     //  generate a full-blown pointer register map for the current method.
-    //  Currently it is equal to (genInterruptible || !isFramePointerUsed())
+    //  Currently it is equal to (getInterruptible() || !isFramePointerUsed())
     //  (i.e. We generate the full-blown map for EBP-less methods and
     //        for fully interruptible methods)
     //
 public:
-    __declspec(property(get = doFullPtrRegMap, put = setFullPtrRegMap)) bool genFullPtrRegMap;
     bool doFullPtrRegMap()
     {
         return m_cgFullPtrRegMap;

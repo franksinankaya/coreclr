@@ -692,7 +692,7 @@ bool LinearScan::isContainableMemoryOp(GenTree* node)
         {
             return true;
         }
-        LclVarDsc* varDsc = &compiler->lvaTable[node->AsLclVar()->gtLclNum];
+        LclVarDsc* varDsc = &compiler->lvaTable[node->AsLclVar()->GetLclNum()];
         return varDsc->lvDoNotEnregister;
     }
     return false;
@@ -906,7 +906,7 @@ regMaskTP LinearScan::getKillSetForBlockStore(GenTreeBlk* blkNode)
 
     if ((blkNode->OperGet() == GT_STORE_OBJ) && blkNode->OperIsCopyBlkOp())
     {
-        assert(blkNode->AsObj()->gtGcPtrCount != 0);
+        assert(blkNode->AsObj()->GetGcPtrCount() != 0);
         killMask = compiler->compHelperCallKillSet(CORINFO_HELP_ASSIGN_BYREF);
     }
     else
@@ -1569,7 +1569,7 @@ void LinearScan::buildRefPositionsForNode(GenTree* tree, BasicBlock* block, Lsra
         // address computation. In this case we need to check whether it is a last use.
         if (tree->IsLocal() && ((tree->gtFlags & GTF_VAR_DEATH) != 0))
         {
-            LclVarDsc* const varDsc = &compiler->lvaTable[tree->AsLclVarCommon()->gtLclNum];
+            LclVarDsc* const varDsc = &compiler->lvaTable[tree->AsLclVarCommon()->GetLclNum()];
             if (isCandidateVar(varDsc))
             {
                 assert(varDsc->lvTracked);
@@ -1718,7 +1718,7 @@ void LinearScan::buildPhysRegRecords()
 //
 BasicBlock* getNonEmptyBlock(BasicBlock* block)
 {
-    while (block != nullptr && block->bbTreeList == nullptr)
+    while (block != nullptr && block->getBBTreeList() == nullptr)
     {
         BasicBlock* nextBlock = block->bbNext;
         // Note that here we use the version of NumSucc that does not take a compiler.
@@ -1730,7 +1730,7 @@ BasicBlock* getNonEmptyBlock(BasicBlock* block)
         // assert( block->GetSucc(0) == nextBlock);
         block = nextBlock;
     }
-    assert(block != nullptr && block->bbTreeList != nullptr);
+    assert(block != nullptr && block->getBBTreeList() != nullptr);
     return block;
 }
 
@@ -1807,31 +1807,31 @@ void LinearScan::unixAmd64UpdateRegStateForArg(LclVarDsc* argDsc)
     RegState* intRegState   = &compiler->codeGen->intRegState;
     RegState* floatRegState = &compiler->codeGen->floatRegState;
 
-    if ((argDsc->lvArgReg != REG_STK) && (argDsc->lvArgReg != REG_NA))
+    if ((argDsc->GetArgReg() != REG_STK) && (argDsc->GetArgReg() != REG_NA))
     {
-        if (genRegMask(argDsc->lvArgReg) & (RBM_ALLFLOAT))
+        if (genRegMask(argDsc->GetArgReg()) & (RBM_ALLFLOAT))
         {
-            assert(genRegMask(argDsc->lvArgReg) & (RBM_FLTARG_REGS));
-            floatRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->lvArgReg);
+            assert(genRegMask(argDsc->GetArgReg()) & (RBM_FLTARG_REGS));
+            floatRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->GetArgReg());
         }
         else
         {
-            assert(genRegMask(argDsc->lvArgReg) & (RBM_ARG_REGS));
-            intRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->lvArgReg);
+            assert(genRegMask(argDsc->GetArgReg()) & (RBM_ARG_REGS));
+            intRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->GetArgReg());
         }
     }
 
-    if ((argDsc->lvOtherArgReg != REG_STK) && (argDsc->lvOtherArgReg != REG_NA))
+    if ((argDsc->GetOtherArgReg() != REG_STK) && (argDsc->GetOtherArgReg() != REG_NA))
     {
-        if (genRegMask(argDsc->lvOtherArgReg) & (RBM_ALLFLOAT))
+        if (genRegMask(argDsc->GetOtherArgReg()) & (RBM_ALLFLOAT))
         {
-            assert(genRegMask(argDsc->lvOtherArgReg) & (RBM_FLTARG_REGS));
-            floatRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->lvOtherArgReg);
+            assert(genRegMask(argDsc->GetOtherArgReg()) & (RBM_FLTARG_REGS));
+            floatRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->GetOtherArgReg());
         }
         else
         {
-            assert(genRegMask(argDsc->lvOtherArgReg) & (RBM_ARG_REGS));
-            intRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->lvOtherArgReg);
+            assert(genRegMask(argDsc->GetOtherArgReg()) & (RBM_ARG_REGS));
+            intRegState->rsCalleeRegArgMaskLiveIn |= genRegMask(argDsc->GetOtherArgReg());
         }
     }
 }
@@ -1871,7 +1871,7 @@ void LinearScan::updateRegStateForArg(LclVarDsc* argDsc)
     {
         RegState* intRegState   = &compiler->codeGen->intRegState;
         RegState* floatRegState = &compiler->codeGen->floatRegState;
-        bool      isFloat       = emitter::isFloatReg(argDsc->lvArgReg);
+        bool      isFloat       = emitter::isFloatReg(argDsc->GetArgReg());
 
         if (argDsc->lvIsHfaRegArg())
         {
@@ -1880,16 +1880,16 @@ void LinearScan::updateRegStateForArg(LclVarDsc* argDsc)
 
         if (isFloat)
         {
-            JITDUMP("Float arg V%02u in reg %s\n", (argDsc - compiler->lvaTable), getRegName(argDsc->lvArgReg));
+            JITDUMP("Float arg V%02u in reg %s\n", (argDsc - compiler->lvaTable), getRegName(argDsc->GetArgReg()));
             compiler->raUpdateRegStateForArg(floatRegState, argDsc);
         }
         else
         {
-            JITDUMP("Int arg V%02u in reg %s\n", (argDsc - compiler->lvaTable), getRegName(argDsc->lvArgReg));
+            JITDUMP("Int arg V%02u in reg %s\n", (argDsc - compiler->lvaTable), getRegName(argDsc->GetArgReg()));
 #if FEATURE_MULTIREG_ARGS
-            if (argDsc->lvOtherArgReg != REG_NA)
+            if (argDsc->GetOtherArgReg() != REG_NA)
             {
-                JITDUMP("(second half) in reg %s\n", getRegName(argDsc->lvOtherArgReg));
+                JITDUMP("(second half) in reg %s\n", getRegName(argDsc->GetOtherArgReg()));
             }
 #endif // FEATURE_MULTIREG_ARGS
             compiler->raUpdateRegStateForArg(intRegState, argDsc);
@@ -2007,7 +2007,7 @@ void LinearScan::buildIntervals()
             if (argDsc->lvIsRegArg)
             {
                 // Set this interval as currently assigned to that register
-                regNumber inArgReg = argDsc->lvArgReg;
+                regNumber inArgReg = argDsc->GetArgReg();
                 assert(inArgReg < REG_COUNT);
                 mask = genRegMask(inArgReg);
                 assignPhysReg(inArgReg, interval);
@@ -2172,7 +2172,7 @@ void LinearScan::buildIntervals()
             // In DEBUG, we want to set the gtRegTag to GT_REGTAG_REG, so that subsequent dumps will so the register
             // value.
             // Although this looks like a no-op it sets the tag.
-            node->gtRegNum = node->gtRegNum;
+            node->SetRegNum(node->GetRegNum());
 #endif
 
             buildRefPositionsForNode(node, block, currentLoc);
@@ -2475,7 +2475,7 @@ RefPosition* LinearScan::BuildDef(GenTree* tree, regMaskTP dstCandidates, int mu
 
     if (dstCandidates != RBM_NONE)
     {
-        assert((tree->gtRegNum == REG_NA) || (dstCandidates == genRegMask(tree->GetRegByIndex(multiRegIdx))));
+        assert((tree->GetRegNum() == REG_NA) || (dstCandidates == genRegMask(tree->GetRegByIndex(multiRegIdx))));
     }
 
     if (tree->IsMultiRegNode())
@@ -2484,12 +2484,12 @@ RefPosition* LinearScan::BuildDef(GenTree* tree, regMaskTP dstCandidates, int mu
     }
 
     Interval* interval = newInterval(type);
-    if (tree->gtRegNum != REG_NA)
+    if (tree->GetRegNum() != REG_NA)
     {
         if (!tree->IsMultiRegNode() || (multiRegIdx == 0))
         {
-            assert((dstCandidates == RBM_NONE) || (dstCandidates == genRegMask(tree->gtRegNum)));
-            dstCandidates = genRegMask(tree->gtRegNum);
+            assert((dstCandidates == RBM_NONE) || (dstCandidates == genRegMask(tree->GetRegNum())));
+            dstCandidates = genRegMask(tree->GetRegNum());
         }
         else
         {
@@ -2906,7 +2906,7 @@ int LinearScan::BuildStoreLoc(GenTreeLclVarCommon* storeLoc)
     GenTree*     op1 = storeLoc->gtGetOp1();
     int          srcCount;
     RefPosition* singleUseRef = nullptr;
-    LclVarDsc*   varDsc       = &compiler->lvaTable[storeLoc->gtLclNum];
+    LclVarDsc*   varDsc       = &compiler->lvaTable[storeLoc->GetLclNum()];
 
 // First, define internal registers.
 #ifdef FEATURE_SIMD
@@ -3225,7 +3225,7 @@ int LinearScan::BuildPutArgReg(GenTreeUnOp* node)
 {
     assert(node != nullptr);
     assert(node->OperIsPutArgReg());
-    regNumber argReg = node->gtRegNum;
+    regNumber argReg = node->GetRegNum();
     assert(argReg != REG_NA);
     bool     isSpecialPutArg = false;
     int      srcCount        = 1;
@@ -3323,7 +3323,7 @@ void LinearScan::HandleFloatVarArgs(GenTreeCall* call, GenTree* argNode, bool* c
         *callHasFloatRegArgs = true;
 
         // We'll have to return the internal def and then later create a use for it.
-        regNumber argReg    = argNode->gtRegNum;
+        regNumber argReg    = argNode->GetRegNum();
         regNumber targetReg = compiler->getCallArgIntRegister(argReg);
 
         buildInternalIntRegisterDefForNode(call, genRegMask(targetReg));

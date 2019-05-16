@@ -544,11 +544,11 @@ inline bool leafInRange(GenTree* leaf, int lower, int upper)
     {
         return false;
     }
-    if (leaf->gtIntCon.gtIconVal < lower)
+    if (leaf->AsIntCon()->gtIconVal < lower)
     {
         return false;
     }
-    if (leaf->gtIntCon.gtIconVal > upper)
+    if (leaf->AsIntCon()->gtIconVal > upper)
     {
         return false;
     }
@@ -562,7 +562,7 @@ inline bool leafInRange(GenTree* leaf, int lower, int upper, int multiple)
     {
         return false;
     }
-    if (leaf->gtIntCon.gtIconVal % multiple)
+    if (leaf->AsIntCon()->gtIconVal % multiple)
     {
         return false;
     }
@@ -1017,9 +1017,9 @@ private:
     {
         if (tree->IsLocal())
         {
-            unsigned int lclNum = tree->gtLclVarCommon.gtLclNum;
+            unsigned int lclNum = tree->AsLclVarCommon()->GetLclNum();
             assert(lclNum < compiler->lvaCount);
-            LclVarDsc* varDsc = compiler->lvaTable + tree->gtLclVarCommon.gtLclNum;
+            LclVarDsc* varDsc = compiler->lvaTable + tree->AsLclVarCommon()->GetLclNum();
 
             return isCandidateVar(varDsc);
         }
@@ -1115,7 +1115,7 @@ private:
 
     Interval* getIntervalForLocalVarNode(GenTreeLclVarCommon* tree)
     {
-        LclVarDsc* varDsc = &compiler->lvaTable[tree->gtLclNum];
+        LclVarDsc* varDsc = &compiler->lvaTable[tree->GetLclNum()];
         assert(varDsc->lvTracked);
         return getIntervalForLocalVar(varDsc->lvVarIndex);
     }
@@ -1594,7 +1594,7 @@ private:
         }
         // If 'fromTree' was a lclVar, it must be contained and 'toTree' must match.
         if (!fromTree->isContained() || (toTree == nullptr) || !toTree->OperIs(GT_LCL_VAR) ||
-            (toTree->AsLclVarCommon()->gtLclNum != toTree->AsLclVarCommon()->gtLclNum))
+            (toTree->AsLclVarCommon()->GetLclNum() != toTree->AsLclVarCommon()->GetLclNum()))
         {
             assert(!"Unmatched RMW indirections");
             return;

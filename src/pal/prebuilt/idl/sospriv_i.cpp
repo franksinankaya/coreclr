@@ -101,5 +101,16 @@ MIDL_DEFINE_GUID(IID, IID_ISOSDacInterface6,0x11206399,0x4b66,0x4edb,0x98,0xea,0
 }
 #endif
 
-
+#if !(defined(_MSC_VER) || defined(__llvm__))
+BIND_UUID_OF(ISOSEnum)
+BIND_UUID_OF(ISOSHandleEnum)
+BIND_UUID_OF(ISOSStackRefErrorEnum)
+BIND_UUID_OF(ISOSStackRefEnum)
+BIND_UUID_OF(ISOSDacInterface)
+BIND_UUID_OF(ISOSDacInterface2)
+BIND_UUID_OF(ISOSDacInterface3)
+BIND_UUID_OF(ISOSDacInterface4)
+BIND_UUID_OF(ISOSDacInterface5)
+BIND_UUID_OF(ISOSDacInterface6)
+#endif
 
