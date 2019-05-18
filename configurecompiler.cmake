@@ -453,7 +453,7 @@ if (CLR_CMAKE_PLATFORM_UNIX)
   add_compile_options(-Wno-unused-function)
 
   #These seem to indicate real issues
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof -Wno-class-memaccess")
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # The -ferror-limit is helpful during the porting, it makes sure the compiler doesn't stop
