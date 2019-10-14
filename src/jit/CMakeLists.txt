@@ -6,6 +6,7 @@ include_directories("../inc")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fpermissive>)
   add_compile_options(-Wno-error)
+  add_compile_options(-Wno-narrowing)
 endif()
 
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:-W4>)
