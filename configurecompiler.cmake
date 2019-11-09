@@ -12,11 +12,11 @@ include(CheckPIESupported)
 include(CheckCXXCompilerFlag)
 
 # All code we build should be compiled as position independent
-check_pie_supported(OUTPUT_VARIABLE PIE_SUPPORT_OUTPUT LANGUAGES CXX)
-if(NOT MSVC AND NOT CMAKE_CXX_LINK_PIE_SUPPORTED)
-  message(WARNING "PIE is not supported at link time: ${PIE_SUPPORT_OUTPUT}.\n"
-                  "PIE link options will not be passed to linker.")
-endif()
+#check_pie_supported(OUTPUT_VARIABLE PIE_SUPPORT_OUTPUT LANGUAGES CXX)
+#if(NOT MSVC AND NOT CMAKE_CXX_LINK_PIE_SUPPORTED)
+#  message(WARNING "PIE is not supported at link time: ${PIE_SUPPORT_OUTPUT}.\n"
+#                  "PIE link options will not be passed to linker.")
+#endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #----------------------------------------
@@ -204,10 +204,13 @@ if(MSVC)
 elseif (CLR_CMAKE_PLATFORM_UNIX)
     add_compile_options(-g)
     add_compile_options(-Wall)
+    add_compile_options(-Wno-attributes)
+    add_compile_options(-Wno-deprecated-declarations)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         add_compile_options(-Wno-null-conversion)
     else()
         add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Werror=conversion-null>)
+        add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>)
     endif()
 endif()
 
