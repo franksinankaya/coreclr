@@ -26,7 +26,7 @@ export PYTHON
 usage()
 {
     echo "Usage: $0 [BuildArch] [BuildType] [-verbose] [-coverage] [-cross] [-gccx.y] [-clangx.y] [-ninja] [-configureonly] [-skipconfigure] [-skipnative] [-skipcrossarchnative] [-skipmanaged] [-skipmscorlib] [-stripsymbols] [-ignorewarnings] [-cmakeargs] [-bindir]"
-    echo "BuildArch can be: -x64, -x86, -arm, -armel, -arm64"
+    echo "BuildArch can be: -x64, -x86, -arm, -armel, -armv6, -arm64"
     echo "BuildType can be: -debug, -checked, -release"
     echo "-coverage - optional argument to enable code coverage build (currently supported only for Linux and OSX)."
     echo "-ninja - target ninja instead of GNU make"
@@ -327,7 +327,7 @@ build_cross_architecture_components()
 
     __SkipCrossArchBuild=1
     # check supported cross-architecture components host(__HostArch)/target(__BuildArch) pair
-    if [[ ("$__BuildArch" == "arm" || "$__BuildArch" == "armel") && ("$__CrossArch" == "x86" || "$__CrossArch" == "x64") ]]; then
+    if [[ ("$__BuildArch" == "arm" || "$__BuildArch" == "armel" || "$__BuildArch" == "armv6") && ("$__CrossArch" == "x86" || "$__CrossArch" == "x64") ]]; then
         __SkipCrossArchBuild=0
     elif [[ "$__BuildArch" == "arm64" && "$__CrossArch" == "x64" ]]; then
         __SkipCrossArchBuild=0
@@ -737,6 +737,10 @@ while :; do
 
         armel|-armel)
             __BuildArch=armel
+            ;;
+
+        armv6|-armv6)
+            __BuildArch=armv6
             ;;
 
         arm64|-arm64)
