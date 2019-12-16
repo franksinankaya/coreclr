@@ -537,11 +537,15 @@ if(CLR_CMAKE_PLATFORM_UNIX_ARM)
    # we have to set the triple by adding a compiler argument
    add_compile_options(-mthumb)
    add_compile_options(-mfpu=vfpv3)
-   add_compile_options(-march=armv7-a)
+   if (NOT DEFINED CLR_ARM_ARCH_TYPE)
+     set(CLR_ARM_ARCH_TYPE armv7-a)
+   endif(NOT DEFINED CLR_ARM_ARCH_TYPE)
+
    if(ARM_SOFTFP)
      add_definitions(-DARM_SOFTFP)
      add_compile_options(-mfloat-abi=softfp)
    endif(ARM_SOFTFP)
+   add_compile_options(-march=${CLR_ARM_ARCH_TYPE})
 endif(CLR_CMAKE_PLATFORM_UNIX_ARM)
 
 if(CLR_CMAKE_PLATFORM_UNIX)
