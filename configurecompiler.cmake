@@ -535,16 +535,22 @@ endif(CLR_CMAKE_PLATFORM_UNIX)
 if(CLR_CMAKE_PLATFORM_UNIX_ARM)
    # Because we don't use CMAKE_C_COMPILER/CMAKE_CXX_COMPILER to use clang
    # we have to set the triple by adding a compiler argument
-   add_compile_options(-mthumb)
    add_compile_options(-mfpu=vfpv3)
    if (NOT DEFINED CLR_ARM_ARCH_TYPE)
      set(CLR_ARM_ARCH_TYPE armv7-a)
    endif(NOT DEFINED CLR_ARM_ARCH_TYPE)
 
+   if (NOT DEFINED CLR_ARM_ARCH_INSTRUCTION)
+     set(CLR_ARM_ARCH_INSTRUCTION -mthumb)
+   endif(NOT DEFINED CLR_ARM_ARCH_INSTRUCTION)
+
+   add_compile_options(${CLR_ARM_ARCH_INSTRUCTION})
+
    if(ARM_SOFTFP)
      add_definitions(-DARM_SOFTFP)
      add_compile_options(-mfloat-abi=softfp)
    endif(ARM_SOFTFP)
+
    add_compile_options(-march=${CLR_ARM_ARCH_TYPE})
 endif(CLR_CMAKE_PLATFORM_UNIX_ARM)
 
