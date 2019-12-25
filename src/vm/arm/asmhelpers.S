@@ -583,13 +583,9 @@ NESTED_ENTRY ProfileEnterNaked, _TEXT, NoHandler
     // void       *profiledSp; // location of arguments on stack
     // LPVOID      hiddenArg;
     // UINT32      flags;
-    lsr         r4, r4, #16
-    lsl         r4, r4, #16
-    orr         r4, r4, #1
+    movw        r4, #1
     push        { /* flags      */ r4 }
-    lsr         r4, r4, #16
-    lsl         r4, r4, #16
-    orr         r4, r4, #0
+    movw        r4, #0
     push        { /* hiddenArg  */ r4 }
     add         r5, r11, #8
     push        { /* profiledSp */ r5 }
@@ -630,13 +626,9 @@ NESTED_ENTRY ProfileLeaveNaked, _TEXT, NoHandler
     // void       *profiledSp; // location of arguments on stack
     // LPVOID      hiddenArg;
     // UINT32      flags;
-    lsr         r4, r4, #16
-    lsl         r4, r4, #16
-    orr         r4, r4, #2
+    movw        r4, #2
     push        { /* flags      */ r4 }
-    lsr         r4, r4, #16
-    lsl         r4, r4, #16
-    orr         r4, r4, #0
+    movw        r4, #0
     push        { /* hiddenArg  */ r4 }
     add         r5, r11, #8
     push        { /* profiledSp */ r5 }
@@ -677,13 +669,9 @@ NESTED_ENTRY ProfileTailcallNaked, _TEXT, NoHandler
     // void       *profiledSp; // location of arguments on stack
     // LPVOID      hiddenArg;
     // UINT32      flags;
-    lsr         r4, r4, #16
-    lsl         r4, r4, #16
-    orr         r4, r4, #2
+    movw        r4, #2
     push        { /* flags      */ r4 }
-    lsr         r4, r4, #16
-    lsl         r4, r4, #16
-    orr         r4, r4, #0
+    movw        r4, #0
     push        { /* hiddenArg  */ r4 }
     add         r5, r11, #8
     push        { /* profiledSp */ r5 }
