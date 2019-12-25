@@ -272,7 +272,7 @@ C_FUNC(\Name\()_End):
 .endm
 
 
-#ifdef __ARM_ARCH_6__
+#ifndef __thumb__
 .macro cbz_impl Reg, Location
         cmp \Reg, #0
         beq \Location
@@ -286,7 +286,9 @@ C_FUNC(\Name\()_End):
 .endm
 
 #define cbnz cbnz_impl
+#endif
 
+#ifdef __ARM_ARCH_6__
 .macro dmb_impl
         PROLOG_PUSH "{r0-r3,r4-r11,lr}"
         PROLOG_VPUSH "{d0-d3}"
