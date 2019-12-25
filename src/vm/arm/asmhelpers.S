@@ -1209,12 +1209,7 @@ LOCAL_LABEL(DoWrite):
     LEAF_ENTRY \name, _TEXT
         START_WRITE_BARRIER \name
         .if(\mp)
-#ifdef __ARM_ARCH_6__
-            mov      r2, #0
-            mcr      p15,0,r2,c7,c10,4
-#else
             dmb
-#endif
         .endif
         
         str r1, [r0]
@@ -1239,12 +1234,7 @@ LOCAL_LABEL(DoWrite):
     .macro JIT_CHECKEDWRITEBARRIER_MP name, post
     LEAF_ENTRY \name, _TEXT
         START_WRITE_BARRIER \name
-#ifdef __ARM_ARCH_6__
-        mov      r2, #0
-        mcr      p15,0,r2,c7,c10,4
-#else
         dmb
-#endif
         str r1, [r0]
         CHECK_GC_HEAP_RANGE \name, r0, 1f
         UPDATE_GC_SHADOW \name, r0, r1
@@ -1260,12 +1250,7 @@ LOCAL_LABEL(DoWrite):
     LEAF_ENTRY \name, _TEXT
         START_WRITE_BARRIER \name
         .if(\mp)
-#ifdef __ARM_ARCH_6__
-            mov      r2, #0
-            mcr      p15,0,r2,c7,c10,4
-#else
             dmb
-#endif
         .endif
         
         ldr r2, [r1]
