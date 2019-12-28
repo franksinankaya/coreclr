@@ -13,6 +13,12 @@
 .syntax unified
 CLR_ARM_ASM_COMPILATION_MODE
 
+.s_gsCookie:
+        .word   s_gsCookie
+
+.g_TrapReturningThreads:
+        .word   g_TrapReturningThreads
+
 // LPVOID __stdcall GetCurrentIP(void)//
     LEAF_ENTRY GetCurrentIP, _TEXT
         mov     r0, lr
@@ -223,7 +229,7 @@ C_FUNC(JIT_TailCallHelperStub_ReturnAddress):
         //
 
 #ifdef _DEBUG
-        ldr     r3, =s_gsCookie
+        ldr     r3, .s_gsCookie
         ldr     r3, [r3]
         ldr     r2, [r7, #-0x0C]
         cmp     r2, r3
@@ -330,7 +336,7 @@ UMThunkStub_StackArgsSize = 10*4
 LOCAL_LABEL(UMThunkStub_HaveThread):
         mov                 r5, r0                  // r5 = Thread *
 
-        ldr                 r2, =g_TrapReturningThreads
+        ldr                 r2, .g_TrapReturningThreads
 
         mov                 r4, 1
         str                 r4, [r5, #Thread__m_fPreemptiveGCDisabled]
@@ -1439,4 +1445,3 @@ DelayLoad_Helper\suffix:
         EPILOG_POP "{r0,r4-r11,pc}"
         NESTED_END OnHijackTripThread, _TEXT
 #endif
-
