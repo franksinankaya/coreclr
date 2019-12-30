@@ -297,7 +297,16 @@ C_FUNC(\Name\()_End):
         EPILOG_VPOP "{d0-d3}"
         EPILOG_POP "{r0-r3,r4-r11,lr}"
 .endm
-
 #define dmb dmb_impl
+
+.macro movw_impl Reg, value
+#ifdef __thumb__
+        movs \Reg, \value
+#else
+        mov \Reg, \value
+#endif
+.endm
+
+#define movw movw_impl
 
 #endif
