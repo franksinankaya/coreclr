@@ -9,6 +9,7 @@ include_directories(${PALTESTSUITE_SOURCE_DIR}/common)
 # so we don't need to link them seperately
 if(NOT CLR_CMAKE_PLATFORM_ANDROID)
   list(APPEND COMMON_TEST_LIBRARIES pthread)
+  list(APPEND COMMON_TEST_LIBRARIES atomic)
   list(APPEND COMMON_TEST_LIBRARIES m)
 endif()
 
