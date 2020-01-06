@@ -344,6 +344,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux)
     target_link_libraries(coreclrpal
       gcc_s
       pthread
+      atomic
       rt
     )
   endif()
