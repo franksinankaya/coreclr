@@ -17,6 +17,21 @@ C_FUNC(\Name):
         .endif
 .endm
 
+.macro LEAF_ENTRY_ARM Name, Section
+        .arm
+        .global C_FUNC(\Name)
+        .type \Name, %function
+C_FUNC(\Name):
+        .fnstart
+.endm
+
+.macro NESTED_ENTRY_ARM Name, Section, Handler
+        LEAF_ENTRY_ARM \Name, \Section
+        .ifnc \Handler, NoHandler
+        .personality C_FUNC(\Handler)
+        .endif
+.endm
+
 .macro NESTED_END Name, Section
         LEAF_END \Name, \Section
 .endm
