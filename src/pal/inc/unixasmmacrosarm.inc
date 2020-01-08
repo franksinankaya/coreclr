@@ -90,11 +90,21 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro POP_CALLEE_SAVED_REGISTERS
+#if __ARM_ARCH_ISA_THUMB == 1
+        pop_nonvol_reg "{r4-r7}"
+        pop_nonvol_reg "{lr}"
+#else
         pop_nonvol_reg "{r4-r11, lr}"
+#endif
 .endm
 
 .macro PUSH_CALLEE_SAVED_REGISTERS
+#if __ARM_ARCH_ISA_THUMB == 1
+        push_nonvol_reg "{lr}"
+        push_nonvol_reg "{r4-r7}"
+#else
         push_nonvol_reg "{r4-r11, lr}"
+#endif
 .endm
 
 .macro push_register Reg
@@ -305,12 +315,14 @@ C_FUNC(\Name\()_End):
 
 #ifdef __ARM_ARCH_6__
 .macro dmb_impl
-        PROLOG_PUSH "{r0-r3,r4-r11,lr}"
+        PUSH_ARGUMENT_REGISTERS
+        PUSH_CALLEE_SAVED_REGISTERS
         PROLOG_VPUSH "{d0-d3}"
         mov      r2, #0
         mcr      p15,0,r2,c7,c10,4
         EPILOG_VPOP "{d0-d3}"
-        EPILOG_POP "{r0-r3,r4-r11,lr}"
+        POP_CALLEE_SAVED_REGISTERS
+        POP_ARGUMENT_REGISTERS
 .endm
 #define dmb dmb_impl
 

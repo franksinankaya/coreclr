@@ -1427,8 +1427,13 @@ DelayLoad_Helper\suffix:
 // ------------------------------------------------------------------
 // Hijack function for functions which return a value type
         NESTED_ENTRY OnHijackTripThread, _TEXT, NoHandler
+#if __ARM_ARCH_ISA_THUMB == 1
+        PROLOG_PUSH "{lr}"
+        PROLOG_PUSH "{r4-r7}"
+        PROLOG_PUSH "{r0}"
+#else
         PROLOG_PUSH "{r0,r4-r11,lr}"
-
+#endif
         PROLOG_VPUSH "{d0-d3}"    // saving as d0-d3 can have the floating point return value
         PROLOG_PUSH "{r1}"        // saving as r1 can have partial return value when return is > 32 bits
         alloc_stack 4             // 8 byte align
@@ -1442,6 +1447,13 @@ DelayLoad_Helper\suffix:
         EPILOG_POP "{r1}"
         EPILOG_VPOP "{d0-d3}"
 
+#if __ARM_ARCH_ISA_THUMB == 1
+        EPILOG_POP "{r0}"
+        EPILOG_POP "{r4-r7}"
+        EPILOG_POP "{pc}"
+#else
         EPILOG_POP "{r0,r4-r11,pc}"
+#endif
+
         NESTED_END OnHijackTripThread, _TEXT
 #endif
