@@ -27,7 +27,7 @@
 // Incoming:
 //  r0: Context*
 //
-LEAF_ENTRY CONTEXT_CaptureContext, _TEXT
+LEAF_ENTRY_ARM CONTEXT_CaptureContext, _TEXT
     // Ensure we save these registers
     push {r4-r11}
     // Save processor flags before calling any of the following 'test' instructions
@@ -110,7 +110,7 @@ LEAF_END RtlCaptureContext, _TEXT
 //  r0: Context*
 //  r1: Exception*
 //
-LEAF_ENTRY RtlRestoreContext, _TEXT
+LEAF_ENTRY_ARM RtlRestoreContext, _TEXT
     END_PROLOGUE
 
 #ifdef HAS_ASAN
