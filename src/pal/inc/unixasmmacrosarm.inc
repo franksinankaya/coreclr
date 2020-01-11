@@ -230,6 +230,10 @@ C_FUNC(\Name\()_End):
 #endif
 .endm
 
+.macro EMIT_BREAKPOINT_ARM
+	.inst 0xe7f001f0
+.endm
+
 .macro PROLOG_PUSH RegList
         push_nonvol_reg "\RegList"
 .endm
@@ -294,6 +298,21 @@ C_FUNC(\Name\()_End):
         pop {r0, r1}
         beq 0f
         EMIT_BREAKPOINT
+0:
+#endif
+.endm
+
+.macro CHECK_STACK_ALIGNMENT_ARM
+
+#ifdef _DEBUG
+        push {r0, r1}
+        add r0, sp, #4
+        movs r1, #128
+        ands r0, r1
+        cmp r0, #0
+        pop {r0, r1}
+        beq 0f
+        EMIT_BREAKPOINT_ARM
 0:
 #endif
 .endm
