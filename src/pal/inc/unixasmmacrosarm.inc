@@ -261,10 +261,12 @@ C_FUNC(\Name\()_End):
 .macro CHECK_STACK_ALIGNMENT
 
 #ifdef _DEBUG
-        push {r0}
+        push {r0, r1}
         add r0, sp, #4
-        tst r0, #7
-        pop {r0}
+        movs r1, #128
+        ands r0, r1
+        cmp r0, #0
+        pop {r0, r1}
         beq 0f
         EMIT_BREAKPOINT
 0:
