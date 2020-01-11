@@ -336,4 +336,8 @@ C_FUNC(\Name\()_End):
 
 #define movw movw_impl
 
+#if __ARM_ARCH_ISA_THUMB == 1
+#define mov movs
+#endif
+
 #endif
