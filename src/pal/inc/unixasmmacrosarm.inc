@@ -340,6 +340,7 @@ C_FUNC(\Name\()_End):
 
 #if __ARM_ARCH_ISA_THUMB == 1
 #define mov movs
+#define add adds
 #endif
 
 #endif
