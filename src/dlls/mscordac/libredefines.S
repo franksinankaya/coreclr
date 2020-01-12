@@ -6,7 +6,7 @@
 
 #if defined(_ARM_)
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 #endif
 
 #include "libredefines.inc"

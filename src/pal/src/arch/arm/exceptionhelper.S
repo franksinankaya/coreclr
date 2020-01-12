@@ -6,7 +6,7 @@
 #include "asmconstants.h"
 
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 
 // EXTERN_C void ThrowExceptionFromContextInternal(CONTEXT* context, PAL_SEHException* ex);
 LEAF_ENTRY_ARM ThrowExceptionFromContextInternal, _TEXT

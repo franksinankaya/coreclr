@@ -6,7 +6,7 @@
 #include "asmconstants.h"
 
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 
 //
 // void *memcpy(void *dst, const void *src, size_t length)

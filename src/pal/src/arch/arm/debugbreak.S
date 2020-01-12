@@ -5,7 +5,7 @@
 #include "unixasmmacros.inc"
 
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 
 LEAF_ENTRY DBG_DebugBreak, _TEXT
     EMIT_BREAKPOINT

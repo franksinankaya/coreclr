@@ -16,7 +16,7 @@
 #include "asmconstants.h"
 
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 
 // JIT_MemSet/JIT_MemCpy
 //

@@ -11,7 +11,7 @@
 #include "asmconstants.h"
 
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 
 #define CONTEXT_ARM     0x00200000
 

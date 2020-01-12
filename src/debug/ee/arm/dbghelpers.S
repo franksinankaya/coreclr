@@ -5,7 +5,7 @@
 #include "unixasmmacros.inc"
 
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 
 //
 // hijacking stub used to perform a func-eval, see Debugger::FuncEvalSetup() for use.
