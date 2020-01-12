@@ -44,9 +44,7 @@
 
     NESTED_END \__PInvokeStubFuncName, _TEXT
 
-
     NESTED_ENTRY \__PInvokeGenStubFuncName, _TEXT, NoHandler
-
         PROLOG_WITH_TRANSITION_BLOCK 0, \SaveFPArgs
 
         // r2 = UnmanagedTarget\ MethodDesc
@@ -63,7 +61,7 @@
         // save hidden arg
         mov                 r4, r12
 
-        bl                  \__PInvokeStubWorkerName
+        blx                 \__PInvokeStubWorkerName
 
         // restore hidden arg (method desc or unmanaged target)
         mov                 r12, r4
@@ -83,27 +81,30 @@
 //
     NESTED_ENTRY JIT_PInvokeBegin,_TEXT,NoHandler
 
-        PROLOG_PUSH  "{r4, lr}"
+        PROLOG_PUSH  "{r4, r5, lr}"
 
         ldr     r1, =s_gsCookie
         ldr     r1, [r1]
         str     r1, [r0]
-        add     r4, r0, SIZEOF__GSCookie
+        adds    r4, r0, SIZEOF__GSCookie
                     
         // r4 = pFrame
         
         // set first slot to the value of InlinedCallFrame::`vftable' (checked by runtime code)
-        ldr     r1, .L12
+        ldr     r1, =.L12
         str     r1, [r4]
 
-        mov     r1, 0
+        movs    r1, 0
         str     r1, [r4, #InlinedCallFrame__m_Datum]
-    
+
         add     r1, sp, 8
         str     r1, [r4, #InlinedCallFrame__m_pCallSiteSP]
-        str     r11, [r4, #InlinedCallFrame__m_pCalleeSavedFP]
-        str     lr, [r4, #InlinedCallFrame__m_pCallerReturnAddress]
-        str     r9, [r4, #InlinedCallFrame__m_pSPAfterProlog]
+        mov     r5, r11
+        str     r5, [r4, #InlinedCallFrame__m_pCalleeSavedFP]
+        mov     r5, lr
+        str     r5, [r4, #InlinedCallFrame__m_pCallerReturnAddress]
+        mov     r5, r9
+        str     r5, [r4, #InlinedCallFrame__m_pSPAfterProlog]
 
         ;; r0 = GetThread()
         bl      C_FUNC(GetThread)
@@ -117,15 +118,16 @@
         str     r4, [r0, #Thread_m_pFrame]
 
         // pThread->m_fPreemptiveGCDisabled = 0
-        mov     r1, 0
+        movs    r1, 0
         str     r1, [r0, #Thread_m_fPreemptiveGCDisabled]
 
-        EPILOG_POP   "{r4, pc}"
+        EPILOG_POP   "{r4, r5, pc}"
 
     NESTED_END JIT_PInvokeBegin, _TEXT
 
 .L12:
     .word   _ZTV16InlinedCallFrame+8
+
 
 // ------------------------------------------------------------------
 // IN:
