@@ -6,7 +6,7 @@
 #include "asmconstants.h"
 
 .syntax unified
-CLR_ARM_ASM_COMPILATION_MODE
+.thumb
 
 .macro CALL_SIGNAL_HANDLER_WRAPPER Alignment
 
