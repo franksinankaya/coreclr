@@ -30,13 +30,13 @@
 LEAF_ENTRY JIT_MemSet, _TEXT
 
         cmp r2, #0
-        it eq
-        bxeq lr
+        bne  .memsetcall
+        bx  lr
         
+.memsetcall:
         ldrb r3, [r0]
-        
-        b C_PLTFUNC(memset)
-
+        ldr r3, =C_PLTFUNC(memset)
+        bx r3
 LEAF_END_MARKED JIT_MemSet, _TEXT
 
 
@@ -45,13 +45,15 @@ LEAF_ENTRY JIT_MemCpy, _TEXT
 //
 
         cmp r2, #0
-        it eq
-        bxeq lr
-        
+        bne  .memcpycall
+        bx  lr
+
+.memcpycall:
         ldrb r3, [r0]
         ldrb r3, [r1]
-        
-        b C_PLTFUNC(memcpy)
+
+        ldr r3, =C_PLTFUNC(memcpy)
+        bx r3
 
 LEAF_END_MARKED JIT_MemCpy, _TEXT
 
