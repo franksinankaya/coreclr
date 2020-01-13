@@ -274,11 +274,7 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro EMIT_BREAKPOINT
-#ifdef __thumb__
 	.inst.w 0xde01
-#else
-	.inst 0xe7f001f0
-#endif
 .endm
 
 .macro EMIT_BREAKPOINT_ARM
