@@ -545,11 +545,7 @@ if(CLR_CMAKE_PLATFORM_UNIX_ARM)
      set(CLR_ARM_ARCH_TYPE armv7-a)
    endif(NOT DEFINED CLR_ARM_ARCH_TYPE)
 
-   if (NOT DEFINED CLR_ARM_ARCH_INSTRUCTION)
-     set(CLR_ARM_ARCH_INSTRUCTION thumb)
-   endif(NOT DEFINED CLR_ARM_ARCH_INSTRUCTION)
-
-   add_compile_options(-m${CLR_ARM_ARCH_INSTRUCTION})
+   add_compile_options(-mthumb)
 
    if(ARM_SOFTFP)
      add_definitions(-DARM_SOFTFP)

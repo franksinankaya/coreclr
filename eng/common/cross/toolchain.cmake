@@ -89,11 +89,7 @@ if(TARGET_ARCH_NAME MATCHES "^(arm|armel|arm64)$")
 endif()
 
 if(TARGET_ARCH_NAME MATCHES "^(arm|armel)$")
-   if (NOT DEFINED CLR_ARM_ARCH_INSTRUCTION)
-     set(CLR_ARM_ARCH_INSTRUCTION thumb)
-   endif(NOT DEFINED CLR_ARM_ARCH_INSTRUCTION)
-
-  add_compile_options(-m${CLR_ARM_ARCH_INSTRUCTION})
+  add_compile_options(-mthumb)
    if (NOT DEFINED CLR_ARM_FPU_TYPE)
      set(CLR_ARM_FPU_TYPE vfpv3)
    endif(NOT DEFINED CLR_ARM_FPU_TYPE)
