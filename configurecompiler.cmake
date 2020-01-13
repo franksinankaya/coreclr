@@ -549,12 +549,6 @@ if(CLR_CMAKE_PLATFORM_UNIX_ARM)
      set(CLR_ARM_ARCH_INSTRUCTION thumb)
    endif(NOT DEFINED CLR_ARM_ARCH_INSTRUCTION)
 
-   if (NOT CLR_ARM_ARCH_INSTRUCTION STREQUAL "arm")
-     add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-DCLR_ARM_ASM_FUNC_MODE=.thumb_func>)
-   else()
-     add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-DCLR_ARM_ASM_FUNC_MODE=.arm>)
-   endif(CLR_ARM_ARCH_INSTRUCTION)
-
    add_compile_options(-m${CLR_ARM_ARCH_INSTRUCTION})
 
    if(ARM_SOFTFP)

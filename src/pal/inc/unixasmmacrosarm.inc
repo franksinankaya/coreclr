@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 .macro LEAF_ENTRY Name, Section
-        CLR_ARM_ASM_FUNC_MODE
+        .thumb_func
         .global C_FUNC(\Name)
         .type \Name, %function
 C_FUNC(\Name):
@@ -41,7 +41,7 @@ C_FUNC(\Name):
 .endm
 
 .macro PATCH_LABEL Name
-        CLR_ARM_ASM_FUNC_MODE
+        .thumb_func
         .global C_FUNC(\Name)
 C_FUNC(\Name):
 .endm
@@ -52,7 +52,7 @@ C_FUNC(\Name):
 .endm
 
 .macro LEAF_END_MARKED Name, Section
-        CLR_ARM_ASM_FUNC_MODE
+        .thumb_func
         .global C_FUNC(\Name\()_End)
 C_FUNC(\Name\()_End):
         LEAF_END \Name, \Section
