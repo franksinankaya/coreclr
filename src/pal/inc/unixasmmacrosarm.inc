@@ -256,11 +256,7 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro EMIT_BREAKPOINT
-#ifdef __thumb__
 	.inst.w 0xde01
-#else
-	.inst 0xe7f001f0
-#endif
 .endm
 
 .macro EMIT_BREAKPOINT_ARM
@@ -376,11 +372,7 @@ C_FUNC(\Name\()_End):
 
 #ifdef __ARM_ARCH_6__
 .macro movw_impl Reg, value
-#ifdef __thumb__
         movs \Reg, \value
-#else
-        mov \Reg, \value
-#endif
 .endm
 
 #define movw movw_impl
