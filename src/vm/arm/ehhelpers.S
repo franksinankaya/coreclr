@@ -79,7 +79,7 @@ OFFSET_OF_FRAME=(4 + SIZEOF__GSCookie)
         // This helper enables us to call into a funclet after applying the non-volatiles
         NESTED_ENTRY CallEHFunclet, _TEXT, NoHandler
 
-        PROLOG_PUSH  "{r4-r11, lr}"
+        PUSH_CALLEE_SAVED_REGISTERS
         PROLOG_STACK_SAVE_OFFSET  r7, #12
         alloc_stack  4
 
@@ -91,16 +91,32 @@ OFFSET_OF_FRAME=(4 + SIZEOF__GSCookie)
         // R3 = address of the location where the SP of funclet's caller (i.e. this helper) should be saved.
         //
         // Save the SP of this function
-        str sp, [r3]
+        push {r4}
+        mov  r4, sp
+        adds r4, r4, #4
+        str r4, [r3]
+        pop  {r4}
+
         // apply the non-volatiles corresponding to the CrawlFrame
         ldm r2!, {r4-r6}
-        add r2, r2, #4
-        ldm r2!, {r8-r11}
+        adds r2, r2, #4
+        push {r0}
+        ldm r2!, {r0}
+        mov r8, r0
+        ldm r2!, {r0}
+        mov r9, r0
+        ldm r2!, {r0}
+        mov r10, r0
+        ldm r2!, {r0}
+        mov r11, r0
+	pop {r0}
+
         // Invoke the funclet
         blx r1
 
         free_stack   4
-        EPILOG_POP   "{r4-r11, pc}"
+        POP_CALLEE_SAVED_REGISTERS
+        bx lr
 
         NESTED_END CallEHFunclet, _TEXT
 
