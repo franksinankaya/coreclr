@@ -286,10 +286,12 @@ void GCFrame::GcScanRoots(promote_func *fn, ScanContext* sc)
     UNREACHABLE();
 }
 
+#ifdef FEATURE_HIJACK
 void HijackFrame::GcScanRoots(promote_func *fn, ScanContext* sc)
 {
     UNREACHABLE();
 }
+#endif
 
 VOID GCFrame::Pop()
 {

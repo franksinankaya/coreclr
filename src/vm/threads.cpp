@@ -1539,7 +1539,9 @@ Thread::Thread()
 #ifdef FEATURE_PERFTRACING
     memset(&m_activityId, 0, sizeof(m_activityId));
 #endif // FEATURE_PERFTRACING
+#ifdef FEATURE_HIJACK
     m_HijackReturnKind = RT_Illegal;
+#endif
     m_DeserializationTracker = NULL;
 
     m_currentPrepareCodeConfig = nullptr;
