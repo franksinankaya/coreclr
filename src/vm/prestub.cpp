@@ -363,9 +363,11 @@ bool MayUsePrecompiledILStub()
     if (g_pConfig->InteropValidatePinnedObjects())
         return false;
 
+#if defined(PROFILING_SUPPORTED)
     if (CORProfilerTrackTransitions())
         return false;
-    
+#endif
+
     if (g_pConfig->InteropLogArguments())
         return false;
 

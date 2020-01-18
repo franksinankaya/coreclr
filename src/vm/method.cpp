@@ -4856,10 +4856,14 @@ bool MethodDesc::DetermineAndSetIsEligibleForTieredCompilation()
         (g_pConfig->TieredCompilation_QuickJit() || GetModule()->HasNativeOrReadyToRunImage()) &&
 
         // Policy - Generating optimized code is not disabled
-        !IsJitOptimizationDisabled() &&
+        !IsJitOptimizationDisabled()
 
+#if defined(PROFILING_SUPPORTED)
+        && 
         // Policy - Tiered compilation is not disabled by the profiler
-        !CORProfilerDisableTieredCompilation())
+        !CORProfilerDisableTieredCompilation()
+#endif
+    )
     {
         m_bFlags2 |= enum_flag2_IsEligibleForTieredCompilation;
         _ASSERTE(IsVersionableWithoutJumpStamp());

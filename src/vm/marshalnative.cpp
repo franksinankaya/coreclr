@@ -583,10 +583,12 @@ FCIMPL2(LPVOID, MarshalNative::GCHandleInternalAlloc, Object *obj, int type)
 
     assert(type >= HNDTYPE_WEAK_SHORT && type <= HNDTYPE_WEAK_WINRT);
 
+#if defined(PROFILING_SUPPORTED)
     if (CORProfilerTrackGC())
     {
         FC_INNER_RETURN(LPVOID, (LPVOID) FCDiagCreateHandle(objRef, type));
     }
+#endif
 
     OBJECTHANDLE hnd = GetAppDomain()->GetHandleStore()->CreateHandleOfType(OBJECTREFToObject(objRef), static_cast<HandleType>(type));
     if (!hnd)
@@ -614,10 +616,12 @@ FCIMPL1(VOID, MarshalNative::GCHandleInternalFree, OBJECTHANDLE handle)
 {
     FCALL_CONTRACT;
 
+#if defined(PROFILING_SUPPORTED)
     if (CORProfilerTrackGC())
     {
         FC_INNER_RETURN_VOID(FCDiagDestroyHandle(handle));
     }
+#endif
 
     GCHandleUtilities::GetGCHandleManager()->DestroyHandleOfUnknownType(handle);
 }

@@ -2232,9 +2232,11 @@ void QCALLTYPE RuntimeMethodHandle::Destroy(MethodDesc * pMethod)
     // Fire Unload Dynamic Method Event here
     ETW::MethodLog::DynamicMethodDestroyed(pMethod);
 
+#if defined(PROFILING_SUPPORTED)
     BEGIN_PIN_PROFILER(CORProfilerIsMonitoringDynamicFunctionUnloads());
     g_profControlBlock.pProfInterface->DynamicMethodUnloaded((FunctionID)pMethod);
     END_PIN_PROFILER();
+#endif
 
     pDynamicMethodDesc->Destroy();
 
