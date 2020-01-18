@@ -8,7 +8,7 @@
 #include "diagnosticsipc.h"
 #include "diagnosticsprotocol.h"
 
-#if defined(FEATURE_PERFTRACING) && defined(FEATURE_PROFAPI_ATTACH_DETACH) && !defined(DACCESS_COMPILE)
+#if defined(FEATURE_PERFTRACING) && defined(FEATURE_PROFAPI_ATTACH_DETACH) && !defined(DACCESS_COMPILE) && defined(PROFILING_SUPPORTED)
 #include "profilinghelper.h"
 #include "profilinghelper.inl"
 
@@ -97,11 +97,13 @@ void ProfilerDiagnosticProtocolHelper::AttachProfiler(DiagnosticsIpc::IpcMessage
         goto ErrExit;
     }
 
+#ifdef PROFILING_SUPPORTED
     if (!g_profControlBlock.fProfControlBlockInitialized)
     {
         hr = CORPROF_E_RUNTIME_UNINITIALIZED;
         goto ErrExit;
     }
+#endif
 
     // Certain actions are only allowable during attach, and this flag is how we track it.
     ClrFlsSetThreadType(ThreadType_ProfAPI_Attach);

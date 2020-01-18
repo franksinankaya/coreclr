@@ -82,7 +82,7 @@ static DWORD WINAPI DiagnosticsServerThread(LPVOID lpThreadParameter)
                 break;
 #endif
 
-#ifdef FEATURE_PROFAPI_ATTACH_DETACH
+#if defined(FEATURE_PROFAPI_ATTACH_DETACH) && defined(PROFILING_SUPPORTED)
             case DiagnosticsIpc::DiagnosticServerCommandSet::Profiler:
                 ProfilerDiagnosticProtocolHelper::AttachProfiler(message, pStream);
                 break;

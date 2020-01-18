@@ -12,7 +12,7 @@
 
 #include "common.h"
 
-#ifdef FEATURE_PROFAPI_ATTACH_DETACH
+#if defined(FEATURE_PROFAPI_ATTACH_DETACH) && defined(PROFILING_SUPPORTED)
 
 #include "profdetach.h"
 #include "profilinghelper.h"
