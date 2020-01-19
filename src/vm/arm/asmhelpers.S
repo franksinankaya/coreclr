@@ -568,6 +568,7 @@ ThePreStubPatchLabel:
 
         .endm
 
+#ifdef PROFILING_SUPPORTED
 //
 // EXTERN_C void ProfileEnterNaked(FunctionIDOrClientID functionIDOrClientID);
 //
@@ -610,6 +611,7 @@ NESTED_ENTRY ProfileEnterNaked, _TEXT, NoHandler
     EPILOG_STACK_RESTORE_OFFSET r7, #8
     EPILOG_POP "{r4, r5, r7, r11, pc}"
 NESTED_END ProfileEnterNaked, _TEXT
+#endif
 
 //
 // EXTERN_C void ProfileLeaveNaked(FunctionIDOrClientID functionIDOrClientID);
