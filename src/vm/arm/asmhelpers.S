@@ -811,7 +811,7 @@ RedirectedHandledJITCaseFor\reason\()_StubEnd:
 // r7 is trashed
 // The below two functions were copied from vctools\crt\crtw32\startup\arm\chkstk.asm
 
-    NESTED_ENTRY checkStack, _TEXT, NoHandler
+    NESTED_ENTRY_ARM checkStack, _TEXT, NoHandler
     subs        r7,sp,r4
     mrc         p15,#0,r4,c13,c0,#2 // get TEB *
     ldr         r4,[r4,#8]          // get Stack limit
@@ -823,10 +823,10 @@ LOCAL_LABEL(checkStack_label1):
     bx lr
 LOCAL_LABEL(checkStack_neg):
     mov         r7, #0
-    b           LOCAL_LABEL(checkStack_label1)
-    NESTED_END checkStack, _TEXT
+    bx          =LOCAL_LABEL(checkStack_label1)
+    NESTED_END_ARM checkStack, _TEXT
 
-    NESTED_ENTRY stackProbe, _TEXT, NoHandler
+    NESTED_ENTRY_ARM stackProbe, _TEXT, NoHandler
     PROLOG_PUSH "{r5,r6}"
     mov         r6, r7
     lsr         r6, r6, #12
@@ -840,7 +840,7 @@ LOCAL_LABEL(stackProbe_loop):
     EPILOG_POP "{r5,r6}"
     sub r4,sp,r7
     bx lr
-    NESTED_END stackProbe, _TEXT
+    NESTED_END_ARM stackProbe, _TEXT
 
 #ifdef FEATURE_PREJIT
 //------------------------------------------------

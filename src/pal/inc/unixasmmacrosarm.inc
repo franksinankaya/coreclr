@@ -36,6 +36,16 @@ C_FUNC(\Name):
         LEAF_END \Name, \Section
 .endm
 
+.macro LEAF_END_ARM Name, Section
+        .size \Name, .-\Name
+        .fnend
+        .thumb
+.endm
+
+.macro NESTED_END_ARM Name, Section
+        LEAF_END_ARM \Name, \Section
+.endm
+
 .macro NESTED_END_MARKED Name, Section
         LEAF_END_MARKED \Name, \Section
 .endm
