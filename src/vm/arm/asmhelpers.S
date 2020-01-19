@@ -808,27 +808,27 @@ RedirectedHandledJITCaseFor\reason\()_StubEnd:
 // Functions to probe for stack space
 // Input reg r4 = amount of stack to probe for
 // value of reg r4 is preserved on exit from function
-// r12 is trashed
+// r7 is trashed
 // The below two functions were copied from vctools\crt\crtw32\startup\arm\chkstk.asm
 
     NESTED_ENTRY checkStack, _TEXT, NoHandler
-    subs        r12,sp,r4
+    subs        r7,sp,r4
     mrc         p15,#0,r4,c13,c0,#2 // get TEB *
     ldr         r4,[r4,#8]          // get Stack limit
-    bcc         LOCAL_LABEL(checkStack_neg) // if r12 is less then 0 set it to 0
+    bcc         LOCAL_LABEL(checkStack_neg) // if r7 is less then 0 set it to 0
 LOCAL_LABEL(checkStack_label1):
-    cmp         r12, r4
-    bcc         C_FUNC(stackProbe)  // must probe to extend guardpage if r12 is beyond stackLimit
-    sub         r4, sp, r12         // restore value of r4
+    cmp         r7, r4
+    bcc         C_FUNC(stackProbe)  // must probe to extend guardpage if r7 is beyond stackLimit
+    sub         r4, sp, r7         // restore value of r4
     bx lr
 LOCAL_LABEL(checkStack_neg):
-    mov         r12, #0
+    mov         r7, #0
     b           LOCAL_LABEL(checkStack_label1)
     NESTED_END checkStack, _TEXT
 
     NESTED_ENTRY stackProbe, _TEXT, NoHandler
     PROLOG_PUSH "{r5,r6}"
-    mov         r6, r12
+    mov         r6, r7
     lsr         r6, r6, #12
     lsl         r6, r6, #12
 
@@ -838,7 +838,7 @@ LOCAL_LABEL(stackProbe_loop):
     cmp         r4,r6
     bne         LOCAL_LABEL(stackProbe_loop)
     EPILOG_POP "{r5,r6}"
-    sub r4,sp,r12
+    sub r4,sp,r7
     bx lr
     NESTED_END stackProbe, _TEXT
 

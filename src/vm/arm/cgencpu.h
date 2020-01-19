@@ -715,10 +715,10 @@ public:
 #ifndef CROSSGEN_COMPILE
             // mov r4, value
             ThumbEmitMovConstant(ThumbReg(4), value);
-            // mov r12, checkStack
-            ThumbEmitMovConstant(ThumbReg(12), (int)checkStack);
-            // bl r12
-            ThumbEmitCallRegister(ThumbReg(12));
+            // mov r7, checkStack
+            ThumbEmitMovConstant(ThumbReg(7), (int)checkStack);
+            // bl r7
+            ThumbEmitCallRegister(ThumbReg(7));
 #endif
 
             // sub sp,sp,r4
