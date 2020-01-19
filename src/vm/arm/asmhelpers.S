@@ -271,6 +271,7 @@ LOCAL_LABEL(GoodGSCookie):
 
     LEAF_END LazyMachStateCaptureState, _TEXT
 
+#if !defined(DACCESS_COMPILE) || defined(FEATURE_STUBS_AS_IL)
 // void SinglecastDelegateInvokeStub(Delegate *pThis)
     LEAF_ENTRY SinglecastDelegateInvokeStub, _TEXT
         cmp     r0, #0
@@ -286,6 +287,7 @@ LOCAL_LABEL(LNullThis):
         b       C_FUNC(JIT_InternalThrow)
 
     LEAF_END SinglecastDelegateInvokeStub, _TEXT
+#endif
 
 //
 // r12 = UMEntryThunk*
