@@ -318,7 +318,6 @@ C_FUNC(\Name\()_End):
 .endm
 
 
-#if !defined(__thumb__) || defined(__ARM_ARCH_6__)
 .macro cbz_impl Reg, Location
         cmp \Reg, #0
         beq \Location
@@ -332,7 +331,6 @@ C_FUNC(\Name\()_End):
 .endm
 
 #define cbnz cbnz_impl
-#endif
 
 #ifdef __ARM_ARCH_6__
 .macro dmb_impl
