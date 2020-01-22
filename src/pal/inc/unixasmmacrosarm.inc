@@ -307,14 +307,12 @@ C_FUNC(\Name\()_End):
 
 #define cbnz cbnz_impl
 
-#ifdef __ARM_ARCH_6__
+.global dmbimpl
+
 .macro dmb_impl
-        PROLOG_PUSH "{r0-r3,r4-r11,lr}"
-        PROLOG_VPUSH "{d0-d3}"
-        mov      r2, #0
-        mcr      p15,0,r2,c7,c10,4
-        EPILOG_VPOP "{d0-d3}"
-        EPILOG_POP "{r0-r3,r4-r11,lr}"
+        PUSH_CALLEE_SAVED_REGISTERS
+        bx =dmbimpl
+        POP_CALLEE_SAVED_REGISTERS
 .endm
 
 #define dmb dmb_impl
