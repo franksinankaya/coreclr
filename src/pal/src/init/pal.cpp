@@ -88,6 +88,10 @@ int CacheLineSize;
 
 using namespace CorUnix;
 
+extern "C" void dmbimpl()
+{
+    __sync_synchronize();
+}
 //
 // $$TODO The C++ compiler doesn't like pal/cruntime.h so duplicate the
 // necessary prototype here
