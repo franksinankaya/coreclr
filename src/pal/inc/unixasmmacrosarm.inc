@@ -317,9 +317,4 @@ C_FUNC(\Name\()_End):
 
 #define dmb dmb_impl
 
-#if __ARM_ARCH_ISA_THUMB == 1
-#define mov movs
-#define add adds
-#endif
-
 #endif
