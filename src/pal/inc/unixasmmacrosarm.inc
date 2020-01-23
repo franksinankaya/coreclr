@@ -100,21 +100,11 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro POP_CALLEE_SAVED_REGISTERS
-#if __ARM_ARCH_ISA_THUMB == 1
-        pop_nonvol_reg "{r4-r7}"
-        pop_nonvol_reg "{lr}"
-#else
         pop_nonvol_reg "{r4-r11, lr}"
-#endif
 .endm
 
 .macro PUSH_CALLEE_SAVED_REGISTERS
-#if __ARM_ARCH_ISA_THUMB == 1
-        push_nonvol_reg "{lr}"
-        push_nonvol_reg "{r4-r7}"
-#else
         push_nonvol_reg "{r4-r11, lr}"
-#endif
 .endm
 
 .macro push_register Reg
@@ -361,10 +351,5 @@ C_FUNC(\Name\()_End):
 .endm
 
 #define movw movw_impl
-
-#if __ARM_ARCH_ISA_THUMB == 1
-#define mov movs
-#define add adds
-#endif
 
 #endif
