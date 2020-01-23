@@ -255,7 +255,7 @@ LOCAL_LABEL(GoodGSCookie):
 // ------------------------------------------------------------------
 
 // void LazyMachStateCaptureState(struct LazyMachState *pState)//
-    LEAF_ENTRY LazyMachStateCaptureState, _TEXT
+    LEAF_ENTRY_ARM LazyMachStateCaptureState, _TEXT
 
         // marks that this is not yet valid
         mov     r1, #0
@@ -269,7 +269,7 @@ LOCAL_LABEL(GoodGSCookie):
 
         mov     pc, lr
 
-    LEAF_END LazyMachStateCaptureState, _TEXT
+    LEAF_END_ARM LazyMachStateCaptureState, _TEXT
 
 #if !defined(DACCESS_COMPILE) || defined(FEATURE_STUBS_AS_IL)
 // void SinglecastDelegateInvokeStub(Delegate *pThis)
