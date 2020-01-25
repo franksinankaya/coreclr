@@ -985,13 +985,13 @@ LOCAL_LABEL(stackProbe_loop):
 //
 // The JIT expects this helper to preserve registers used for return values
 //
-    NESTED_ENTRY JIT_RareDisableHelper, _TEXT, NoHandler
+    NESTED_ENTRY_ARM JIT_RareDisableHelper, _TEXT, NoHandler
 
     PROLOG_PUSH "{r0-r1, r7,r8, r11, lr}" // save integer return value
     PROLOG_STACK_SAVE_OFFSET r7, #8
     PROLOG_VPUSH {d0-d3}                  // floating point return value
 
-    CHECK_STACK_ALIGNMENT
+    CHECK_STACK_ALIGNMENT_ARM
 
     bl          C_FUNC(JIT_RareDisableHelperWorker)
 
@@ -999,7 +999,7 @@ LOCAL_LABEL(stackProbe_loop):
 
     EPILOG_POP "{r0-r1, r7,r8, r11, pc}"
 
-    NESTED_END JIT_RareDisableHelper, _TEXT
+    NESTED_END_ARM JIT_RareDisableHelper, _TEXT
 
 
 #ifdef FEATURE_CORECLR
