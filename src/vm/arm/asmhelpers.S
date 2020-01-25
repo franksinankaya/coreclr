@@ -615,6 +615,7 @@ NESTED_ENTRY ProfileEnterNaked, _TEXT, NoHandler
 NESTED_END ProfileEnterNaked, _TEXT
 #endif
 
+#ifdef PROF_TEST_ONLY_FORCE_ELT
 //
 // EXTERN_C void ProfileLeaveNaked(FunctionIDOrClientID functionIDOrClientID);
 //
@@ -700,6 +701,8 @@ NESTED_ENTRY ProfileTailcallNaked, _TEXT, NoHandler
     EPILOG_STACK_RESTORE_OFFSET r7, #16
     EPILOG_POP "{r1, r2, r4, r5, r7, r11, pc}"
 NESTED_END ProfileTailcallNaked, _TEXT
+
+#endif
 
 // EXTERN_C int __fastcall HelperMethodFrameRestoreState(
 //         INDEBUG_COMMA(HelperMethodFrame *pFrame)
