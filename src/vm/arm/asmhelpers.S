@@ -441,6 +441,7 @@ LOCAL_LABEL(UMThunkStub_DoTrapReturningThreads):
         b           C_FUNC(ThePreStub)
 
         NESTED_END ThePreStubCompactARM, _TEXT
+
 // ------------------------------------------------------------------
 // This method does nothing. It's just a fixed function for the debugger to put a breakpoint on.
         LEAF_ENTRY ThePreStubPatch, _TEXT
@@ -1118,17 +1119,17 @@ LOCAL_LABEL(ThrowIndexOutOfRangeException):
 //                                                       unsigned idx, Object* val)
 //   r12 = array->GetArrayElementTypeHandle()
 //
-    NESTED_ENTRY JIT_Stelem_Ref_NotExactMatch, _TEXT, NoHandler
+    NESTED_ENTRY_ARM JIT_Stelem_Ref_NotExactMatch, _TEXT, NoHandler
     PROLOG_PUSH {lr}
     PROLOG_PUSH {r0-r2}
 
-    CHECK_STACK_ALIGNMENT 
+    CHECK_STACK_ALIGNMENT_ARM
 
     // allow in case val can be casted to array element type
     // call ObjIsInstanceOfNoGC(val, array->GetArrayElementTypeHandle())
     mov     r1, r12 // array->GetArrayElementTypeHandle()
     mov     r0, r2
-    bl      C_FUNC(ObjIsInstanceOfNoGC)
+    blx     =C_FUNC(ObjIsInstanceOfNoGC)
     cmp     r0, TypeHandle_CanCast 
     beq     LOCAL_LABEL(DoWrite)             // ObjIsInstance returned TypeHandle::CanCast
 
@@ -1136,14 +1137,14 @@ LOCAL_LABEL(ThrowIndexOutOfRangeException):
 LOCAL_LABEL(NeedFrame):
     mov     r1, sp                  // r1 = &array
     adds    r0, sp, #8              // r0 = &val
-    bl      C_FUNC(ArrayStoreCheck) // ArrayStoreCheck(&val, &array)
+    blx     =C_FUNC(ArrayStoreCheck) // ArrayStoreCheck(&val, &array)
  
 LOCAL_LABEL(DoWrite):
     EPILOG_POP {r0-r2}
     EPILOG_POP {lr}
-    b C_FUNC(JIT_Stelem_DoWrite)
+    bx =C_FUNC(JIT_Stelem_DoWrite)
 
-    NESTED_END JIT_Stelem_Ref_NotExactMatch, _TEXT
+    NESTED_END_ARM JIT_Stelem_Ref_NotExactMatch, _TEXT
 
 // ------------------------------------------------------------------
 // __declspec(naked) void F_CALL_CONV JIT_Stelem_DoWrite(PtrArray* array, unsigned idx, Object* val)
