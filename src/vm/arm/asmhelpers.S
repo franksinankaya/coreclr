@@ -1214,12 +1214,20 @@ LOCAL_LABEL(DoWrite):
 
     // Setup args for JIT_WriteBarrier. r0 = &array->m_array[idx]// r1 = val
     adds    r0, #PtrArray__m_Array     // r0 = &array->m_array
-    adds    r0, r1, LSL #2
+    push    {r3}
+    SAVE_CPSR r6, r7
+
+    LSLS        r3, r1, 2
+    adds        r0, r0, r3
+
+    RESTORE_CPSR r6, r7
+
+    pop     {r3}
     mov     r1, r2                     // r1 = val
 
     // Branch to the write barrier (which is already correctly overwritten with
     // single or multi-proc code based on the current CPU
-    b       C_FUNC(JIT_WriteBarrier)
+    b       =C_FUNC(JIT_WriteBarrier)
 
     LEAF_END JIT_Stelem_DoWrite, _TEXT
     
