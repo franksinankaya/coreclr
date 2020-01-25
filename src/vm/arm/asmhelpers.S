@@ -318,7 +318,7 @@ LOCAL_LABEL(LNullThis):
 //
 // r12 = UMEntryThunk*
 //
-        NESTED_ENTRY UMThunkStub,_TEXT,UnhandledExceptionHandlerUnix
+        NESTED_ENTRY_ARM UMThunkStub,_TEXT,UnhandledExceptionHandlerUnix
         PROLOG_PUSH         "{r4,r5,r7,r11,lr}"
         PROLOG_STACK_SAVE_OFFSET   r7, #8
 
@@ -332,7 +332,7 @@ UMThunkStub_HiddenArgOffset = (-3)*4
 UMThunkStub_StackArgsOffset = 3*4
 UMThunkStub_StackArgsSize = 10*4
 
-        CHECK_STACK_ALIGNMENT
+        CHECK_STACK_ALIGNMENT_ARM
 
         bl                  C_FUNC(GetThread)
         cbz                 r0, LOCAL_LABEL(UMThunkStub_DoThreadSetup)
@@ -374,7 +374,7 @@ LOCAL_LABEL(UMThunkStub_ArgumentsSetup):
         sub                 r0, r7, #28
         ldm                 r0, {r0-r3}
 
-        CHECK_STACK_ALIGNMENT
+        CHECK_STACK_ALIGNMENT_ARM
 
         blx                 r4
 
@@ -403,7 +403,7 @@ LOCAL_LABEL(UMThunkStub_DoTrapReturningThreads):
         add                 sp, #SIZEOF__FloatArgumentRegisters
         b                   LOCAL_LABEL(UMThunkStub_InCooperativeMode)
 
-        NESTED_END UMThunkStub,_TEXT
+        NESTED_END_ARM UMThunkStub,_TEXT
 
 // ------------------------------------------------------------------
 
