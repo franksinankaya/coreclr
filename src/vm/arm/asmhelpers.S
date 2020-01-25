@@ -1398,7 +1398,7 @@ DelayLoad_MethodCall:
 
     .macro DynamicHelper frameFlags, suffix
 
-        NESTED_ENTRY DelayLoad_Helper\suffix\()_FakeProlog, _TEXT, NoHandler
+        NESTED_ENTRY_ARM DelayLoad_Helper\suffix\()_FakeProlog, _TEXT, NoHandler
 
         // Match what the lazy thunk has pushed. The actual method arguments will be spilled later.
         PROLOG_PUSH  {r1-r3}
@@ -1442,7 +1442,7 @@ DelayLoad_Helper\suffix:
         EPILOG_WITH_TRANSITION_BLOCK_TAILCALL
         bx   r12
 
-        NESTED_END DelayLoad_Helper\suffix\()_FakeProlog, _TEXT
+        NESTED_END_ARM DelayLoad_Helper\suffix\()_FakeProlog, _TEXT
 
     .endm
 
