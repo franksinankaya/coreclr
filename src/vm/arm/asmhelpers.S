@@ -294,13 +294,13 @@ LOCAL_LABEL(LNullThis):
 //
 // r12 = UMEntryThunk*
 //
-        NESTED_ENTRY TheUMEntryPrestub,_TEXT,NoHandler
+        NESTED_ENTRY_ARM TheUMEntryPrestub,_TEXT,NoHandler
 
         PROLOG_PUSH "{r0-r4,r7,r8,lr}" // add r8 to make stack aligned by 8B
         PROLOG_STACK_SAVE_OFFSET r7, #20
         PROLOG_VPUSH {d0-d7}
 
-        CHECK_STACK_ALIGNMENT
+        CHECK_STACK_ALIGNMENT_ARM
 
         mov     r0, r12
         bl      C_FUNC(TheUMEntryPrestubWorker)
@@ -313,7 +313,7 @@ LOCAL_LABEL(LNullThis):
         EPILOG_POP "{r0-r4,r7,r8,lr}"
         bx r12
 
-        NESTED_END TheUMEntryPrestub,_TEXT
+        NESTED_END_ARM TheUMEntryPrestub,_TEXT
 
 //
 // r12 = UMEntryThunk*
