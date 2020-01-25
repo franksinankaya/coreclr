@@ -711,7 +711,7 @@ NESTED_END ProfileTailcallNaked, _TEXT
 //         INDEBUG_COMMA(HelperMethodFrame *pFrame)
 //         MachState *pState
 //         )
-        LEAF_ENTRY HelperMethodFrameRestoreState, _TEXT
+        LEAF_ENTRY_ARM HelperMethodFrameRestoreState, _TEXT
 
 #ifdef _DEBUG
         mov r0, r1
@@ -737,7 +737,7 @@ LOCAL_LABEL(Done):
         mov r0,#0
         bx lr
 
-        LEAF_END HelperMethodFrameRestoreState, _TEXT
+        LEAF_END_ARM HelperMethodFrameRestoreState, _TEXT
 
 #if 0
 // ------------------------------------------------------------------
