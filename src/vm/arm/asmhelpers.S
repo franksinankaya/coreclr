@@ -1010,7 +1010,7 @@ LOCAL_LABEL(stackProbe_loop):
 // ------------------------------------------------------------------
 // void* JIT_GetSharedNonGCStaticBase(SIZE_T moduleDomainID, DWORD dwClassDomainID)
 
-    LEAF_ENTRY JIT_GetSharedNonGCStaticBase_SingleAppDomain, _TEXT
+    LEAF_ENTRY_ARM JIT_GetSharedNonGCStaticBase_SingleAppDomain, _TEXT
 
     // If class is not initialized, bail to C++ helper
     add     r2, r0, #DomainLocalModule__m_pDataBlob
@@ -1023,7 +1023,7 @@ LOCAL_LABEL(stackProbe_loop):
 LOCAL_LABEL(CallCppHelper1):
     // Tail call JIT_GetSharedNonGCStaticBase_Helper
     b     C_FUNC(JIT_GetSharedNonGCStaticBase_Helper)
-    LEAF_END JIT_GetSharedNonGCStaticBase_SingleAppDomain, _TEXT
+    LEAF_END_ARM JIT_GetSharedNonGCStaticBase_SingleAppDomain, _TEXT
 
 
 // ------------------------------------------------------------------
@@ -1038,7 +1038,7 @@ LOCAL_LABEL(CallCppHelper1):
 // ------------------------------------------------------------------
 // void* JIT_GetSharedGCStaticBase(SIZE_T moduleDomainID, DWORD dwClassDomainID)
 
-    LEAF_ENTRY JIT_GetSharedGCStaticBase_SingleAppDomain, _TEXT
+    LEAF_ENTRY_ARM JIT_GetSharedGCStaticBase_SingleAppDomain, _TEXT
 
     // If class is not initialized, bail to C++ helper
     add     r2, r0, #DomainLocalModule__m_pDataBlob
@@ -1052,7 +1052,7 @@ LOCAL_LABEL(CallCppHelper1):
 LOCAL_LABEL(CallCppHelper3):
     // Tail call Jit_GetSharedGCStaticBase_Helper
     b     C_FUNC(JIT_GetSharedGCStaticBase_Helper)
-    LEAF_END JIT_GetSharedGCStaticBase_SingleAppDomain, _TEXT
+    LEAF_END_ARM JIT_GetSharedGCStaticBase_SingleAppDomain, _TEXT
 
 
 // ------------------------------------------------------------------
