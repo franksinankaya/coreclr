@@ -1231,7 +1231,7 @@ LOCAL_LABEL(DoWrite):
     .endm
     
     .macro JIT_WRITEBARRIER name, mp, post
-    LEAF_ENTRY \name, _TEXT
+    LEAF_ENTRY_ARM \name, _TEXT
         START_WRITE_BARRIER \name
         .if(\mp)
             dmb
