@@ -1064,7 +1064,7 @@ LOCAL_LABEL(CallCppHelper3):
 
 // ------------------------------------------------------------------
 // __declspec(naked) void F_CALL_CONV JIT_Stelem_Ref(PtrArray* array, unsigned idx, Object* val)
-    LEAF_ENTRY JIT_Stelem_Ref, _TEXT
+    LEAF_ENTRY_ARM JIT_Stelem_Ref, _TEXT
     
     // We retain arguments as they were passed and use r0 == array// r1 == idx// r2 == val
 
@@ -1093,7 +1093,7 @@ LOCAL_LABEL(CallCppHelper3):
     beq     C_FUNC(JIT_Stelem_DoWrite)
 
     // array type and val type do not exactly match. Raise frame and do detailed match
-    b       C_FUNC(JIT_Stelem_Ref_NotExactMatch)
+    bx      =C_FUNC(JIT_Stelem_Ref_NotExactMatch)
 
 LOCAL_LABEL(AssigningNull):
     // Assigning null doesn't need write barrier
@@ -1104,14 +1104,14 @@ LOCAL_LABEL(AssigningNull):
 LOCAL_LABEL(ThrowNullReferenceException):
     // Tail call JIT_InternalThrow(NullReferenceException)
     ldr     r0, =CORINFO_NullReferenceException_ASM
-    b       C_FUNC(JIT_InternalThrow)
+    bx      =C_FUNC(JIT_InternalThrow)
 
 LOCAL_LABEL(ThrowIndexOutOfRangeException):
     // Tail call JIT_InternalThrow(NullReferenceException)
     ldr     r0, =CORINFO_IndexOutOfRangeException_ASM
-    b       C_FUNC(JIT_InternalThrow)
+    bx      =C_FUNC(JIT_InternalThrow)
 
-    LEAF_END JIT_Stelem_Ref, _TEXT
+    LEAF_END_ARM JIT_Stelem_Ref, _TEXT
 
 // ------------------------------------------------------------------
 // __declspec(naked) void F_CALL_CONV JIT_Stelem_Ref_NotExactMatch(PtrArray* array,
