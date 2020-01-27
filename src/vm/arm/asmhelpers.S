@@ -424,6 +424,7 @@ LOCAL_LABEL(UMThunkStub_DoTrapReturningThreads):
         NESTED_END ThePreStub, _TEXT
 
 // ------------------------------------------------------------------
+#if defined(HAS_COMPACT_ENTRYPOINTS)
         NESTED_ENTRY ThePreStubCompactARM, _TEXT, NoHandler
 
         // r12 - address of compact entry point + PC_REG_RELATIVE_OFFSET
@@ -441,6 +442,7 @@ LOCAL_LABEL(UMThunkStub_DoTrapReturningThreads):
         b           C_FUNC(ThePreStub)
 
         NESTED_END ThePreStubCompactARM, _TEXT
+#endif
 
 // ------------------------------------------------------------------
 // This method does nothing. It's just a fixed function for the debugger to put a breakpoint on.
