@@ -439,6 +439,7 @@ LOCAL_LABEL(UMThunkStub_DoTrapReturningThreads):
         b           C_FUNC(ThePreStub)
 
         NESTED_END ThePreStubCompactARM, _TEXT
+
 // ------------------------------------------------------------------
 // This method does nothing. It's just a fixed function for the debugger to put a breakpoint on.
         LEAF_ENTRY ThePreStubPatch, _TEXT
