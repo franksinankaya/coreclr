@@ -480,7 +480,7 @@ ThePreStubPatchLabel:
 // ------------------------------------------------------------------
 // The call in fixup precode initally points to this function.
 // The pupose of this function is to load the MethodDesc and forward the call the prestub.
-        NESTED_ENTRY PrecodeFixupThunk, _TEXT, NoHandler
+        NESTED_ENTRY_ARM PrecodeFixupThunk, _TEXT, NoHandler
 
         // r12 = FixupPrecode *
 
@@ -498,7 +498,7 @@ ThePreStubPatchLabel:
         EPILOG_POP      "{r0-r1}"
         b C_FUNC(ThePreStub)
 
-        NESTED_END PrecodeFixupThunk, _TEXT
+        NESTED_END_ARM PrecodeFixupThunk, _TEXT
 
 // ------------------------------------------------------------------
 // void ResolveWorkerAsmStub(r0, r1, r2, r3, r4:IndirectionCellAndFlags, r12:DispatchToken)
