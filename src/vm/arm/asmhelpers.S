@@ -457,7 +457,14 @@ ThePreStubPatchLabel:
 // The call in ndirect import precode points to this function.
         NESTED_ENTRY NDirectImportThunk, _TEXT, NoHandler
 
-        PROLOG_PUSH "{r0-r4,r7,r8,lr}"                  // Spill general argument registers, return address and
+        PROLOG_PUSH "{r0-r4,r7}"                  // Spill general argument registers, return address and
+        PROLOG_PUSH "{lr}"
+        mov r0, r8
+        PROLOG_PUSH "{r0}"
+
+        add sp, sp, #8
+        ldr r0, [sp]
+        sub sp, sp, #8
         PROLOG_STACK_SAVE_OFFSET r7, #20
                                                         // arbitrary register to keep stack aligned
         PROLOG_VPUSH {d0-d7}                                   // Spill floating point argument registers
@@ -465,11 +472,15 @@ ThePreStubPatchLabel:
         CHECK_STACK_ALIGNMENT
 
         mov     r0, r12
-        bl      C_FUNC(NDirectImportWorker)
+        blx     =C_FUNC(NDirectImportWorker)
         mov     r12, r0
 
         EPILOG_VPOP {d0-d7}
-        EPILOG_POP "{r0-r4,r7,r8,lr}"
+        EPILOG_POP "{r0}"
+        mov     r8, r0
+        EPILOG_POP "{r0}"
+        mov     lr, r0
+        EPILOG_POP "{r0-r4,r7}"
 
         // If we got back from NDirectImportWorker, the MD has been successfully
         // linked. Proceed to execute the original DLL call.
