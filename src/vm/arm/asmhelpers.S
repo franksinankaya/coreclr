@@ -79,7 +79,11 @@
         // This loop copies numStackSlots words
         // from [pSrcEnd-4,pSrcEnd-8,...] to [sp-4,sp-8,...]
         ldr     r0, [r5,#CallDescrData__pSrc]
-        add     r0,r0,r2
+
+        SAVE_CPSR r6, r7
+        adds    r0,r0,r2
+        RESTORE_CPSR r6, r7
+
 LOCAL_LABEL(Lstackloop):
         ldr     r2, [r0,#-4]!
         str     r2, [sp,#-4]!
