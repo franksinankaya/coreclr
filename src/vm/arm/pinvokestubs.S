@@ -135,14 +135,14 @@
 //
     LEAF_ENTRY JIT_PInvokeEnd, _TEXT
 
-        add     r0, r0, SIZEOF__GSCookie
+        adds    r0, r0, SIZEOF__GSCookie
         ldr     r1, [r0, #InlinedCallFrame__m_pThread]
 
         // r0 = pFrame
         // r1 = pThread
         
         // pThread->m_fPreemptiveGCDisabled = 1
-        mov     r2, 1
+        movs    r2, 1
         str     r2, [r1, #Thread_m_fPreemptiveGCDisabled]
 
         // Check return trap
@@ -157,7 +157,7 @@
         bx      lr
 
 LOCAL_LABEL(RarePath):
-        b       C_FUNC(JIT_PInvokeEndRarePath)
+        bx      =C_FUNC(JIT_PInvokeEndRarePath)
 
     LEAF_END JIT_PInvokeEnd, _TEXT
 
