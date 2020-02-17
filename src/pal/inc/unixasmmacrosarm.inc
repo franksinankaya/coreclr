@@ -75,7 +75,24 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro POP_CALLEE_SAVED_REGISTERS
-        pop_nonvol_reg "{r4-r11, lr}"
+      ldr r4, [sp, #32]
+      mov lr, r4
+      ldr r4, [sp, #28]
+      mov r11, r4
+      ldr r4, [sp, #24]
+      mov r10, r4
+      ldr r4, [sp, #20]
+      mov r9, r4
+      ldr r4, [sp, #16]
+      mov r8, r4
+      ldr r4, [sp, #12]
+      mov r7, r4
+      ldr r4, [sp, #8]
+      mov r6, r4
+      ldr r4, [sp, #4]
+      mov r5, r4
+      ldr r4, [sp, #0]
+      add sp, sp, #36
 .endm
 
 .macro PUSH_CALLEE_SAVED_REGISTERS
