@@ -169,7 +169,14 @@ OFFSET_OF_FRAME=(4 + SIZEOF__GSCookie)
         // R3 = address of the location where the SP of funclet's caller (i.e. this helper) should be saved.
         //
         // Save the SP of this function
-        str sp, [r3]
+        push {r4}
+        SAVE_CPSR r6, r7
+        mov  r4, sp
+        adds r4, r4, #12
+        RESTORE_CPSR r6, r7
+
+        str r4, [r3]
+        pop  {r4}
         // Invoke the filter funclet
         blx r2
 
