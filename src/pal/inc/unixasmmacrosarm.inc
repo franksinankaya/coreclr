@@ -79,7 +79,23 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro PUSH_CALLEE_SAVED_REGISTERS
-        push_nonvol_reg "{r4-r11, lr}"
+       sub sp, sp, #36
+       str r4, [sp, #0]
+       str r5, [sp, #4]
+       str r6, [sp, #8]
+       str r7, [sp, #12]
+       mov  r4, r8
+       str r4, [sp, #16]
+       mov  r4, r9
+       str r4, [sp, #20]
+       mov  r4, r10
+       str r4, [sp, #24]
+       mov  r4, r11
+       str r4, [sp, #28]
+       mov  r4, lr
+       str r4, [sp, #32]
+       ldr r4, [sp, #0]
+       .save {r4-r11, lr}
 .endm
 
 .macro push_register Reg
