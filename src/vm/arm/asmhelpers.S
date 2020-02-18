@@ -414,7 +414,7 @@ LOCAL_LABEL(UMThunkStub_DoTrapReturningThreads):
         add         r0, sp, #__PWTB_TransitionBlock // pTransitionBlock
         mov         r1, r12                         // pMethodDesc
 
-        bl          C_FUNC(PreStubWorker)
+        blx         =C_FUNC(PreStubWorker)
 
         mov         r12, r0
 
