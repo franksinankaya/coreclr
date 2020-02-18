@@ -177,7 +177,7 @@ LOCAL_LABEL(LReturnDone):
         //
         
         // Spill callee saved registers and return address.
-        PROLOG_PUSH         "{r4-r11,lr}"
+        PUSH_CALLEE_SAVED_REGISTERS
         
         PROLOG_STACK_SAVE_OFFSET   r7, #12
 
@@ -247,7 +247,7 @@ LOCAL_LABEL(GoodGSCookie):
         // epilog
         //
         EPILOG_STACK_RESTORE_OFFSET   r7, #12
-        EPILOG_POP              "{r4-r11,lr}"
+        POP_CALLEE_SAVED_REGISTERS
         bx lr
         
     NESTED_END TailCallHelperStub, _TEXT
