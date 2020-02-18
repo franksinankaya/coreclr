@@ -515,7 +515,7 @@ ThePreStubPatchLabel:
 // void ResolveWorkerAsmStub(r0, r1, r2, r3, r4:IndirectionCellAndFlags, r12:DispatchToken)
 //
 // The stub dispatch thunk which transfers control to VSD_ResolveWorker.
-        NESTED_ENTRY ResolveWorkerAsmStub, _TEXT, NoHandler
+        NESTED_ENTRY_ARM ResolveWorkerAsmStub, _TEXT, NoHandler
 
         PROLOG_WITH_TRANSITION_BLOCK
 
@@ -533,7 +533,7 @@ ThePreStubPatchLabel:
         EPILOG_WITH_TRANSITION_BLOCK_TAILCALL
         bx r12
 
-        NESTED_END ResolveWorkerAsmStub, _TEXT
+        NESTED_END_ARM ResolveWorkerAsmStub, _TEXT
 
 // ------------------------------------------------------------------
 // void ResolveWorkerChainLookupAsmStub(r0, r1, r2, r3, r4:IndirectionCellAndFlags, r12:DispatchToken)
