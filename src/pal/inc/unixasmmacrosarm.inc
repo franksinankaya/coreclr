@@ -294,7 +294,7 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro EPILOG_STACK_RESTORE_OFFSET Register, Offset
-        sub \Register, \Offset
+        subs \Register, \Register, \Offset
         mov sp, \Register
 .endm
 
