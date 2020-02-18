@@ -929,10 +929,11 @@ LOCAL_LABEL(stackProbe_loop):
     add         r0, sp, #__PWTB_TransitionBlock // pTransitionBlock
 
     // Adjust (read comment above for details) and pass the address of the thunk
-    sub         r1, r12, #4                     // pThunk
+    mov         r1, r12
+    subs        r1, r1, #4                     // pThunk
 
-    mov         r2, #0  // sectionIndex
-    mov         r3, #0  // pModule
+    movs        r2, #0  // sectionIndex
+    movs        r3, #0  // pModule
     bl          C_FUNC(ExternalMethodFixupWorker)
 
     // mov the address we patched to in R12 so that we can tail call to it
