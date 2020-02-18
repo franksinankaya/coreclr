@@ -312,7 +312,10 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro EPILOG_STACK_RESTORE_OFFSET Register, Offset
-        sub \Register, \Offset
+	SAVE_CPSR r4, r5
+        subs \Register, \Register, \Offset
+	RESTORE_CPSR r4, r5
+
         mov sp, \Register
 .endm
 
