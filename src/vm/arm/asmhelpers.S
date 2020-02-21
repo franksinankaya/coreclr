@@ -982,7 +982,19 @@ LOCAL_LABEL(stackProbe_loop):
 //
     NESTED_ENTRY JIT_RareDisableHelper, _TEXT, NoHandler
 
-    PROLOG_PUSH "{r0-r1, r7,r8, r11, lr}" // save integer return value
+    sub sp, sp, #24
+    str r0, [sp, #0]
+    str r1, [sp, #4]
+    str r7, [sp, #8]
+    mov  r0, r8
+    str r0, [sp, #12]
+    mov  r0, r11
+    str r0, [sp, #16]
+    mov  r0, lr
+    str r0, [sp, #20]
+    ldr r0, [sp, #0]
+    .save {r0-r1, r7,r8, r11, lr}
+
     PROLOG_STACK_SAVE_OFFSET r7, #8
     PROLOG_VPUSH {d0-d3}                  // floating point return value
 
@@ -992,7 +1004,17 @@ LOCAL_LABEL(stackProbe_loop):
 
     EPILOG_VPOP {d0-d3}
 
-    EPILOG_POP "{r0-r1, r7,r8, r11, pc}"
+    ldr r0, [sp, #20]
+    mov lr, r0
+    ldr r0, [sp, #16]
+    mov r11, r0
+    ldr r0, [sp, #12]
+    mov r8, r0
+    ldr r7, [sp, #8]
+    ldr r1, [sp, #4]
+    ldr r0, [sp, #0]
+    add sp, sp, #24
+    bx lr
 
     NESTED_END JIT_RareDisableHelper, _TEXT
 
