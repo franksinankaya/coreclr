@@ -17,8 +17,51 @@ C_FUNC(\Name):
         .endif
 .endm
 
+.macro SAVE_CPSR Register0, Register1
+    push    {\Register0, \Register1}
+        push        {r0, lr}
+        blx         =GetCurrentCPSR
+        mov         \Register0, r0
+        pop         {r0, \Register1}
+        mov         lr, \Register1
+.endm
+
+.macro RESTORE_CPSR Register0, Register1
+        push        {r0, lr}
+        mov         r0, \Register0
+        blx         =SetCurrentCPSR
+        pop         {r0, \Register1}
+        mov         lr, \Register1
+    pop   {\Register0, \Register1}
+.endm
+
+.macro LEAF_ENTRY_ARM Name, Section
+        .arm
+        .global C_FUNC(\Name)
+        .type \Name, %function
+C_FUNC(\Name):
+        .fnstart
+.endm
+
+.macro NESTED_ENTRY_ARM Name, Section, Handler
+        LEAF_ENTRY_ARM \Name, \Section
+        .ifnc \Handler, NoHandler
+        .personality C_FUNC(\Handler)
+        .endif
+.endm
+
 .macro NESTED_END Name, Section
         LEAF_END \Name, \Section
+.endm
+
+.macro LEAF_END_ARM Name, Section
+        .size \Name, .-\Name
+        .fnend
+        .thumb
+.endm
+
+.macro NESTED_END_ARM Name, Section
+        LEAF_END_ARM \Name, \Section
 .endm
 
 .macro NESTED_END_MARKED Name, Section

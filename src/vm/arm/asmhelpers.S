@@ -31,6 +31,16 @@
         bx      lr
     LEAF_END GetCurrentSP, _TEXT
 
+    LEAF_ENTRY_ARM GetCurrentCPSR, _TEXT
+        mrs     r0, CPSR
+        bx      lr
+    LEAF_END_ARM GetCurrentCPSR, _TEXT
+
+    LEAF_ENTRY_ARM SetCurrentCPSR, _TEXT
+        msr     CPSR, r0
+        bx      lr
+    LEAF_END_ARM SetCurrentCPSR, _TEXT
+
 //-----------------------------------------------------------------------------
 // This helper routine enregisters the appropriate arguments and makes the
 // actual call.
