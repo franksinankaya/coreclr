@@ -490,18 +490,32 @@ ThePreStubPatchLabel:
 
         // r12 = FixupPrecode *
 
-        PROLOG_PUSH     "{r0-r1}"
+        PROLOG_PUSH     "{r0-r3}"
+        SAVE_CPSR r6, r7
 
         // Inline computation done by FixupPrecode::GetMethodDesc()
-        ldrb    r0, [r12, #3]           // m_PrecodeChunkIndex
-        ldrb    r1, [r12, #2]           // m_MethodDescChunkIndex
+        mov     r2, r12
+        ldrb    r0, [r2, #3]           // m_PrecodeChunkIndex
+        ldrb    r1, [r2, #2]           // m_MethodDescChunkIndex
 
-        add     r12,r12,r0,lsl #3
-        add     r0,r12,r0,lsl #2
+        mov     r3, r0
+        lsls    r3, #3
+        adds    r2,r2,r3
+
+        mov     r3, r0
+        lsls    r3, #2
+        adds    r0,r2,r3
+
         ldr     r0, [r0,#8]
-        add     r12,r0,r1,lsl #2
+        mov     r3, r1
+        lsls    r3, #2
+        adds    r2,r0,r3
 
-        EPILOG_POP      "{r0-r1}"
+        mov     r12, r2
+
+        RESTORE_CPSR r6, r7
+
+        EPILOG_POP      "{r0-r3}"
         b C_FUNC(ThePreStub)
 
         NESTED_END PrecodeFixupThunk, _TEXT
