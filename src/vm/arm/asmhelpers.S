@@ -516,7 +516,7 @@ ThePreStubPatchLabel:
 
 // ------------------------------------------------------------------
 // The call in ndirect import precode points to this function.
-        NESTED_ENTRY NDirectImportThunk, _TEXT, NoHandler
+        NESTED_ENTRY_ARM NDirectImportThunk, _TEXT, NoHandler
 
         PROLOG_PUSH "{r0-r4,r7,r8,lr}"                  // Spill general argument registers, return address and
         PROLOG_STACK_SAVE_OFFSET r7, #20
@@ -536,7 +536,7 @@ ThePreStubPatchLabel:
         // linked. Proceed to execute the original DLL call.
         bx r12
 
-        NESTED_END NDirectImportThunk, _TEXT
+        NESTED_END_ARM NDirectImportThunk, _TEXT
 
 // ------------------------------------------------------------------
 // The call in fixup precode initally points to this function.
