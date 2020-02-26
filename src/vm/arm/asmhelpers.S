@@ -1195,14 +1195,20 @@ LOCAL_LABEL(stackProbe_loop):
     RESTORE_CPSR r6, r7
 
     ldrb    r2, [r2, r1]
-    tst     r2, #1
+
+    push    {r5}
+    movs    r5, #1
+    ands    r5, r2, r5
+    pop     {r5}
+
     beq     LOCAL_LABEL(CallCppHelper1)
 
     bx      lr
 
 LOCAL_LABEL(CallCppHelper1):
+
     // Tail call JIT_GetSharedNonGCStaticBase_Helper
-    b     C_FUNC(JIT_GetSharedNonGCStaticBase_Helper)
+    bx    =C_FUNC(JIT_GetSharedNonGCStaticBase_Helper)
     LEAF_END JIT_GetSharedNonGCStaticBase_SingleAppDomain, _TEXT
 
 
