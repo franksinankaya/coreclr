@@ -393,4 +393,3 @@ C_FUNC(\Name\()_End):
 
 #define dmb dmb_impl
 
-#endif
