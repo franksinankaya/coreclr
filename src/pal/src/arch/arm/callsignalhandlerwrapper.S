@@ -36,7 +36,16 @@ LOCAL_LABEL(SignalHandlerWorkerReturn\Alignment):
 LOCAL_LABEL(SignalHandlerWorkerReturn\Alignment):
     // Following instruction are needed to say gdb that this frame is SIGTRAMP_FRAME
     // and it can restore all registers from stack
-    movw r7, #119
+
+    push {r1}
+    SAVE_CPSR r5, r6
+    movs r1, #119
+    asrs r7, r7, #16
+    lsls r7, r7, #16
+    orrs r7, r7, r1
+    RESTORE_CPSR r5, r6
+    pop  {r1}
+
     svc 0
 #endif
 NESTED_END CallSignalHandlerWrapper\Alignment, _TEXT
