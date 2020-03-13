@@ -1203,13 +1203,21 @@ LOCAL_LABEL(ThrowIndexOutOfRangeException):
 
     // check via raising frame
 LOCAL_LABEL(NeedFrame):
-    mov     r1, sp                  // r1 = &array
-    adds    r0, sp, #8              // r0 = &val
+    push    {r2}
+    mov     r2, sp
+    adds    r2, r2, #4
+    mov     r1, r2                  // r1 = &array
+    mov     r0, r2
+    adds    r0, r0, #8              // r0 = &val
+    pop     {r2}
     bl      C_FUNC(ArrayStoreCheck) // ArrayStoreCheck(&val, &array)
  
 LOCAL_LABEL(DoWrite):
     EPILOG_POP {r0-r2}
-    EPILOG_POP {lr}
+    push   {r0}
+    EPILOG_POP {r0}
+    mov    lr, r0
+    pop    {r0}
     b C_FUNC(JIT_Stelem_DoWrite)
 
     NESTED_END JIT_Stelem_Ref_NotExactMatch, _TEXT
