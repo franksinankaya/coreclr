@@ -517,9 +517,18 @@ ThePreStubPatchLabel:
         add         r0, sp, #__PWTB_TransitionBlock // pTransitionBlock
         mov         r2, r12                         // token
 
+
         // indirection cell in r4 - should be consistent with REG_ARM_STUB_SPECIAL
-        bic         r1, r4, #3          // indirection cell
-        and         r3, r4, #3          // flags
+        SAVE_CPSR   r6, r7
+
+        lsrs        r4, r4, #2
+        lsls        r4, r4, #2
+        mov         r1, r4
+
+        movs        r3, #3
+        ands        r3, r4, r3          // flags
+
+        RESTORE_CPSR r6, r7
 
         bl          C_FUNC(VSD_ResolveWorker)
 
