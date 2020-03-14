@@ -883,7 +883,19 @@ LOCAL_LABEL(stackProbe_loop):
     cmp         r4,r6
     bne         LOCAL_LABEL(stackProbe_loop)
     EPILOG_POP "{r5,r6}"
-    sub r4,sp,r12
+
+    push        {r0, r1}
+        SAVE_CPSR   r6, r7
+
+        mov         r0, sp
+        adds        r0, r0, #0x16
+        mov         r1, r12
+        subs        r4,r0,r1
+
+        RESTORE_CPSR r6, r7
+
+    pop         {r0, r1}
+
     bx lr
     NESTED_END stackProbe, _TEXT
 
