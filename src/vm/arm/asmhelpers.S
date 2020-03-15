@@ -1164,9 +1164,20 @@ LOCAL_LABEL(CallCppHelper1):
     LEAF_ENTRY JIT_GetSharedGCStaticBase_SingleAppDomain, _TEXT
 
     // If class is not initialized, bail to C++ helper
-    add     r2, r0, #DomainLocalModule__m_pDataBlob
+    SAVE_CPSR r6, r7
+    push {r1}
+    movs    r1, #DomainLocalModule__m_pDataBlob
+    adds    r2, r0, r1
+    pop {r1}
+    RESTORE_CPSR r6, r7
+
     ldrb    r2, [r2, r1]
-    tst     r2, #1
+    push    {r1}
+    SAVE_CPSR r6, r7
+    movs    r1, #1
+    ands    r1, r2, r1
+    RESTORE_CPSR r6, r7
+    pop     {r1}
     beq     LOCAL_LABEL(CallCppHelper3)
 
     ldr     r0, [r0, #DomainLocalModule__m_pGCStatics]
