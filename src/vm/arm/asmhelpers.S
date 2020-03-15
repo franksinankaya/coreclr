@@ -36,6 +36,11 @@
         bx      lr
     LEAF_END_ARM GetCurrentCPSR, _TEXT
 
+    LEAF_ENTRY_ARM GetTEB, _TEXT
+        mrc         p15,#0,r0,c13,c0,#2 // get TEB *
+        bx      lr
+    LEAF_END_ARM GetTEB, _TEXT
+
     LEAF_ENTRY_ARM SetCurrentCPSR, _TEXT
         msr     CPSR, r0
         bx      lr
@@ -857,17 +862,47 @@ RedirectedHandledJITCaseFor\reason\()_StubEnd:
 // The below two functions were copied from vctools\crt\crtw32\startup\arm\chkstk.asm
 
     NESTED_ENTRY checkStack, _TEXT, NoHandler
-    subs        r12,sp,r4
-    mrc         p15,#0,r4,c13,c0,#2 // get TEB *
+
+    push        {r0}
+    mov         r0, sp
+    SAVE_CPSR   r6, r7
+    adds        r0, r0, #12
+    RESTORE_CPSR r6, r7
+    subs        r0,r0,r4
+    mov         r12, r0
+    pop         {r0}
+
+    push        {r1}
+    push        {r0, lr}
+    blx         =GetTEB
+    mov         r4, r0
+    pop         {r0, r1}
+    mov         lr, r1
+    pop         {r1}
+
     ldr         r4,[r4,#8]          // get Stack limit
     bcc         LOCAL_LABEL(checkStack_neg) // if r12 is less then 0 set it to 0
 LOCAL_LABEL(checkStack_label1):
     cmp         r12, r4
     bcc         C_FUNC(stackProbe)  // must probe to extend guardpage if r12 is beyond stackLimit
-    sub         r4, sp, r12         // restore value of r4
+
+    push        {r0, r1}
+    mov         r0, sp
+    SAVE_CPSR   r6, r7
+    adds        r0, r0, #16
+    mov         r1, r12
+    subs        r4, r0, r1          // restore value of r4
+    RESTORE_CPSR r6, r7
+    pop         {r0, r1}
+
     bx lr
 LOCAL_LABEL(checkStack_neg):
-    mov         r12, #0
+    SAVE_CPSR    r6, r7
+    push         {r0}
+    movs         r0, #0
+    mov          r12, r0
+    pop          {r0}
+    RESTORE_CPSR r6, r7
     b           LOCAL_LABEL(checkStack_label1)
     NESTED_END checkStack, _TEXT
 
