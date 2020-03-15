@@ -874,11 +874,22 @@ LOCAL_LABEL(checkStack_neg):
     NESTED_ENTRY stackProbe, _TEXT, NoHandler
     PROLOG_PUSH "{r5,r6}"
     mov         r6, r12
-    lsr         r6, r6, #12
-    lsl         r6, r6, #12
+
+    SAVE_CPSR   r4, r5
+    lsrs        r6, r6, #12
+    lsls        r6, r6, #12
+    RESTORE_CPSR r4, r5
 
 LOCAL_LABEL(stackProbe_loop):
-    sub         r4,r4,#0x1000 // dec stack Limit by 4K as page size is 4K
+
+    push        {r0}
+    SAVE_CPSR   r6, r7
+    movs        r0, #0x80
+    lsls        r0, r0, #5
+    subs        r4,r4,r0  // dec stack Limit by 4K as page size is 4K
+    RESTORE_CPSR r6, r7
+    pop         {r0}
+
     ldr         r5,[r4]       // try to read ... this should move the guard page
     cmp         r4,r6
     bne         LOCAL_LABEL(stackProbe_loop)
