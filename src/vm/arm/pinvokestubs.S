@@ -135,7 +135,13 @@
 //
     LEAF_ENTRY JIT_PInvokeEnd, _TEXT
 
-        add     r0, r0, SIZEOF__GSCookie
+        push    {r2}
+        SAVE_CPSR r6, r7
+        movs    r2, SIZEOF__GSCookie
+        adds    r0, r0, r2
+        RESTORE_CPSR r6, r7
+        pop     {r2}
+
         ldr     r1, [r0, #InlinedCallFrame__m_pThread]
 
         // r0 = pFrame
