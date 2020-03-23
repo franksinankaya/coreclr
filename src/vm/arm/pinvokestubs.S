@@ -189,7 +189,7 @@
         bx      lr
 
 LOCAL_LABEL(RarePath):
-        b       C_FUNC(JIT_PInvokeEndRarePath)
+        bx      =C_FUNC(JIT_PInvokeEndRarePath)
 
     LEAF_END JIT_PInvokeEnd, _TEXT
 
