@@ -148,7 +148,9 @@
         // r1 = pThread
         
         // pThread->m_fPreemptiveGCDisabled = 1
-        mov     r2, 1
+        SAVE_CPSR r6, r7
+        movs    r2, 1
+        RESTORE_CPSR r6, r7
         str     r2, [r1, #Thread_m_fPreemptiveGCDisabled]
 
         // Check return trap
