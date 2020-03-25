@@ -1185,7 +1185,7 @@ LOCAL_LABEL(CallCppHelper1):
 
 LOCAL_LABEL(CallCppHelper3):
     // Tail call Jit_GetSharedGCStaticBase_Helper
-    b     C_FUNC(JIT_GetSharedGCStaticBase_Helper)
+    bx     =C_FUNC(JIT_GetSharedGCStaticBase_Helper)
     LEAF_END JIT_GetSharedGCStaticBase_SingleAppDomain, _TEXT
 
 
