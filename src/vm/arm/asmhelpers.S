@@ -785,7 +785,9 @@ LOCAL_LABEL(Done):
         // Its imperative that the return value of HelperMethodFrameRestoreState is zero
         // as it is used in the state machine to loop until it becomes zero.
         // Refer to HELPER_METHOD_FRAME_END macro for details.
-        mov r0,#0
+        SAVE_CPSR r6, r7
+        movs r0,#0
+        RESTORE_CPSR r6, r7
         bx lr
 
         LEAF_END HelperMethodFrameRestoreState, _TEXT
