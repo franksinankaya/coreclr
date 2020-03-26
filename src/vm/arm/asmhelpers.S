@@ -616,7 +616,10 @@ ThePreStubPatchLabel:
 
         cmp     r2, r3
         bne     0f
-        ldr     \reg, [r2]
+        push    {r1}
+        ldr     r1, [r2]
+        mov     \reg, r1
+        pop     {r1}
 0:
 
         .endm
