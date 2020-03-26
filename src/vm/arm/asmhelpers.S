@@ -603,7 +603,13 @@ ThePreStubPatchLabel:
         // $reg: Register name (e.g. R4, R5, etc)
         //
         // Get the address of the specified captured register from machine state
-        add     r2, r0, #(MachState__captureR4_R11 + ((\regIndex-4)*4))
+        SAVE_CPSR r6, r7
+        push    {r1}
+        movs    r1, #(MachState__captureR4_R11 + ((\regIndex-4)*4))
+        adds    r1, r0, r1
+        mov     r2, r1
+        pop     {r1}
+        RESTORE_CPSR r6, r7
 
         // Get the address of the specified preserved register from machine state
         ldr     r3, [r0, #(MachState___R4_R11 + ((\regIndex-4)*4))]
