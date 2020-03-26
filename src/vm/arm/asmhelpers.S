@@ -1136,7 +1136,11 @@ LOCAL_LABEL(stackProbe_loop):
     LEAF_ENTRY JIT_GetSharedNonGCStaticBase_SingleAppDomain, _TEXT
 
     // If class is not initialized, bail to C++ helper
-    add     r2, r0, #DomainLocalModule__m_pDataBlob
+    SAVE_CPSR r6, r7
+    mov     r2, r0
+    adds    r2, r2, #DomainLocalModule__m_pDataBlob
+    RESTORE_CPSR r6, r7
+
     ldrb    r2, [r2, r1]
     tst     r2, #1
     beq     LOCAL_LABEL(CallCppHelper1)
