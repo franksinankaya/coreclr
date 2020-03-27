@@ -813,7 +813,7 @@ NESTED_END ProfileTailcallNaked, _TEXT
         // If machine state is invalid, then simply exit
         ldr r1, [r0, #MachState__isValid]
         cmp r1, #0
-        beq LOCAL_LABEL(Done)
+        beq =LOCAL_LABEL(Done)
 
         RestoreRegMS 4, R4
         RestoreRegMS 5, R5
