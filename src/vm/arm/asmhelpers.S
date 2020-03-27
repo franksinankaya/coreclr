@@ -65,7 +65,15 @@
         // of slots we must pad with another. This simplifies to "if the low bit of numStackSlots is set,
         // extend the stack another four bytes".
         lsls    r2, r1, #2
-        and     r3, r2, #4
+
+        SAVE_CPSR r6, r7
+        push    {r1}
+        movs    r1, #4
+        ands    r1, r2, r1
+        mov     r3, r1
+        pop     {r1}
+        RESTORE_CPSR r6, r7
+
         sub     sp, sp, r3
 
         // This loop copies numStackSlots words
