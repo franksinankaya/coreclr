@@ -131,7 +131,13 @@ LOCAL_LABEL(LNoFloatReturn):
         b       LOCAL_LABEL(LFloatingPointReturnDone)
 LOCAL_LABEL(LNoDoubleReturn):
 
-        add     r2, r5, #CallDescrData__returnValue
+	push    {r0}
+	SAVE_CPSR r6, r7
+	movs    r0, #CallDescrData__returnValue
+        adds    r0, r5, r0
+	movs    r2, r0
+	RESTORE_CPSR r6, r7
+	pop    {r0}
 
         cmp     r3, #16
         bne     LOCAL_LABEL(LNoFloatHFAReturn)
