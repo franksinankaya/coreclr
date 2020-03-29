@@ -52,8 +52,8 @@
 //-----------------------------------------------------------------------------
 //void CallDescrWorkerInternal(CallDescrData * pCallDescrData)//
         NESTED_ENTRY CallDescrWorkerInternal,_TEXT,NoHandler
-        PROLOG_PUSH         "{r4,r5,r7,lr}"
-        PROLOG_STACK_SAVE_OFFSET   r7, #8
+        PROLOG_PUSH         "{r4,r5,r6,r7,lr}"
+        PROLOG_STACK_SAVE_OFFSET   r7, #12
 
         mov     r5,r0 // save pCallDescrData in r5
 
@@ -74,7 +74,11 @@
         pop     {r1}
         RESTORE_CPSR r6, r7
 
-        sub     sp, sp, r3
+	mov     r6, sp
+	SAVE_CPSR r4, r5
+        subs    r6, r6, r3
+	RESTORE_CPSR r4, r5
+	mov     sp, r6
 
         // This loop copies numStackSlots words
         // from [pSrcEnd-4,pSrcEnd-8,...] to [sp-4,sp-8,...]
@@ -174,8 +178,8 @@ LOCAL_LABEL(LReturnDone):
         vldm    sp, {d0-d3}
 #endif
 
-        EPILOG_STACK_RESTORE_OFFSET   r7, #8
-        EPILOG_POP              "{r4,r5,r7,pc}"
+        EPILOG_STACK_RESTORE_OFFSET   r7, #12
+        EPILOG_POP              "{r4,r5,r6,r7,pc}"
 
         NESTED_END CallDescrWorkerInternal,_TEXT
 
