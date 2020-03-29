@@ -51,7 +51,7 @@
 // actual call.
 //-----------------------------------------------------------------------------
 //void CallDescrWorkerInternal(CallDescrData * pCallDescrData)//
-        NESTED_ENTRY CallDescrWorkerInternal,_TEXT,NoHandler
+        NESTED_ENTRY_ARM CallDescrWorkerInternal,_TEXT,NoHandler
         PROLOG_PUSH         "{r4,r5,r6,r7,lr}"
         PROLOG_STACK_SAVE_OFFSET   r7, #12
 
@@ -162,7 +162,7 @@ LOCAL_LABEL(LNoFloatHFAReturn):
         b       LOCAL_LABEL(LReturnDone)
 LOCAL_LABEL(LNoDoubleHFAReturn):
 
-        EMIT_BREAKPOINT // Unreachable
+        EMIT_BREAKPOINT_ARM // Unreachable
 
 LOCAL_LABEL(LFloatingPointReturnDone):
 
@@ -181,7 +181,7 @@ LOCAL_LABEL(LReturnDone):
         EPILOG_STACK_RESTORE_OFFSET   r7, #12
         EPILOG_POP              "{r4,r5,r6,r7,pc}"
 
-        NESTED_END CallDescrWorkerInternal,_TEXT
+        NESTED_END_ARM CallDescrWorkerInternal,_TEXT
 
 
 //-----------------------------------------------------------------------------
