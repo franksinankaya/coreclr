@@ -1257,7 +1257,12 @@ LOCAL_LABEL(CallCppHelper3):
     pop     {r1}
 
     ldr     r3, [r2] // r3 = val->GetMethodTable()
-    ldr     r12, [r12, #MethodTable__m_ElementType] // array->GetArrayElementTypeHandle()
+    push    {r1}
+    mov     r1, r12
+    ldr     r1, [r1, #MethodTable__m_ElementType] // array->GetArrayElementTypeHandle()
+    mov     r12, r1
+    pop     {r1}
+
     cmp     r3, r12
     beq     C_FUNC(JIT_Stelem_DoWrite)
 
