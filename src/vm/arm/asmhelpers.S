@@ -1311,7 +1311,10 @@ LOCAL_LABEL(CallCppHelper3):
 
 LOCAL_LABEL(AssigningNull):
     // Assigning null doesn't need write barrier
-    adds    r0, r1, LSL #2               // r0 = r0 + (r1 x 4) = array->m_array[idx]
+    push    {r2}
+    lsls    r2, r1, 2
+    adds    r0, r0, r2               // r0 = r0 + (r1 x 4) = array->m_array[idx]
+    pop     {r2}
     str     r2, [r0, #PtrArray__m_Array] // array->m_array[idx] = val
     bx      lr
    
