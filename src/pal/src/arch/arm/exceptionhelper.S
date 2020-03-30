@@ -25,12 +25,24 @@ LEAF_ENTRY ThrowExceptionFromContextInternal, _TEXT
     ldr r5,   [r0, #(CONTEXT_R5)]
     ldr r6,   [r0, #(CONTEXT_R6)]
     ldr r7,   [r0, #(CONTEXT_R7)]
-    ldr r8,   [r0, #(CONTEXT_R8)]
-    ldr r9,   [r0, #(CONTEXT_R9)]
-    ldr r10,  [r0, #(CONTEXT_R10)]
-    ldr r11,  [r0, #(CONTEXT_R11)]
+
+    push {r1}
+    ldr r1,   [r0, #(CONTEXT_R8)]
+    mov r8, r1
+    ldr r1,   [r0, #(CONTEXT_R9)]
+    mov r9, r1
+    ldr r1,  [r0, #(CONTEXT_R10)]
+    mov r10, r1
+    ldr r1,  [r0, #(CONTEXT_R11)]
+    mov r11, r1
+    pop {r1}
+
     ldr sp,   [r0, #(CONTEXT_Sp)]
-    ldr lr,   [r0, #(CONTEXT_Pc)]
+
+    push {r1}
+    ldr r1,   [r0, #(CONTEXT_Pc)]
+    mov  lr, r1
+    pop  {r1}
 
     vldr d8,  [r0, #(CONTEXT_D8)]
     vldr d9,  [r0, #(CONTEXT_D9)]
