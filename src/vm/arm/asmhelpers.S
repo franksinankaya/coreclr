@@ -297,8 +297,15 @@ LOCAL_LABEL(GoodGSCookie):
 
         str     r1, [r0, #MachState__isValid]
 
-        str     lr, [r0, #LazyMachState_captureIp]
-        str     sp, [r0, #LazyMachState_captureSp]
+	push    {r1}
+	mov     r1, lr
+	SAVE_CPSR r6, r7
+        str     r1, [r0, #LazyMachState_captureIp]
+	mov     r1, sp
+	adds    r1, r1, 12
+        str     r1, [r0, #LazyMachState_captureSp]
+	RESTORE_CPSR r6, r7
+	pop     {r1}
 
         add     r1, r0, #LazyMachState_captureR4_R11
         stm     r1, {r4-r11}
