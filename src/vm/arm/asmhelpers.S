@@ -1269,7 +1269,7 @@ LOCAL_LABEL(CallCppHelper3):
 
 // ------------------------------------------------------------------
 // __declspec(naked) void F_CALL_CONV JIT_Stelem_Ref(PtrArray* array, unsigned idx, Object* val)
-    LEAF_ENTRY JIT_Stelem_Ref, _TEXT
+    LEAF_ENTRY_ARM JIT_Stelem_Ref, _TEXT
     
     // We retain arguments as they were passed and use r0 == array// r1 == idx// r2 == val
 
@@ -1325,7 +1325,7 @@ LOCAL_LABEL(ThrowIndexOutOfRangeException):
     ldr     r0, =CORINFO_IndexOutOfRangeException_ASM
     b       C_FUNC(JIT_InternalThrow)
 
-    LEAF_END JIT_Stelem_Ref, _TEXT
+    LEAF_END_ARM JIT_Stelem_Ref, _TEXT
 
 // ------------------------------------------------------------------
 // __declspec(naked) void F_CALL_CONV JIT_Stelem_Ref_NotExactMatch(PtrArray* array,
