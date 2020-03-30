@@ -291,7 +291,10 @@ LOCAL_LABEL(GoodGSCookie):
     LEAF_ENTRY LazyMachStateCaptureState, _TEXT
 
         // marks that this is not yet valid
-        mov     r1, #0
+	SAVE_CPSR r6, r7
+        movs     r1, #0
+	RESTORE_CPSR r6, r7
+
         str     r1, [r0, #MachState__isValid]
 
         str     lr, [r0, #LazyMachState_captureIp]
