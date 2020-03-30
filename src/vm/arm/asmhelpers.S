@@ -307,7 +307,14 @@ LOCAL_LABEL(GoodGSCookie):
 	RESTORE_CPSR r6, r7
 	pop     {r1}
 
-        add     r1, r0, #LazyMachState_captureR4_R11
+        push    {r2}
+        SAVE_CPSR r6, r7
+        movs    r2, #LazyMachState_captureR4_R11
+        adds    r2, r0, r2 
+        mov     r1, r2
+        RESTORE_CPSR r6, r7
+	pop     {r2}
+
         stm     r1, {r4-r11}
 
         mov     pc, lr
