@@ -1251,7 +1251,11 @@ LOCAL_LABEL(CallCppHelper3):
     cbz     r2, LOCAL_LABEL(AssigningNull)
 
     // Verify the array-type and val-type matches before writing
-    ldr     r12, [r0] // r12 = array MT
+    push    {r1}
+    ldr     r1, [r0] // r12 = array MT
+    mov     r12, r1
+    pop     {r1}
+
     ldr     r3, [r2] // r3 = val->GetMethodTable()
     ldr     r12, [r12, #MethodTable__m_ElementType] // array->GetArrayElementTypeHandle()
     cmp     r3, r12
