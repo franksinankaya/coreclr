@@ -37,7 +37,9 @@ LEAF_ENTRY ThrowExceptionFromContextInternal, _TEXT
     mov r11, r1
     pop {r1}
 
-    ldr sp,   [r0, #(CONTEXT_Sp)]
+    ldr r4,   [r0, #(CONTEXT_Sp)]
+    mov sp, r4
+    ldr r4,   [r0, #(CONTEXT_R4)]
 
     push {r1}
     ldr r1,   [r0, #(CONTEXT_Pc)]
