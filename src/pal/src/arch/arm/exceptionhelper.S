@@ -57,5 +57,6 @@ LEAF_ENTRY ThrowExceptionFromContextInternal, _TEXT
 
     // The PAL_SEHException pointer
     mov r0, r1
-    b   EXTERNAL_C_FUNC(ThrowExceptionHelper)
+    ldr r1, =EXTERNAL_C_FUNC(ThrowExceptionHelper)
+    mov pc, r1
 LEAF_END ThrowExceptionFromContextInternal, _TEXT
