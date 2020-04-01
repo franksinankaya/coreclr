@@ -101,7 +101,11 @@
     
         add     r1, sp, 8
         str     r1, [r4, #InlinedCallFrame__m_pCallSiteSP]
-        str     r11, [r4, #InlinedCallFrame__m_pCalleeSavedFP]
+
+        push    {r1}
+        mov     r1, r11
+        str     r1, [r4, #InlinedCallFrame__m_pCalleeSavedFP]
+        pop     {r1}
 
         push    {r1}
         mov     r1, lr
