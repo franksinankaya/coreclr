@@ -102,7 +102,12 @@
         add     r1, sp, 8
         str     r1, [r4, #InlinedCallFrame__m_pCallSiteSP]
         str     r11, [r4, #InlinedCallFrame__m_pCalleeSavedFP]
-        str     lr, [r4, #InlinedCallFrame__m_pCallerReturnAddress]
+
+        push    {r1}
+        mov     r1, lr
+        str     r1, [r4, #InlinedCallFrame__m_pCallerReturnAddress]
+        pop     {r1}
+
         push    {r1}
         mov     r1, r9
         str     r1, [r4, #InlinedCallFrame__m_pSPAfterProlog]
