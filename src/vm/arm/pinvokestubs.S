@@ -96,7 +96,10 @@
         ldr     r1, .L12
         str     r1, [r4]
 
-        mov     r1, 0
+        SAVE_CPSR r5, r6
+        movs     r1, 0
+        RESTORE_CPSR r5, r6
+
         str     r1, [r4, #InlinedCallFrame__m_Datum]
     
         add     r1, sp, 8
