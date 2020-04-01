@@ -88,7 +88,14 @@
         ldr     r1, =s_gsCookie
         ldr     r1, [r1]
         str     r1, [r0]
-        add     r4, r0, SIZEOF__GSCookie
+
+        SAVE_CPSR r5, r6
+        push     {r1}
+        movs     r1, SIZEOF__GSCookie
+        adds     r1, r0, r1 
+        mov      r4, r1
+        pop      {r1}
+        RESTORE_CPSR r5, r6
                     
         // r4 = pFrame
         
