@@ -103,7 +103,10 @@
         str     r1, [r4, #InlinedCallFrame__m_pCallSiteSP]
         str     r11, [r4, #InlinedCallFrame__m_pCalleeSavedFP]
         str     lr, [r4, #InlinedCallFrame__m_pCallerReturnAddress]
-        str     r9, [r4, #InlinedCallFrame__m_pSPAfterProlog]
+        push    {r1}
+        mov     r1, r9
+        str     r1, [r4, #InlinedCallFrame__m_pSPAfterProlog]
+        pop     {r1}
 
         ;; r0 = GetThread()
         bl      C_FUNC(GetThread)
