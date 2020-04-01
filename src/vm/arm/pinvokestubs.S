@@ -117,7 +117,9 @@
         str     r4, [r0, #Thread_m_pFrame]
 
         // pThread->m_fPreemptiveGCDisabled = 0
-        mov     r1, 0
+        SAVE_CPSR r5, r6
+        movs    r1, 0
+        RESTORE_CPSR r5, r6
         str     r1, [r0, #Thread_m_fPreemptiveGCDisabled]
 
         EPILOG_POP   "{r4, pc}"
