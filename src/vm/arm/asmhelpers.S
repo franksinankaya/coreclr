@@ -85,7 +85,11 @@
         RESTORE_CPSR r6, r7
 
 LOCAL_LABEL(Lstackloop):
-        ldr     r2, [r0,#-4]!
+        SAVE_CPSR r5, r6
+        subs    r0, r0, #4
+        ldr     r2, [r0]
+        RESTORE_CPSR r5, r6
+
         str     r2, [sp,#-4]!
         subs    r1, r1, #1
         bne     LOCAL_LABEL(Lstackloop)
