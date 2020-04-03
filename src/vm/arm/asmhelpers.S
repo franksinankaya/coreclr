@@ -106,7 +106,10 @@ LOCAL_LABEL(LNoFloatingPoint):
         // into r0, ..., r3
 
         ldr     r4, [r5,#CallDescrData__pArgumentRegisters]
-        ldm     r4, {r0-r3}
+        ldr     r0, [r4, #0]
+        ldr     r1, [r4, #4]
+        ldr     r2, [r4, #8]
+        ldr     r3, [r4, #12]
 
         CHECK_STACK_ALIGNMENT
 
